@@ -1,0 +1,11 @@
+com.gsma.mobileconnect.r2
+com.gsma.mobileconnect.r2.authentication
+com.gsma.mobileconnect.r2.cache
+com.gsma.mobileconnect.r2.claims
+com.gsma.mobileconnect.r2.constants
+com.gsma.mobileconnect.r2.discovery
+com.gsma.mobileconnect.r2.identity
+com.gsma.mobileconnect.r2.json
+com.gsma.mobileconnect.r2.rest
+com.gsma.mobileconnect.r2.utils
+com.gsma.mobileconnect.r2.web

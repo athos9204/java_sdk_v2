@@ -1,5 +1,4 @@
 .idea/
 *.iml
 target/
-doc/
 mobile-connect-demo/src/main/resources/config/mobile-connect-config.properties
