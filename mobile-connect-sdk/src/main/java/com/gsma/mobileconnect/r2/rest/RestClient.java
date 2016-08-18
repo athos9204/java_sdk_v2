@@ -138,8 +138,8 @@ public class RestClient implements IRestClient
             LOGGER.debug("Posting json content to uri={} for sourceIp={}",
                 LogUtils.maskUri(uri, LOGGER, Level.DEBUG), sourceIp);
 
-            final HttpEntity entity =
-                new StringEntity(this.jsonService.serialize(content), ContentType.APPLICATION_JSON);
+            final HttpEntity entity = new StringEntity(this.jsonService.serialize(content),
+                ContentType.APPLICATION_JSON.withCharset("UTF-8"));
             return this.postContent(uri, authentication, entity, sourceIp, cookies);
         }
         catch (final JsonSerializationException jse)
@@ -296,13 +296,13 @@ public class RestClient implements IRestClient
         }
     }
 
-    private static class RestResponseHandler implements ResponseHandler<RestResponse>
+    static class RestResponseHandler implements ResponseHandler<RestResponse>
     {
         private final String method;
         private final URI uri;
         private final Future<?> abortFuture;
 
-        private RestResponseHandler(final String method, final URI uri, final Future<?> abortFuture)
+        RestResponseHandler(final String method, final URI uri, final Future<?> abortFuture)
         {
             this.method = method;
             this.uri = uri;
