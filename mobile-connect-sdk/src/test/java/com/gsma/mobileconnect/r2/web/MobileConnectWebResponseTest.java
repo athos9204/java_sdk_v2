@@ -40,13 +40,15 @@ public class MobileConnectWebResponseTest
     @Test
     public void webResponseWithErrorStatus()
     {
-        final MobileConnectStatus status = MobileConnectStatus.error("error", "message", new Exception());
+        final MobileConnectStatus status = MobileConnectStatus.error("error", "message",
+                                                                     new Exception("test exception"));
         final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
 
         assertEquals(mobileConnectWebResponse.getStatus(), "failure");
         assertEquals(mobileConnectWebResponse.getAction(), "error");
         assertEquals(mobileConnectWebResponse.getError(), "error");
         assertEquals(mobileConnectWebResponse.getDescription(), "message");
+        assertEquals(status.getException().getMessage(), "test exception");
     }
 
     @Test
@@ -65,7 +67,7 @@ public class MobileConnectWebResponseTest
                                                                          .withResponseData(discoveryResponseData)
                                                                          .build();
         final MobileConnectStatus status = MobileConnectStatus.error("error", "message",
-                                                                     new Exception(),
+                                                                     new Exception("test exception"),
                                                                      discoveryResponse);
         final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
 
@@ -75,6 +77,7 @@ public class MobileConnectWebResponseTest
         assertEquals(mobileConnectWebResponse.getAction(), "error");
         assertEquals(mobileConnectWebResponse.getError(), "error");
         assertEquals(mobileConnectWebResponse.getDescription(), "message");
+        assertEquals(status.getException().getMessage(), "test exception");
     }
 
     @Test
@@ -82,7 +85,8 @@ public class MobileConnectWebResponseTest
     {
         final RequestTokenResponse requestTokenResponse = new RequestTokenResponse.Builder().build();
         final MobileConnectStatus status = MobileConnectStatus.error("error", "message",
-                                                                     new Exception(), requestTokenResponse);
+                                                                     new Exception("test exception"),
+                                                                     requestTokenResponse);
         final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
 
         assertEquals(mobileConnectWebResponse.getToken(), null);
@@ -90,6 +94,7 @@ public class MobileConnectWebResponseTest
         assertEquals(mobileConnectWebResponse.getError(), "error");
         assertEquals(mobileConnectWebResponse.getDescription(), "message");
         assertEquals(mobileConnectWebResponse.getAction(), "error");
+        assertEquals(status.getException().getMessage(), "test exception");
     }
 
     @Test
@@ -171,12 +176,13 @@ public class MobileConnectWebResponseTest
     @Test
     public void webResponseWithErrorStatusWithoutMessage()
     {
-        final MobileConnectStatus status = MobileConnectStatus.error("task", new Exception());
+        final MobileConnectStatus status = MobileConnectStatus.error("task", new Exception("test exception"));
         final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
 
         assertEquals(mobileConnectWebResponse.getStatus(), "failure");
         assertEquals(mobileConnectWebResponse.getAction(), "error");
         assertEquals(mobileConnectWebResponse.getError(), "unknown_error");
         assertEquals(mobileConnectWebResponse.getDescription(), "An unknown error occurred while performing task 'task'");
+        assertEquals(status.getException().getMessage(), "test exception");
     }
 }
