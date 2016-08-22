@@ -17,35 +17,26 @@
 package com.gsma.mobileconnect.r2.web;
 
 import com.gsma.mobileconnect.r2.MobileConnectStatus;
+import com.gsma.mobileconnect.r2.authentication.RequestTokenResponse;
+import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
+import com.gsma.mobileconnect.r2.json.DiscoveryResponseData;
+import com.gsma.mobileconnect.r2.json.Link;
+import com.gsma.mobileconnect.r2.json.Response;
 import org.testng.annotations.Test;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
 /**
+ * Tests {@link MobileConnectWebResponse}
+ *
  * @since 2.0
  */
 public class MobileConnectWebResponseTest
 {
-    @Test
-    public void webResponseWithAuthenticationStatus()
-    {
-        final MobileConnectStatus status = MobileConnectStatus.authentication("url", "state", "nonce");
-        final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
-
-        assertNull(mobileConnectWebResponse.getApplicationShortName());
-        assertNull(mobileConnectWebResponse.getSubscriberId());
-        assertNull(mobileConnectWebResponse.getToken());
-        assertNull(mobileConnectWebResponse.getIdentity());
-        assertNull(mobileConnectWebResponse.getDescription());
-        assertNull(mobileConnectWebResponse.getError());
-        assertEquals(mobileConnectWebResponse.getUrl(), "url");
-        assertEquals(mobileConnectWebResponse.getState(), "state");
-        assertEquals(mobileConnectWebResponse.getNonce(), "nonce");
-        assertEquals(mobileConnectWebResponse.getStatus(), "success");
-        assertEquals(mobileConnectWebResponse.getAction(), "authentication");
-    }
-
     @Test
     public void webResponseWithErrorStatus()
     {
@@ -56,5 +47,136 @@ public class MobileConnectWebResponseTest
         assertEquals(mobileConnectWebResponse.getAction(), "error");
         assertEquals(mobileConnectWebResponse.getError(), "error");
         assertEquals(mobileConnectWebResponse.getDescription(), "message");
+    }
+
+    @Test
+    public void webResponseWithErrorAndDiscoveryResponseStatus()
+    {
+        final List<Link> links = new ArrayList<Link>();
+        final Link link = new Link.Builder().withHref("href").withRel("applicationShortName").build();
+        links.add(link);
+        final Response response = new Response.Builder().build();
+        final DiscoveryResponseData discoveryResponseData = new DiscoveryResponseData.Builder()
+                                                                                     .withResponse(response)
+                                                                                     .withLinks(links)
+                                                                                     .withSubscriberId("subscriberId")
+                                                                                     .build();
+        final DiscoveryResponse discoveryResponse = new DiscoveryResponse.Builder()
+                                                                         .withResponseData(discoveryResponseData)
+                                                                         .build();
+        final MobileConnectStatus status = MobileConnectStatus.error("error", "message",
+                                                                     new Exception(),
+                                                                     discoveryResponse);
+        final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
+
+        assertEquals(mobileConnectWebResponse.getApplicationShortName(), "href");
+        assertEquals(mobileConnectWebResponse.getSubscriberId(), "subscriberId");
+        assertEquals(mobileConnectWebResponse.getStatus(), "failure");
+        assertEquals(mobileConnectWebResponse.getAction(), "error");
+        assertEquals(mobileConnectWebResponse.getError(), "error");
+        assertEquals(mobileConnectWebResponse.getDescription(), "message");
+    }
+
+    @Test
+    public void webResponseWithErrorAndRequestTokenResponseStatus()
+    {
+        final RequestTokenResponse requestTokenResponse = new RequestTokenResponse.Builder().build();
+        final MobileConnectStatus status = MobileConnectStatus.error("error", "message",
+                                                                     new Exception(), requestTokenResponse);
+        final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
+
+        assertEquals(mobileConnectWebResponse.getToken(), null);
+        assertEquals(mobileConnectWebResponse.getAction(), "error");
+        assertEquals(mobileConnectWebResponse.getError(), "error");
+        assertEquals(mobileConnectWebResponse.getDescription(), "message");
+        assertEquals(mobileConnectWebResponse.getAction(), "error");
+    }
+
+    @Test
+    public void webResponseWithOperatorSelectionStatus()
+    {
+        final MobileConnectStatus status = MobileConnectStatus.operatorSelection("url");
+        final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
+
+        assertNull(mobileConnectWebResponse.getDescription());
+        assertNull(mobileConnectWebResponse.getError());
+        assertEquals(mobileConnectWebResponse.getStatus(), "success");
+        assertEquals(mobileConnectWebResponse.getUrl(), "url");
+        assertEquals(mobileConnectWebResponse.getAction(), "operator_selection");
+    }
+
+    @Test
+    public void webResponseWithStartAuthenticationStatus()
+    {
+        final List<Link> links = new ArrayList<Link>();
+        final Link link = new Link.Builder().withHref("href").withRel("applicationShortName").build();
+        links.add(link);
+        final Response response = new Response.Builder().build();
+        final DiscoveryResponseData discoveryResponseData = new DiscoveryResponseData.Builder()
+                                                                                     .withResponse(response)
+                                                                                     .withLinks(links)
+                                                                                     .withSubscriberId("subscriberId")
+                                                                                     .build();
+        final DiscoveryResponse discoveryResponse = new DiscoveryResponse.Builder()
+                                                                         .withResponseData(discoveryResponseData)
+                                                                         .build();
+        final MobileConnectStatus status = MobileConnectStatus.startAuthentication(discoveryResponse);
+        final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
+
+        assertEquals(mobileConnectWebResponse.getApplicationShortName(), "href");
+        assertEquals(mobileConnectWebResponse.getSubscriberId(), "subscriberId");
+        assertEquals(mobileConnectWebResponse.getStatus(), "success");
+        assertEquals(mobileConnectWebResponse.getAction(), "start_authentication");
+    }
+
+    @Test
+    public void webResponseWithStartDiscoveryStatus()
+    {
+        final MobileConnectStatus status = MobileConnectStatus.startDiscovery();
+        final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
+
+        assertNull(mobileConnectWebResponse.getDescription());
+        assertNull(mobileConnectWebResponse.getError());
+        assertEquals(mobileConnectWebResponse.getStatus(), "success");
+        assertEquals(mobileConnectWebResponse.getAction(), "start_discovery");
+    }
+
+    @Test
+    public void webResponseWithAuthenticationStatus()
+    {
+        final MobileConnectStatus status = MobileConnectStatus.authentication("url", "state", "nonce");
+        final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
+
+        assertNull(mobileConnectWebResponse.getDescription());
+        assertNull(mobileConnectWebResponse.getError());
+        assertEquals(mobileConnectWebResponse.getUrl(), "url");
+        assertEquals(mobileConnectWebResponse.getState(), "state");
+        assertEquals(mobileConnectWebResponse.getNonce(), "nonce");
+        assertEquals(mobileConnectWebResponse.getStatus(), "success");
+        assertEquals(mobileConnectWebResponse.getAction(), "authentication");
+    }
+
+    @Test
+    public void webResponseWithCompleteStatus()
+    {
+        final RequestTokenResponse requestTokenResponse = new RequestTokenResponse.Builder().build();
+        final MobileConnectStatus status = MobileConnectStatus.complete(requestTokenResponse);
+        final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
+
+        assertEquals(mobileConnectWebResponse.getToken(), null);
+        assertEquals(mobileConnectWebResponse.getStatus(), "success");
+        assertEquals(mobileConnectWebResponse.getAction(), "complete");
+    }
+
+    @Test
+    public void webResponseWithErrorStatusWithoutMessage()
+    {
+        final MobileConnectStatus status = MobileConnectStatus.error("task", new Exception());
+        final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
+
+        assertEquals(mobileConnectWebResponse.getStatus(), "failure");
+        assertEquals(mobileConnectWebResponse.getAction(), "error");
+        assertEquals(mobileConnectWebResponse.getError(), "unknown_error");
+        assertEquals(mobileConnectWebResponse.getDescription(), "An unknown error occurred while performing task 'task'");
     }
 }
