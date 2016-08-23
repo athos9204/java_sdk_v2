@@ -16,7 +16,8 @@
  */
 package com.gsma.mobileconnect.r2.utils;
 
-import javax.xml.bind.DatatypeConverter;
+import org.apache.commons.codec.binary.Base64;
+
 import java.nio.charset.Charset;
 
 /**
@@ -97,7 +98,7 @@ public final class JsonWebTokens
                 {
                     builder.append("=");
                 }
-                final byte[] decoded = DatatypeConverter.parseBase64Binary(builder.toString());
+                final byte[] decoded = Base64.decodeBase64(builder.toString());
                 return new String(decoded, Charset.forName("UTF-8"));
             }
         }
