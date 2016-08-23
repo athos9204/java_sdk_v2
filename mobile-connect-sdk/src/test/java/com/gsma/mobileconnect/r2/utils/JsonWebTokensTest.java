@@ -16,9 +16,26 @@
 */
 package com.gsma.mobileconnect.r2.utils;
 
+import org.testng.annotations.Test;
+
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+
 /**
+ * Tests {@link JsonWebTokens}
+ *
  * @since 2.0
  */
 public class JsonWebTokensTest
 {
+    @Test
+    public void decodePart()
+    {
+        final String teststring = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0MTE0MjFCMC0zOEQ2LTY1NjgtQTUzQS1ERjk5NjkxQjdFQjYiLCJlbWFpbCI6InRlc3QyQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWV9.AcpILNH2Uvok99MQWwxP6X7x3OwtVmTOw0t9Hq00gmQ";
+
+        final String actual = JsonWebTokens.Part.HEADER.decode(teststring);
+
+        assertNotNull(actual);
+        assertEquals("{\"alg\":\"HS256\",\"typ\":\"JWT\"}", actual);
+    }
 }
