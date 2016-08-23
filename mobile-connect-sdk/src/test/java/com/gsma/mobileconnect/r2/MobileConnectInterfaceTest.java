@@ -55,15 +55,6 @@ public class MobileConnectInterfaceTest
         .build()
         .getMobileConnectInterface();
 
-//    @Test
-    public void attemptDiscoveryShouldHandleInvalidArgumentException() throws JsonDeserializationException
-    {
-        final MobileConnectStatus response = this.mobileConnect.attemptDiscovery(null, null, null, new MobileConnectRequestOptions.Builder().build());
-
-        assertNotNull(response);
-//        assertEquals(response.getResponseType(), MobileConnectStatus.ResponseType.ERROR);
-    }
-
     @Test
     public void requestUserInfoReturnsUserInfo() throws JsonDeserializationException
     {
@@ -88,38 +79,6 @@ public class MobileConnectInterfaceTest
 
         final MobileConnectStatus response =
             this.mobileConnect.requestUserInfo(discoveryResponse, "zaqwsxcderfvbgtyhnmjukilop");
-
-        assertNotNull(response);
-        assertEquals(response.getResponseType(), MobileConnectStatus.ResponseType.ERROR);
-        assertNull(response.getIdentityResponse());
-        assertNotNull(response.getErrorCode());
-        assertNotNull(response.getErrorMessage());
-    }
-
-    @Test
-    public void requestIdentityReturnsIdentity() throws JsonDeserializationException
-    {
-        final DiscoveryResponse discoveryResponse =
-            DiscoveryResponse.fromRestResponse(TestUtils.AUTHENTICATION_RESPONSE, this.jsonService);
-
-        this.restClient.addResponse(TestUtils.IDENTITY_RESPONSE);
-
-        final MobileConnectStatus response =
-            this.mobileConnect.requestIdentity(discoveryResponse, "zaqwsxcderfvbgtyhnmjukilop");
-
-        assertNotNull(response);
-        assertEquals(response.getResponseType(), MobileConnectStatus.ResponseType.IDENTITY);
-    }
-
-    @Test
-    public void requestIdentityReturnsErrorWhenNoIdentityUrl() throws JsonDeserializationException
-    {
-        final DiscoveryResponse discoveryResponse =
-            DiscoveryResponse.fromRestResponse(TestUtils.AUTHENTICATION_NO_URI_RESPONSE,
-                this.jsonService);
-
-        final MobileConnectStatus response =
-            this.mobileConnect.requestIdentity(discoveryResponse, "zaqwsxcderfvbgtyhnmjukilop");
 
         assertNotNull(response);
         assertEquals(response.getResponseType(), MobileConnectStatus.ResponseType.ERROR);
