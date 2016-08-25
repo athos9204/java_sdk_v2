@@ -19,8 +19,8 @@ package com.gsma.mobileconnect.r2.rest;
 import com.gsma.mobileconnect.r2.utils.LogUtils;
 import com.gsma.mobileconnect.r2.utils.ObjectUtils;
 import com.gsma.mobileconnect.r2.utils.StringUtils;
+import org.apache.commons.codec.binary.Base64;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.UnsupportedEncodingException;
 
 /**
@@ -55,7 +55,7 @@ public class RestAuthentication
         try
         {
             final byte[] authentication = String.format("%s:%s", key, secret).getBytes("UTF-8");
-            final String encoded = DatatypeConverter.printBase64Binary(authentication);
+            final String encoded = Base64.encodeBase64String(authentication);
 
             return new RestAuthentication(Scheme.BASIC, encoded);
         }
