@@ -21,6 +21,7 @@ import com.gsma.mobileconnect.r2.rest.IRestClient;
 import com.gsma.mobileconnect.r2.rest.RequestFailedException;
 import com.gsma.mobileconnect.r2.rest.RestAuthentication;
 import com.gsma.mobileconnect.r2.rest.RestResponse;
+import com.gsma.mobileconnect.r2.utils.JsonWebTokens;
 import com.gsma.mobileconnect.r2.utils.ObjectUtils;
 import com.gsma.mobileconnect.r2.utils.StringUtils;
 import org.slf4j.Logger;
@@ -54,7 +55,7 @@ public class IdentityService implements IIdentityService
     }
 
     @Override
-    public IdentityResponse requestInfo(final URI infoUrl, final String accessToken)
+    public IdentityResponse requestInfo(final URI infoUrl, final String accessToken, final JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
         throws RequestFailedException
     {
         ObjectUtils.requireNonNull(infoUrl, "infoUrl");
@@ -64,18 +65,18 @@ public class IdentityService implements IIdentityService
         final RestResponse response =
             this.restClient.get(infoUrl, authentication, null, null, null);
 
-        return IdentityResponse.fromRestResponse(response, this.jsonService);
+        return IdentityResponse.fromRestResponse(response, this.jsonService, iMobileConnectEncodeDecoder);
     }
 
     @Override
-    public Future<IdentityResponse> requestInfoAsync(final URI infoUrl, final String accessToken)
+    public Future<IdentityResponse> requestInfoAsync(final URI infoUrl, final String accessToken, final JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         return this.executorService.submit(new Callable<IdentityResponse>()
         {
             @Override
             public IdentityResponse call() throws Exception
             {
-                return IdentityService.this.requestInfo(infoUrl, accessToken);
+                return IdentityService.this.requestInfo(infoUrl, accessToken, iMobileConnectEncodeDecoder);
             }
         });
     }

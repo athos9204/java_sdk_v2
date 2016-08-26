@@ -21,6 +21,7 @@ import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
+import com.gsma.mobileconnect.r2.utils.JsonWebTokens;
 import com.gsma.mobileconnect.r2.utils.LogUtils;
 import com.gsma.mobileconnect.r2.utils.ObjectUtils;
 import org.slf4j.Logger;
@@ -47,6 +48,7 @@ public class MobileConnectInterface
     private final IIdentityService identityService;
     private final MobileConnectConfig config;
     private final ExecutorService executorService;
+    private JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
     private MobileConnectInterface(Builder builder)
     {
@@ -55,6 +57,7 @@ public class MobileConnectInterface
         this.identityService = builder.identityService;
         this.config = builder.config;
         this.executorService = builder.executorService;
+        this.iMobileConnectEncodeDecoder = builder.iMobileConnectEncodeDecoder;
 
         LOGGER.info("New instance of MobileConnectInterface created, using config={}", this.config);
     }
@@ -234,7 +237,7 @@ public class MobileConnectInterface
             LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG));
 
         return MobileConnectInterfaceHelper.requestToken(this.authnService, discoveryResponse,
-            redirectedUrl, expectedState, expectedNonce, this.config);
+            redirectedUrl, expectedState, expectedNonce, this.config, iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -299,7 +302,7 @@ public class MobileConnectInterface
 
         return MobileConnectInterfaceHelper.handleUrlRedirect(this.discoveryService,
             this.authnService, redirectedUrl, discoveryResponse, expectedState, expectedNonce,
-            this.config);
+            this.config, iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -341,7 +344,7 @@ public class MobileConnectInterface
             LogUtils.mask(accessToken, LOGGER, Level.DEBUG));
 
         return MobileConnectInterfaceHelper.requestUserInfo(this.identityService, discoveryResponse,
-            accessToken);
+            accessToken, iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -383,7 +386,7 @@ public class MobileConnectInterface
             LogUtils.mask(accessToken, LOGGER, Level.DEBUG));
 
         return MobileConnectInterfaceHelper.requestIdentity(this.identityService, discoveryResponse,
-            accessToken);
+            accessToken, iMobileConnectEncodeDecoder);
     }
 
     public static final class Builder implements IBuilder<MobileConnectInterface>
@@ -393,6 +396,7 @@ public class MobileConnectInterface
         private IIdentityService identityService;
         private MobileConnectConfig config;
         private ExecutorService executorService;
+        private JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
         public Builder withDiscoveryService(final IDiscoveryService val)
         {
@@ -424,6 +428,12 @@ public class MobileConnectInterface
             return this;
         }
 
+        public Builder withiMobileConnectEncodeDecoder(final JsonWebTokens.IMobileConnectEncodeDecoder val)
+        {
+            this.iMobileConnectEncodeDecoder = val;
+            return this;
+        }
+
         @Override
         public MobileConnectInterface build()
         {
@@ -432,6 +442,11 @@ public class MobileConnectInterface
             ObjectUtils.requireNonNull(this.identityService, "identityService");
             ObjectUtils.requireNonNull(this.config, "config");
             ObjectUtils.requireNonNull(this.executorService, "executorService");
+
+            if (this.iMobileConnectEncodeDecoder == null)
+            {
+                iMobileConnectEncodeDecoder = new DefaultEncodeDecoder();
+            }
 
             return new MobileConnectInterface(this);
         }

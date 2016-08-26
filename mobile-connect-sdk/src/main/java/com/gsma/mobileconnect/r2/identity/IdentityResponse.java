@@ -55,13 +55,13 @@ public class IdentityResponse
      * @return IdentityResponse instance.
      */
     public static IdentityResponse fromRestResponse(final RestResponse restResponse,
-        final IJsonService jsonService)
+        final IJsonService jsonService, final JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         final Builder builder = new Builder().withResponseCode(restResponse.getStatusCode());
 
         if (!HttpUtils.isHttpErrorCode(restResponse.getStatusCode()))
         {
-            final String json = extractJson(restResponse.getContent());
+            final String json = extractJson(restResponse.getContent(), iMobileConnectEncodeDecoder);
             builder.withResponseJson(json);
 
             if (!StringUtils.isNullOrEmpty(json) && ERROR_REGEX.matcher(json).find())
@@ -85,7 +85,7 @@ public class IdentityResponse
         return builder.build();
     }
 
-    private static String extractJson(String responseJson)
+    private static String extractJson(String responseJson, final JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         if (StringUtils.isNullOrEmpty(responseJson) || responseJson.indexOf('{') > -1)
         {
@@ -93,7 +93,7 @@ public class IdentityResponse
         }
         else if (JsonWebTokens.isValidFormat(responseJson))
         {
-            return JsonWebTokens.Part.PAYLOAD.decode(responseJson);
+            return JsonWebTokens.Part.PAYLOAD.decode(responseJson, iMobileConnectEncodeDecoder);
         }
         else
         {

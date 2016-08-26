@@ -32,16 +32,14 @@ import java.util.List;
  *
  * @since 2.0
  */
-public class RequestTokenResponse
-{
+public class RequestTokenResponse {
     private final int responseCode;
     private final List<KeyValuePair> headers;
     private final RequestTokenResponseData responseData;
     private final String decodedIdTokenPayload;
     private final ErrorResponse errorResponse;
 
-    private RequestTokenResponse(Builder builder)
-    {
+    private RequestTokenResponse(Builder builder) {
         this.responseCode = builder.responseCode;
         this.headers = builder.headers;
         this.responseData = builder.responseData;
@@ -58,36 +56,29 @@ public class RequestTokenResponse
      * @throws InvalidResponseException if the json content could not be translated.
      */
     public static RequestTokenResponse fromRestResponse(final RestResponse restResponse,
-        final IJsonService jsonService) throws InvalidResponseException
-    {
+                                                        final IJsonService jsonService, final JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder) throws InvalidResponseException {
         ObjectUtils.requireNonNull(restResponse, "restResponse");
         ObjectUtils.requireNonNull(jsonService, "jsonService");
 
         final Builder builder = new Builder()
-            .withResponseCode(restResponse.getStatusCode())
-            .withHeaders(restResponse.getHeaders());
+                .withResponseCode(restResponse.getStatusCode())
+                .withHeaders(restResponse.getHeaders());
 
-        try
-        {
-            if (HttpUtils.isHttpErrorCode(restResponse.getStatusCode()))
-            {
+        try {
+            if (HttpUtils.isHttpErrorCode(restResponse.getStatusCode())) {
                 builder.withErrorResponse(
-                    jsonService.deserialize(restResponse.getContent(), ErrorResponse.class));
-            }
-            else
-            {
+                        jsonService.deserialize(restResponse.getContent(), ErrorResponse.class));
+            } else {
                 final RequestTokenResponseData data =
-                    jsonService.deserialize(restResponse.getContent(),
-                        RequestTokenResponseData.class);
+                        jsonService.deserialize(restResponse.getContent(),
+                                RequestTokenResponseData.class);
 
                 builder
-                    .withResponseData(data)
-                    .withDecodedIdTokenPayload(
-                        JsonWebTokens.Part.PAYLOAD.decode(data.getIdToken()));
+                        .withResponseData(data)
+                        .withDecodedIdTokenPayload(
+                                JsonWebTokens.Part.PAYLOAD.decode(data.getIdToken(), iMobileConnectEncodeDecoder));
             }
-        }
-        catch (final JsonDeserializationException jde)
-        {
+        } catch (final JsonDeserializationException jde) {
             throw new InvalidResponseException(restResponse, RequestTokenResponse.class, jde);
         }
 
@@ -97,84 +88,72 @@ public class RequestTokenResponse
     /**
      * @return the HTTP response code returned by the next request.
      */
-    public int getResponseCode()
-    {
+    public int getResponseCode() {
         return this.responseCode;
     }
 
     /**
      * @return the list of HTTP headers returned with the response.
      */
-    public List<KeyValuePair> getHeaders()
-    {
+    public List<KeyValuePair> getHeaders() {
         return this.headers;
     }
 
     /**
      * @return the response if the request was not in error.
      */
-    public RequestTokenResponseData getResponseData()
-    {
+    public RequestTokenResponseData getResponseData() {
         return this.responseData;
     }
 
     /**
      * @return decoded JWT payload from IdToken in standard JSON string format.
      */
-    public String getDecodedIdTokenPayload()
-    {
+    public String getDecodedIdTokenPayload() {
         return this.decodedIdTokenPayload;
     }
 
     /**
      * @return the error response if the HTTP responded with error.
      */
-    public ErrorResponse getErrorResponse()
-    {
+    public ErrorResponse getErrorResponse() {
         return this.errorResponse;
     }
 
-    public static final class Builder implements IBuilder<RequestTokenResponse>
-    {
+    public static final class Builder implements IBuilder<RequestTokenResponse> {
         private int responseCode;
         private List<KeyValuePair> headers;
         private RequestTokenResponseData responseData;
         private String decodedIdTokenPayload;
         private ErrorResponse errorResponse;
 
-        public Builder withResponseCode(final int val)
-        {
+        public Builder withResponseCode(final int val) {
             this.responseCode = val;
             return this;
         }
 
-        public Builder withHeaders(final List<KeyValuePair> val)
-        {
+        public Builder withHeaders(final List<KeyValuePair> val) {
             this.headers = val;
             return this;
         }
 
-        public Builder withResponseData(final RequestTokenResponseData val)
-        {
+        public Builder withResponseData(final RequestTokenResponseData val) {
             this.responseData = val;
             return this;
         }
 
-        public Builder withDecodedIdTokenPayload(final String val)
-        {
+        public Builder withDecodedIdTokenPayload(final String val) {
             this.decodedIdTokenPayload = val;
             return this;
         }
 
-        public Builder withErrorResponse(final ErrorResponse val)
-        {
+        public Builder withErrorResponse(final ErrorResponse val) {
             this.errorResponse = val;
             return this;
         }
 
         @Override
-        public RequestTokenResponse build()
-        {
+        public RequestTokenResponse build() {
             return new RequestTokenResponse(this);
         }
     }

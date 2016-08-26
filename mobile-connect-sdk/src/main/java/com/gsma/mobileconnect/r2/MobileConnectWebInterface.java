@@ -40,27 +40,27 @@ import java.util.UUID;
  * @see IIdentityService
  * @since 2.0
  */
-public class MobileConnectWebInterface
-{
+public class MobileConnectWebInterface {
     private static final Logger LOGGER = LoggerFactory.getLogger(MobileConnectWebInterface.class);
 
     private static final String ARG_REQUEST = "request";
 
     private static final MobileConnectStatus CACHE_DISABLED_ERROR =
-        MobileConnectStatus.error("cache_disabled",
-            "cache is not enabled for session id caching of discovery response", null);
+            MobileConnectStatus.error("cache_disabled",
+                    "cache is not enabled for session id caching of discovery response", null);
 
     private final IDiscoveryService discoveryService;
     private final IAuthenticationService authnService;
     private final IIdentityService identityService;
     private final MobileConnectConfig config;
+    private final JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
-    private MobileConnectWebInterface(Builder builder)
-    {
+    private MobileConnectWebInterface(Builder builder) {
         this.discoveryService = builder.discoveryService;
         this.authnService = builder.authnService;
         this.identityService = builder.identityService;
         this.config = builder.config;
+        this.iMobileConnectEncodeDecoder = builder.iMobileConnectEncodeDecoder;
 
         LOGGER.info("Created new instance of MobileConnectWebInterface");
     }
@@ -81,30 +81,29 @@ public class MobileConnectWebInterface
      * connect process
      */
     public MobileConnectStatus attemptDiscovery(final HttpServletRequest request,
-        final String msisdn, final String mcc, final String mnc, final boolean shouldProxyCookies,
-        final MobileConnectRequestOptions options)
-    {
+                                                final String msisdn, final String mcc, final String mnc, final boolean shouldProxyCookies,
+                                                final MobileConnectRequestOptions options) {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
         final String clientIp =
-            options == null ? null : options.getDiscoveryOptions().getClientIp();
+                options == null ? null : options.getDiscoveryOptions().getClientIp();
 
         final DiscoveryOptions.Builder builder =
-            options == null ? new DiscoveryOptions.Builder() : options.getDiscoveryOptionsBuilder();
+                options == null ? new DiscoveryOptions.Builder() : options.getDiscoveryOptionsBuilder();
 
         builder.withClientIp(
-            StringUtils.isNullOrEmpty(clientIp) ? HttpUtils.extractClientIp(request) : clientIp);
+                StringUtils.isNullOrEmpty(clientIp) ? HttpUtils.extractClientIp(request) : clientIp);
 
         final Iterable<KeyValuePair> cookies =
-            shouldProxyCookies ? HttpUtils.extractCookiesFromRequest(request) : null;
+                shouldProxyCookies ? HttpUtils.extractCookiesFromRequest(request) : null;
 
         LOGGER.debug(
-            "Running attemptDiscovery for msisdn={}, mcc={}, mnc={}, shouldProxyCookies={}, clientIp={}",
-            LogUtils.mask(msisdn, LOGGER, Level.DEBUG), mcc, mnc, shouldProxyCookies, clientIp);
+                "Running attemptDiscovery for msisdn={}, mcc={}, mnc={}, shouldProxyCookies={}, clientIp={}",
+                LogUtils.mask(msisdn, LOGGER, Level.DEBUG), mcc, mnc, shouldProxyCookies, clientIp);
 
         final MobileConnectStatus status =
-            MobileConnectInterfaceHelper.attemptDiscovery(this.discoveryService, msisdn, mcc, mnc,
-                cookies, this.config, builder);
+                MobileConnectInterfaceHelper.attemptDiscovery(this.discoveryService, msisdn, mcc, mnc,
+                        cookies, this.config, builder);
 
         return this.cacheIfRequired(status);
     }
@@ -118,18 +117,17 @@ public class MobileConnectWebInterface
      * connect process
      */
     public MobileConnectStatus attemptDiscoveryAfterOperatorSelection(
-        final HttpServletRequest request, final URI redirectedUrl)
-    {
+            final HttpServletRequest request, final URI redirectedUrl) {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
         LOGGER.debug(
-            "Running attemptDiscoveryAfterOperatorSelection for redirectedUrl={}, clientIp={}",
-            LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG),
-            HttpUtils.extractClientIp(request));
+                "Running attemptDiscoveryAfterOperatorSelection for redirectedUrl={}, clientIp={}",
+                LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG),
+                HttpUtils.extractClientIp(request));
 
         final MobileConnectStatus status =
-            MobileConnectInterfaceHelper.attemptDiscoveryAfterOperatorSelection(
-                this.discoveryService, redirectedUrl, this.config);
+                MobileConnectInterfaceHelper.attemptDiscoveryAfterOperatorSelection(
+                        this.discoveryService, redirectedUrl, this.config);
 
         return this.cacheIfRequired(status);
     }
@@ -151,27 +149,26 @@ public class MobileConnectWebInterface
      * connect process
      */
     public MobileConnectStatus startAuthentication(final HttpServletRequest request,
-        final DiscoveryResponse discoveryResponse, final String encryptedMsisdn, final String state,
-        final String nonce, final MobileConnectRequestOptions options)
-    {
+                                                   final DiscoveryResponse discoveryResponse, final String encryptedMsisdn,
+                                                   final String state, final String nonce, final MobileConnectRequestOptions options) {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
         final AuthenticationOptions.Builder builder = options != null
-                                                      ? options.getAuthenticationOptionsBuilder()
-                                                      : new AuthenticationOptions.Builder();
+                ? options.getAuthenticationOptionsBuilder()
+                : new AuthenticationOptions.Builder();
 
         final String rState =
-            StringUtils.isNullOrEmpty(state) ? UUID.randomUUID().toString() : state;
+                StringUtils.isNullOrEmpty(state) ? UUID.randomUUID().toString() : state;
         final String rNonce =
-            StringUtils.isNullOrEmpty(nonce) ? UUID.randomUUID().toString() : nonce;
+                StringUtils.isNullOrEmpty(nonce) ? UUID.randomUUID().toString() : nonce;
 
         LOGGER.debug(
-            "Running startAuthentication for encryptedMsisdn={}, state={}, nonce={}, clientIp={}",
-            LogUtils.mask(encryptedMsisdn, LOGGER, Level.DEBUG), rState,
-            LogUtils.mask(rNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
+                "Running startAuthentication for encryptedMsisdn={}, state={}, nonce={}, clientIp={}",
+                LogUtils.mask(encryptedMsisdn, LOGGER, Level.DEBUG), rState,
+                LogUtils.mask(rNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
         return MobileConnectInterfaceHelper.startAuthentication(this.authnService,
-            discoveryResponse, encryptedMsisdn, rState, rNonce, this.config, builder);
+                discoveryResponse, encryptedMsisdn, rState, rNonce, this.config, builder);
     }
 
     /**
@@ -193,23 +190,20 @@ public class MobileConnectWebInterface
      * connect process
      */
     public MobileConnectStatus startAuthentication(final HttpServletRequest request,
-        final String sdkSession, final String encryptedMsisdn, final String state,
-        final String nonce, final MobileConnectRequestOptions options)
-    {
+                                                   final String sdkSession, final String encryptedMsisdn, final String state,
+                                                   final String nonce, final MobileConnectRequestOptions options) {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
         LOGGER.debug(
-            "Running startAuthentication for skdSession={}, encryptedMsisdn={}, state={}, nonce={}, clientIp={}",
-            sdkSession, LogUtils.mask(encryptedMsisdn, LOGGER, Level.DEBUG), state,
-            LogUtils.mask(nonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
+                "Running startAuthentication for skdSession={}, encryptedMsisdn={}, state={}, nonce={}, clientIp={}",
+                sdkSession, LogUtils.mask(encryptedMsisdn, LOGGER, Level.DEBUG), state,
+                LogUtils.mask(nonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
-        return this.withCachedValue(sdkSession, true, new CacheCallback()
-        {
+        return this.withCachedValue(sdkSession, true, new CacheCallback() {
             @Override
-            public MobileConnectStatus apply(final DiscoveryResponse cached)
-            {
+            public MobileConnectStatus apply(final DiscoveryResponse cached) {
                 return MobileConnectWebInterface.this.startAuthentication(request, cached,
-                    encryptedMsisdn, state, nonce, options);
+                        encryptedMsisdn, state, nonce, options);
             }
         });
     }
@@ -229,18 +223,17 @@ public class MobileConnectWebInterface
      * @return MobileConnectStatus object with required information for continuing the mobile
      */
     public MobileConnectStatus requestToken(final HttpServletRequest request,
-        final DiscoveryResponse discoveryResponse, final URI redirectedUrl,
-        final String expectedState, final String expectedNonce)
-    {
+                                            final DiscoveryResponse discoveryResponse, final URI redirectedUrl,
+                                            final String expectedState, final String expectedNonce) {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
         LOGGER.debug(
-            "Running requestToken for redirectedUrl={}, expectedState={}, expectedNonce={}, clientIp={}",
-            LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
-            LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
+                "Running requestToken for redirectedUrl={}, expectedState={}, expectedNonce={}, clientIp={}",
+                LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
+                LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
         return MobileConnectInterfaceHelper.requestToken(this.authnService, discoveryResponse,
-            redirectedUrl, expectedState, expectedNonce, this.config);
+                redirectedUrl, expectedState, expectedNonce, this.config, iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -259,23 +252,20 @@ public class MobileConnectWebInterface
      * @return MobileConnectStatus object with required information for continuing the mobile
      */
     public MobileConnectStatus requestToken(final HttpServletRequest request,
-        final String sdkSession, final URI redirectedUrl, final String expectedState,
-        final String expectedNonce)
-    {
+                                            final String sdkSession, final URI redirectedUrl, final String expectedState,
+                                            final String expectedNonce) {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
         LOGGER.debug(
-            "Running requestToken for sdkSession={}, redirectedUrl={}, expectedState={}, expectedNonce={}, clientIp={}",
-            sdkSession, LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
-            LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
+                "Running requestToken for sdkSession={}, redirectedUrl={}, expectedState={}, expectedNonce={}, clientIp={}",
+                sdkSession, LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
+                LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
-        return this.withCachedValue(sdkSession, true, new CacheCallback()
-        {
+        return this.withCachedValue(sdkSession, true, new CacheCallback() {
             @Override
-            public MobileConnectStatus apply(final DiscoveryResponse cached)
-            {
+            public MobileConnectStatus apply(final DiscoveryResponse cached) {
                 return MobileConnectWebInterface.this.requestToken(request, cached, redirectedUrl,
-                    expectedState, expectedNonce);
+                        expectedState, expectedNonce);
             }
         });
     }
@@ -299,19 +289,18 @@ public class MobileConnectWebInterface
      * connect process
      */
     public MobileConnectStatus handleUrlRedirect(final HttpServletRequest request,
-        final URI redirectedUrl, final DiscoveryResponse discoveryResponse,
-        final String expectedState, final String expectedNonce)
-    {
+                                                 final URI redirectedUrl, final DiscoveryResponse discoveryResponse,
+                                                 final String expectedState, final String expectedNonce) {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
         LOGGER.debug(
-            "Running handleUrlRedirect for redirectedUrl={}, expectedState={}, expectedNonce={}, clientIp={}",
-            LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
-            LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
+                "Running handleUrlRedirect for redirectedUrl={}, expectedState={}, expectedNonce={}, clientIp={}",
+                LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
+                LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
         final MobileConnectStatus status =
-            MobileConnectInterfaceHelper.handleUrlRedirect(this.discoveryService, this.authnService,
-                redirectedUrl, discoveryResponse, expectedState, expectedNonce, this.config);
+                MobileConnectInterfaceHelper.handleUrlRedirect(this.discoveryService, this.authnService,
+                        redirectedUrl, discoveryResponse, expectedState, expectedNonce, this.config, iMobileConnectEncodeDecoder);
 
         return this.cacheIfRequired(status);
     }
@@ -336,34 +325,28 @@ public class MobileConnectWebInterface
      * connect process
      */
     public MobileConnectStatus handleUrlRedirect(final HttpServletRequest request,
-        final URI redirectedUrl, final String sdkSession, final String expectedState,
-        final String expectedNonce)
-    {
+                                                 final URI redirectedUrl, final String sdkSession, final String expectedState,
+                                                 final String expectedNonce) {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
         LOGGER.debug(
-            "Running handleUrlRedirect for sdkSession={}, redirectedUrl={}, expectedState={}, expectedNonce={}, clientIp={}",
-            sdkSession, LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
-            LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
+                "Running handleUrlRedirect for sdkSession={}, redirectedUrl={}, expectedState={}, expectedNonce={}, clientIp={}",
+                sdkSession, LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
+                LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
-        return this.withCachedValue(sdkSession, false, new CacheCallback()
-        {
+        return this.withCachedValue(sdkSession, false, new CacheCallback() {
             @Override
-            public MobileConnectStatus apply(final DiscoveryResponse cached)
-            {
+            public MobileConnectStatus apply(final DiscoveryResponse cached) {
                 if (cached == null && (!StringUtils.isNullOrEmpty(expectedNonce)
-                    || !StringUtils.isNullOrEmpty(expectedState)
-                    || !StringUtils.isNullOrEmpty(sdkSession)))
-                {
+                        || !StringUtils.isNullOrEmpty(expectedState)
+                        || !StringUtils.isNullOrEmpty(sdkSession))) {
                     return MobileConnectWebInterface.this.cacheError(null);
-                }
-                else
-                {
+                } else {
                     return MobileConnectWebInterface.this.cacheIfRequired(
-                        MobileConnectInterfaceHelper.handleUrlRedirect(
-                            MobileConnectWebInterface.this.discoveryService,
-                            MobileConnectWebInterface.this.authnService, redirectedUrl, cached,
-                            expectedState, expectedNonce, MobileConnectWebInterface.this.config));
+                            MobileConnectInterfaceHelper.handleUrlRedirect(
+                                    MobileConnectWebInterface.this.discoveryService,
+                                    MobileConnectWebInterface.this.authnService, redirectedUrl, cached,
+                                    expectedState, expectedNonce, MobileConnectWebInterface.this.config, iMobileConnectEncodeDecoder));
                 }
             }
         });
@@ -381,16 +364,15 @@ public class MobileConnectWebInterface
      * @return MobileConnectStatus object with requested UserInfo information
      */
     public MobileConnectStatus requestUserInfo(final HttpServletRequest request,
-        final DiscoveryResponse discoveryResponse, final String accessToken,
-        final MobileConnectRequestOptions options)
-    {
+                                               final DiscoveryResponse discoveryResponse, final String accessToken,
+                                               final MobileConnectRequestOptions options) {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
         LOGGER.debug("Running requestUserInfo for accessToken={}, clientIp={}",
-            LogUtils.mask(accessToken, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
+                LogUtils.mask(accessToken, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
         return MobileConnectInterfaceHelper.requestUserInfo(this.identityService, discoveryResponse,
-            accessToken);
+                accessToken, iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -406,22 +388,19 @@ public class MobileConnectWebInterface
      * @return MobileConnectStatus object with requested UserInfo information
      */
     public MobileConnectStatus requestUserInfo(final HttpServletRequest request,
-        final String sdkSession, final String accessToken,
-        final MobileConnectRequestOptions options)
-    {
+                                               final String sdkSession, final String accessToken,
+                                               final MobileConnectRequestOptions options) {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
         LOGGER.debug("Running requestUserInfo for sdkSession={}, accessToken={}, clientIp={}",
-            sdkSession, LogUtils.mask(accessToken, LOGGER, Level.DEBUG),
-            HttpUtils.extractClientIp(request));
+                sdkSession, LogUtils.mask(accessToken, LOGGER, Level.DEBUG),
+                HttpUtils.extractClientIp(request));
 
-        return this.withCachedValue(sdkSession, true, new CacheCallback()
-        {
+        return this.withCachedValue(sdkSession, true, new CacheCallback() {
             @Override
-            public MobileConnectStatus apply(final DiscoveryResponse cached)
-            {
+            public MobileConnectStatus apply(final DiscoveryResponse cached) {
                 return MobileConnectWebInterface.this.requestUserInfo(request, cached, accessToken,
-                    options);
+                        options);
             }
         });
     }
@@ -439,16 +418,15 @@ public class MobileConnectWebInterface
      * @return MobileConnectStatus object with requested identity information
      */
     public MobileConnectStatus requestIdentity(final HttpServletRequest request,
-        final DiscoveryResponse discoveryResponse, final String accessToken,
-        final MobileConnectRequestOptions options)
-    {
+                                               final DiscoveryResponse discoveryResponse, final String accessToken,
+                                               final MobileConnectRequestOptions options) {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
         LOGGER.debug("Running requestIdentity for accessToken={}, clientIp={}",
-            LogUtils.mask(accessToken, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
+                LogUtils.mask(accessToken, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
         return MobileConnectInterfaceHelper.requestIdentity(this.identityService, discoveryResponse,
-            accessToken);
+                accessToken, iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -464,126 +442,106 @@ public class MobileConnectWebInterface
      * @return MobileConnectStatus object with requested identity information
      */
     public MobileConnectStatus requestIdentity(final HttpServletRequest request,
-        final String sdkSession, final String accessToken,
-        final MobileConnectRequestOptions options)
-    {
+                                               final String sdkSession, final String accessToken,
+                                               final MobileConnectRequestOptions options) {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
         LOGGER.debug("Running requestIdentity for sdkSession={}, accessToken={}, clientIp={}",
-            sdkSession, LogUtils.mask(accessToken, LOGGER, Level.DEBUG),
-            HttpUtils.extractClientIp(request));
+                sdkSession, LogUtils.mask(accessToken, LOGGER, Level.DEBUG),
+                HttpUtils.extractClientIp(request));
 
-        return this.withCachedValue(sdkSession, true, new CacheCallback()
-        {
+        return this.withCachedValue(sdkSession, true, new CacheCallback() {
             @Override
-            public MobileConnectStatus apply(final DiscoveryResponse cached)
-            {
+            public MobileConnectStatus apply(final DiscoveryResponse cached) {
                 return MobileConnectWebInterface.this.requestIdentity(request, cached, accessToken,
-                    options);
+                        options);
             }
         });
     }
 
-    private MobileConnectStatus cacheIfRequired(final MobileConnectStatus status)
-    {
+    private MobileConnectStatus cacheIfRequired(final MobileConnectStatus status) {
         if (this.config.isCacheResponsesWithSessionId()
-            && status.getResponseType() == MobileConnectStatus.ResponseType.START_AUTHENTICATION
-            && status.getDiscoveryResponse() != null)
-        {
+                && status.getResponseType() == MobileConnectStatus.ResponseType.START_AUTHENTICATION
+                && status.getDiscoveryResponse() != null) {
             final String sessionId = UUID.randomUUID().toString();
-            try
-            {
+            try {
                 LOGGER.debug("Storing discovery response with sdkSession={}", sessionId);
                 this.discoveryService.getCache().add(sessionId, status.getDiscoveryResponse());
                 return status.withSdkSession(sessionId);
-            }
-            catch (final CacheAccessException cae)
-            {
+            } catch (final CacheAccessException cae) {
                 LOGGER.warn("Failed to store discovery response in cache sdkSession={}", sessionId,
-                    cae);
+                        cae);
             }
         }
         return status;
     }
 
     private MobileConnectStatus withCachedValue(final String sdkSession, final boolean required,
-        final CacheCallback callback)
-    {
-        if (!this.config.isCacheResponsesWithSessionId())
-        {
+                                                final CacheCallback callback) {
+        if (!this.config.isCacheResponsesWithSessionId()) {
             LOGGER.warn("Received invalid request for sdkSession={} when cache is disabled");
             return CACHE_DISABLED_ERROR;
-        }
-        else
-        {
-            try
-            {
+        } else {
+            try {
                 final DiscoveryResponse response =
-                    this.discoveryService.getCache().get(sdkSession, DiscoveryResponse.class);
-                if (response == null && required)
-                {
+                        this.discoveryService.getCache().get(sdkSession, DiscoveryResponse.class);
+                if (response == null && required) {
                     LOGGER.info("Failed to find cached session sdkSession={}", sdkSession);
                     return this.cacheError(null);
-                }
-                else
-                {
+                } else {
                     return callback.apply(response);
                 }
-            }
-            catch (final CacheAccessException cae)
-            {
+            } catch (final CacheAccessException cae) {
                 LOGGER.warn("Failed to fetch discovery response from cache sdkSession={}",
-                    sdkSession, cae);
+                        sdkSession, cae);
                 return this.cacheError(cae);
             }
         }
     }
 
-    private MobileConnectStatus cacheError(final Exception e)
-    {
+    private MobileConnectStatus cacheError(final Exception e) {
         return MobileConnectStatus.error("sdksession_not_found", "session not found or expired", e);
     }
 
-    private interface CacheCallback
-    {
+    private interface CacheCallback {
         MobileConnectStatus apply(final DiscoveryResponse cached);
     }
 
 
-    public static final class Builder implements IBuilder<MobileConnectWebInterface>
-    {
+    public static final class Builder implements IBuilder<MobileConnectWebInterface> {
         private IDiscoveryService discoveryService;
         private IAuthenticationService authnService;
         private IIdentityService identityService;
         private MobileConnectConfig config;
+        private JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
-        public Builder withDiscoveryService(final IDiscoveryService val)
-        {
+        public Builder withDiscoveryService(final IDiscoveryService val) {
             this.discoveryService = val;
             return this;
         }
 
-        public Builder withAuthnService(final IAuthenticationService val)
-        {
+        public Builder withAuthnService(final IAuthenticationService val) {
             this.authnService = val;
             return this;
         }
 
-        public Builder withIdentityService(final IIdentityService val)
-        {
+        public Builder withIdentityService(final IIdentityService val) {
             this.identityService = val;
             return this;
         }
 
-        public Builder withConfig(final MobileConnectConfig val)
-        {
+        public Builder withConfig(final MobileConnectConfig val) {
             this.config = val;
             return this;
         }
 
+        public Builder withIMobileConnectEncodeDecoder(final JsonWebTokens.IMobileConnectEncodeDecoder val) {
+            this.iMobileConnectEncodeDecoder = val;
+            return this;
+        }
+
         @Override
-        public MobileConnectWebInterface build()
-        {
+        public MobileConnectWebInterface build() {
             ObjectUtils.requireNonNull(this.discoveryService, "discoveryService");
             ObjectUtils.requireNonNull(this.authnService, "authnService");
             ObjectUtils.requireNonNull(this.identityService, "identityService");
