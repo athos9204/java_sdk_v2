@@ -22,15 +22,12 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.gsma.mobileconnect.r2.MobileConnectVersions;
+import com.gsma.mobileconnect.r2.constants.Scope;
 import com.gsma.mobileconnect.r2.constants.Scopes;
-import com.gsma.mobileconnect.r2.utils.IBuilder;
-import com.gsma.mobileconnect.r2.utils.ObjectUtils;
+import com.gsma.mobileconnect.r2.utils.*;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Storage for supported mobile connect versions.
@@ -42,13 +39,45 @@ import java.util.Map;
 @JsonSerialize(using = SupportedVersions.JacksonSerializer.class)
 public class SupportedVersions
 {
+    private final List<String> recognised_versions = new ArrayList<String>()
+    {{
+        add(Scope.OPENID);
+        add(Scope.AUTHN);
+        add(Scope.AUTHZ);
+        add(Scope.IDENTITYNATIONALID);
+        add(Scope.IDENTITYPHONE);
+        add(Scope.IDENTITYSIGNUP);
+        add(Scope.IDENTITYSIGNUPPLUS);
+    }};
     private final Map<String, String> versions;
+    private final String maxSupportedVersion;
 
+    /**
+     * Creates a new instance of the SupportedVersions class using the versionSupport dictionary to generate initial values
+     * @param versionSupport
+     */
     private SupportedVersions(final Map<String, String> versionSupport)
     {
         this.versions = versionSupport != null
                         ? Collections.unmodifiableMap(new HashMap<String, String>(versionSupport))
                         : MobileConnectVersions.DEFAULT_SUPPORTED_VERSIONS;
+        this.maxSupportedVersion = identifyMaxSupportedVersion(versions);
+    }
+
+    private static String identifyMaxSupportedVersion(final Map<String, String> versions)
+    {
+        String max = MobileConnectVersions.coerceVersion(null, Scopes.MOBILECONNECT);
+
+        for (Map.Entry<String, String> versionEntry : versions.entrySet())
+        {
+            String version = versionEntry.getValue();
+            if (VersionUtils.versionCompare(max, version) > 0)
+            {
+                max = version;
+            }
+        }
+
+        return max;
     }
 
     /**
@@ -60,12 +89,38 @@ public class SupportedVersions
      */
     public String getSupportedVersion(final String scope)
     {
+        if (ListUtils.firstMatch(recognised_versions, new Predicate<String>()
+            {
+                @Override
+                public boolean apply(final String input)
+                {
+                    return input.equals(scope);
+                }
+            }) == null)
+        {
+            return null;
+        }
+
         ObjectUtils.requireNonNull(scope, "scope");
 
         final String version = ObjectUtils.defaultIfNull(this.versions.get(scope),
             this.versions.get(Scopes.MOBILECONNECT));
 
         return MobileConnectVersions.coerceVersion(version, scope);
+    }
+
+    /**
+     * Test for support of the specified version or a greater version
+     * @param version Version to test support
+     * @return True if version or higher is supported
+     */
+    public boolean isVersionSupported(final String version)
+    {
+        if (version == null || version == "")
+        {
+            return false;
+        }
+        return (VersionUtils.versionCompare(maxSupportedVersion, version) >= 0);
     }
 
     public static class Builder implements IBuilder<SupportedVersions>

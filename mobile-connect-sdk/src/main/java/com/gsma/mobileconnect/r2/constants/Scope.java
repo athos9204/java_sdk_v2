@@ -25,6 +25,11 @@ public final class Scope
     public static final String AUTHN = "mc_authn";
     public static final String AUTHZ = "mc_authz";
 
+    public static final String IDENTITYPHONE = "mc_identity_phonenumber";
+    public static final String IDENTITYSIGNUP = "mc_identity_signup";
+    public static final String IDENTITYSIGNUPPLUS = "mc_identity_signupplus";
+    public static final String IDENTITYNATIONALID = "mc_identity_nationalid";
+
     public static final String MCPREFIX = "mc_";
 
     private Scope()
