@@ -21,6 +21,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.gsma.mobileconnect.r2.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.MobileConnect;
 import com.gsma.mobileconnect.r2.MobileConnectConfig;
 import com.gsma.mobileconnect.r2.MobileConnectWebInterface;
@@ -55,7 +56,7 @@ public class DemoAppConfiguration
     public MobileConnectWebInterface mobileConnectWebInterface(
         @Autowired final MobileConnectConfig config)
     {
-        return MobileConnect.buildWebInterface(config);
+        return MobileConnect.buildWebInterface(config, new DefaultEncodeDecoder());
     }
 
     @Bean

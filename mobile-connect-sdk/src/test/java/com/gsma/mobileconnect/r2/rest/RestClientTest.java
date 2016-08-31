@@ -16,6 +16,7 @@
  */
 package com.gsma.mobileconnect.r2.rest;
 
+import com.gsma.mobileconnect.r2.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.MobileConnectStatus;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
@@ -62,7 +63,7 @@ public class RestClientTest
 {
     private static final URI TEST_URI = URI.create("http://test");
     private static final RestAuthentication AUTHENTICATION =
-        RestAuthentication.basic("test-key", "test-secret");
+        RestAuthentication.basic("test-key", "test-secret", new DefaultEncodeDecoder());
     private static final String SOURCE_IP = "192.168.0.1";
     private static final List<KeyValuePair> COOKIES =
         new KeyValuePair.ListBuilder().add("test-cookie", "test-cookie-value").build();

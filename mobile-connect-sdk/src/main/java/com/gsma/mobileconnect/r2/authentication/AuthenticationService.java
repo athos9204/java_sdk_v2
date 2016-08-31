@@ -237,7 +237,7 @@ public class AuthenticationService implements IAuthenticationService
             .add(Parameters.GRANT_TYPE, DefaultOptions.GRANT_TYPE)
             .build();
 
-        final RestAuthentication authentication = RestAuthentication.basic(clientId, clientSecret);
+        final RestAuthentication authentication = RestAuthentication.basic(clientId, clientSecret, iMobileConnectEncodeDecoder);
         final RestResponse restResponse =
             this.restClient.postFormData(requestTokenUrl, authentication, formData, null, null);
 

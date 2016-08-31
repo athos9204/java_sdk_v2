@@ -54,7 +54,7 @@ public class MobileConnectWebInterfaceTest
     private final MockRestClient restClient = new MockRestClient();
 
     private final MobileConnect mobileConnect =
-        MobileConnect.builder(this.config).withRestClient(this.restClient).build();
+        MobileConnect.builder(this.config, new DefaultEncodeDecoder()).withRestClient(this.restClient).build();
 
     private final IJsonService jsonService = new JacksonJsonService();
     private final IDiscoveryService discoveryService = this.mobileConnect.getDiscoveryService();
@@ -233,7 +233,7 @@ public class MobileConnectWebInterfaceTest
             .withRedirectUrl(URI.create("http://redirect"))
             .build();
 
-        final MobileConnectWebInterface mcWebInterface = MobileConnect.buildWebInterface(config);
+        final MobileConnectWebInterface mcWebInterface = MobileConnect.buildWebInterface(config, new DefaultEncodeDecoder());
 
         final MobileConnectStatus status =
             mcWebInterface.requestToken(this.request, "invalidid", URI.create("http://test"),

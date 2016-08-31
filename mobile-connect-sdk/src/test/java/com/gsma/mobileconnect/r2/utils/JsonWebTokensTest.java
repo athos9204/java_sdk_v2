@@ -16,6 +16,7 @@
 */
 package com.gsma.mobileconnect.r2.utils;
 
+import com.gsma.mobileconnect.r2.DefaultEncodeDecoder;
 import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.*;
@@ -32,7 +33,7 @@ public class JsonWebTokensTest
     {
         final String validToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0MTE0MjFCMC0zOEQ2LTY1NjgtQTUzQS1ERjk5NjkxQjdFQjYiLCJlbWFpbCI6InRlc3QyQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWV9.AcpILNH2Uvok99MQWwxP6X7x3OwtVmTOw0t9Hq00gmQ";
 
-        final String decodedHeader = JsonWebTokens.Part.HEADER.decode(validToken, null);
+        final String decodedHeader = JsonWebTokens.Part.HEADER.decode(validToken, new DefaultEncodeDecoder());
 
         assertNotNull(decodedHeader);
         String expectedHeader = "{\"alg\":\"HS256\",\"typ\":\"JWT\"}";
@@ -44,7 +45,7 @@ public class JsonWebTokensTest
     {
         final String validToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0MTE0MjFCMC0zOEQ2LTY1NjgtQTUzQS1ERjk5NjkxQjdFQjYiLCJlbWFpbCI6InRlc3QyQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWV9.AcpILNH2Uvok99MQWwxP6X7x3OwtVmTOw0t9Hq00gmQ";
 
-        final String decodedPayload = JsonWebTokens.Part.PAYLOAD.decode(validToken, null);
+        final String decodedPayload = JsonWebTokens.Part.PAYLOAD.decode(validToken, new DefaultEncodeDecoder());
 
         assertNotNull(decodedPayload);
         String expectedPayload = "{\"sub\":\"411421B0-38D6-6568-A53A-DF99691B7EB6\",\"email\":\"test2@example.com\",\"email_verified\":true}";
@@ -56,7 +57,7 @@ public class JsonWebTokensTest
     {
         final String validToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI0MTE0MjFCMC0zOEQ2LTY1NjgtQTUzQS1ERjk5NjkxQjdFQjYiLCJlbWFpbCI6InRlc3QyQGV4YW1wbGUuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWV9.AcpILNH2Uvok99MQWwxP6X7x3OwtVmTOw0t9Hq00gmQ";
 
-        final String decodedSignature = JsonWebTokens.Part.SIGNATURE.decode(validToken, null);
+        final String decodedSignature = JsonWebTokens.Part.SIGNATURE.decode(validToken, new DefaultEncodeDecoder());
 
         assertNotNull(decodedSignature);
         assertEquals(validToken, decodedSignature);

@@ -50,7 +50,7 @@ public class MobileConnectInterfaceTest
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5);
 
     private final MobileConnectInterface mobileConnect = MobileConnect
-        .builder(this.config)
+        .builder(this.config, new DefaultEncodeDecoder())
         .withRestClient(this.restClient)
         .build()
         .getMobileConnectInterface();

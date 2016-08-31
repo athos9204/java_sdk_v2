@@ -16,6 +16,7 @@
  */
 package com.gsma.mobileconnect.r2.rest;
 
+import com.gsma.mobileconnect.r2.utils.JsonWebTokens;
 import com.gsma.mobileconnect.r2.utils.LogUtils;
 import com.gsma.mobileconnect.r2.utils.ObjectUtils;
 import com.gsma.mobileconnect.r2.utils.StringUtils;
@@ -47,7 +48,7 @@ public class RestAuthentication
      * @param secret to be encoded
      * @return a new instance of RestAuthentication configured for basic auth.
      */
-    public static RestAuthentication basic(final String key, final String secret)
+    public static RestAuthentication basic(final String key, final String secret, JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         StringUtils.requireNonEmpty(key, "key");
         StringUtils.requireNonEmpty(secret, "secret");
@@ -55,7 +56,7 @@ public class RestAuthentication
         try
         {
             final byte[] authentication = String.format("%s:%s", key, secret).getBytes("UTF-8");
-            final String encoded = Base64.encodeBase64String(authentication);
+            final String encoded = iMobileConnectEncodeDecoder.encodeToBase64(authentication);
 
             return new RestAuthentication(Scheme.BASIC, encoded);
         }
