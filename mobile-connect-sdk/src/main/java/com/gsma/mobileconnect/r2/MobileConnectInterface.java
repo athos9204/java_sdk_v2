@@ -19,6 +19,8 @@ package com.gsma.mobileconnect.r2;
 import com.gsma.mobileconnect.r2.authentication.IAuthenticationService;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
 import com.gsma.mobileconnect.r2.utils.JsonWebTokens;
@@ -48,7 +50,7 @@ public class MobileConnectInterface
     private final IIdentityService identityService;
     private final MobileConnectConfig config;
     private final ExecutorService executorService;
-    private JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
+    private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
     private MobileConnectInterface(Builder builder)
     {
@@ -396,7 +398,7 @@ public class MobileConnectInterface
         private IIdentityService identityService;
         private MobileConnectConfig config;
         private ExecutorService executorService;
-        private JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
+        private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
         public Builder withDiscoveryService(final IDiscoveryService val)
         {
@@ -428,7 +430,8 @@ public class MobileConnectInterface
             return this;
         }
 
-        public Builder withiMobileConnectEncodeDecoder(final JsonWebTokens.IMobileConnectEncodeDecoder val)
+        public Builder withiMobileConnectEncodeDecoder(
+            final IMobileConnectEncodeDecoder val)
         {
             this.iMobileConnectEncodeDecoder = val;
             return this;

@@ -23,6 +23,7 @@ import com.gsma.mobileconnect.r2.cache.ICache;
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryService;
 import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.identity.IdentityService;
 import com.gsma.mobileconnect.r2.json.IJsonService;
@@ -43,11 +44,11 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Convenience methods to construct and access the core public interfaces of MobileConnect. <p> A
- * default instance can be created via {@link #build(MobileConnectConfig, com.gsma.mobileconnect.r2.utils.JsonWebTokens.IMobileConnectEncodeDecoder)}. Limited customisation is
- * possible via the {@link #builder(MobileConnectConfig, com.gsma.mobileconnect.r2.utils.JsonWebTokens.IMobileConnectEncodeDecoder)} method.  Otherwise full customisation can
- * be achieved via the individual builders provided by each of the interfaces. </p> <p> For those
- * who wish only to work with the {@link MobileConnectInterface}, this can be reached via {@link
- * #buildInterface(MobileConnectConfig, com.gsma.mobileconnect.r2.utils.JsonWebTokens.IMobileConnectEncodeDecoder)}. </p>
+ * default instance can be created via {@link #build(MobileConnectConfig, * com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder)}. Limited
+ * customisation is possible via the {@link #builder(MobileConnectConfig, * com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder)} method.  Otherwise
+ * full customisation can be achieved via the individual builders provided by each of the
+ * interfaces. </p> <p> For those who wish only to work with the {@link MobileConnectInterface},
+ * this can be reached via {@link #buildInterface(MobileConnectConfig, * com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder)}. </p>
  *
  * @see MobileConnectConfig
  * @see MobileConnectInterface
@@ -56,7 +57,8 @@ import java.util.concurrent.TimeUnit;
  * @see IIdentityService
  * @since 2.0
  */
-public final class MobileConnect {
+public final class MobileConnect
+{
     private static final Logger LOGGER = LoggerFactory.getLogger(MobileConnect.class);
 
     private final IDiscoveryService discoveryService;
@@ -64,47 +66,48 @@ public final class MobileConnect {
     private final IIdentityService identityService;
     private final MobileConnectInterface mobileConnectInterface;
     private final MobileConnectWebInterface mobileConnectWebInterface;
-    private final JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncoderDecoder;
+    private final IMobileConnectEncodeDecoder iMobileConnectEncoderDecoder;
 
-    private MobileConnect(final Builder builder) {
+    private MobileConnect(final Builder builder)
+    {
         this.iMobileConnectEncoderDecoder = builder.iMobileConnectEncodeDecoder;
 
         this.discoveryService = new DiscoveryService.Builder()
-                .withCache(builder.cache)
-                .withJsonService(builder.jsonService)
-                .withRestClient(builder.restClient)
-                .withIMobileConnectEncodeDecoder(this.iMobileConnectEncoderDecoder)
-                .withExecutorService(builder.scheduledExecutorService)
-                .build();
+            .withCache(builder.cache)
+            .withJsonService(builder.jsonService)
+            .withRestClient(builder.restClient)
+            .withIMobileConnectEncodeDecoder(this.iMobileConnectEncoderDecoder)
+            .withExecutorService(builder.scheduledExecutorService)
+            .build();
 
         this.authnService = new AuthenticationService.Builder()
-                .withJsonService(builder.jsonService)
-                .withRestClient(builder.restClient)
-                .withIMobileConnectEncodeDecoder(this.iMobileConnectEncoderDecoder)
-                .withExecutorService(builder.scheduledExecutorService)
-                .build();
+            .withJsonService(builder.jsonService)
+            .withRestClient(builder.restClient)
+            .withIMobileConnectEncodeDecoder(this.iMobileConnectEncoderDecoder)
+            .withExecutorService(builder.scheduledExecutorService)
+            .build();
 
         this.identityService = new IdentityService.Builder()
-                .withJsonService(builder.jsonService)
-                .withRestClient(builder.restClient)
-                .withExecutorService(builder.scheduledExecutorService)
-                .build();
+            .withJsonService(builder.jsonService)
+            .withRestClient(builder.restClient)
+            .withExecutorService(builder.scheduledExecutorService)
+            .build();
 
         this.mobileConnectInterface = new MobileConnectInterface.Builder()
-                .withExecutorService(builder.scheduledExecutorService)
-                .withAuthnService(this.authnService)
-                .withDiscoveryService(this.discoveryService)
-                .withIdentityService(this.identityService)
-                .withiMobileConnectEncodeDecoder(this.iMobileConnectEncoderDecoder)
-                .withConfig(builder.config)
-                .build();
+            .withExecutorService(builder.scheduledExecutorService)
+            .withAuthnService(this.authnService)
+            .withDiscoveryService(this.discoveryService)
+            .withIdentityService(this.identityService)
+            .withiMobileConnectEncodeDecoder(this.iMobileConnectEncoderDecoder)
+            .withConfig(builder.config)
+            .build();
 
         this.mobileConnectWebInterface = new MobileConnectWebInterface.Builder()
-                .withAuthnService(this.authnService)
-                .withDiscoveryService(this.discoveryService)
-                .withIdentityService(this.identityService)
-                .withConfig(builder.config)
-                .build();
+            .withAuthnService(this.authnService)
+            .withDiscoveryService(this.discoveryService)
+            .withIdentityService(this.identityService)
+            .withConfig(builder.config)
+            .build();
 
         LOGGER.info("Construction of new MobileConnect instance complete");
     }
@@ -115,7 +118,9 @@ public final class MobileConnect {
      * @param config must be specified.
      * @return constructed MobileConnect instance.
      */
-    public static MobileConnect build(final MobileConnectConfig config, final JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder) {
+    public static MobileConnect build(final MobileConnectConfig config,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+    {
         return builder(config, iMobileConnectEncodeDecoder).build();
     }
 
@@ -125,7 +130,9 @@ public final class MobileConnect {
      * @param config must be specified.
      * @return constructed MobileConnectInterface instance.
      */
-    public static MobileConnectInterface buildInterface(final MobileConnectConfig config, final JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder) {
+    public static MobileConnectInterface buildInterface(final MobileConnectConfig config,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+    {
         return build(config, iMobileConnectEncodeDecoder).getMobileConnectInterface();
     }
 
@@ -135,7 +142,9 @@ public final class MobileConnect {
      * @param config must be specified.
      * @return constructed MobileConnectWebInterface instance.
      */
-    public static MobileConnectWebInterface buildWebInterface(final MobileConnectConfig config, final JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder) {
+    public static MobileConnectWebInterface buildWebInterface(final MobileConnectConfig config,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+    {
         return build(config, iMobileConnectEncodeDecoder).getMobileConnectWebInterface();
     }
 
@@ -145,7 +154,9 @@ public final class MobileConnect {
      * @param config must be specified.
      * @return MobileConnect IBuilder instance.
      */
-    public static Builder builder(final MobileConnectConfig config, JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder) {
+    public static Builder builder(final MobileConnectConfig config,
+        IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+    {
         return new Builder(config, iMobileConnectEncodeDecoder);
     }
 
@@ -154,7 +165,8 @@ public final class MobileConnect {
      *
      * @return discovery service instance.
      */
-    public IDiscoveryService getDiscoveryService() {
+    public IDiscoveryService getDiscoveryService()
+    {
         return this.discoveryService;
     }
 
@@ -163,7 +175,8 @@ public final class MobileConnect {
      *
      * @return authentication service instance.
      */
-    public IAuthenticationService getAuthnService() {
+    public IAuthenticationService getAuthnService()
+    {
         return this.authnService;
     }
 
@@ -172,7 +185,8 @@ public final class MobileConnect {
      *
      * @return identity service instance.
      */
-    public IIdentityService getIdentityService() {
+    public IIdentityService getIdentityService()
+    {
         return this.identityService;
     }
 
@@ -181,7 +195,8 @@ public final class MobileConnect {
      *
      * @return mobile connect interface instance.
      */
-    public MobileConnectInterface getMobileConnectInterface() {
+    public MobileConnectInterface getMobileConnectInterface()
+    {
         return this.mobileConnectInterface;
     }
 
@@ -190,17 +205,19 @@ public final class MobileConnect {
      *
      * @return mobile connect web interface instance.
      */
-    public MobileConnectWebInterface getMobileConnectWebInterface() {
+    public MobileConnectWebInterface getMobileConnectWebInterface()
+    {
         return this.mobileConnectWebInterface;
     }
 
     /**
      * Builds a configured instance of MobileConnect.
      */
-    public static final class Builder implements IBuilder<MobileConnect> {
+    public static final class Builder implements IBuilder<MobileConnect>
+    {
         private final IJsonService jsonService;
         private final MobileConnectConfig config;
-        private JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
+        private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
         private ICache cache = null;
         private ScheduledExecutorService scheduledExecutorService = null;
@@ -222,7 +239,9 @@ public final class MobileConnect {
          *
          * @param config for Mobile Connect.
          */
-        public Builder(final MobileConnectConfig config, JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder) {
+        public Builder(final MobileConnectConfig config,
+            IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+        {
             this.jsonService = new JacksonJsonService();
             this.iMobileConnectEncodeDecoder = iMobileConnectEncodeDecoder;
             this.config = ObjectUtils.requireNonNull(config, "config");
@@ -234,18 +253,22 @@ public final class MobileConnect {
          * @param val executor service to be used.
          * @return builder to continue further configuration.
          */
-        public Builder withScheduledExecutorService(final ScheduledExecutorService val) {
+        public Builder withScheduledExecutorService(final ScheduledExecutorService val)
+        {
             this.scheduledExecutorService = val;
             return this;
         }
 
         /**
-         * Specify a {@link com.gsma.mobileconnect.r2.utils.JsonWebTokens.IMobileConnectEncodeDecoder} to use.
+         * Specify a {@link com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder}
+         * to use.
          *
          * @param val encode/decoder to be used.
          * @return builder to continue further configuration.
          */
-        public Builder withIMobileConnectEncodeDecoder(final JsonWebTokens.IMobileConnectEncodeDecoder val) {
+        public Builder withIMobileConnectEncodeDecoder(
+            final IMobileConnectEncodeDecoder val)
+        {
             this.iMobileConnectEncodeDecoder = val;
             return this;
         }
@@ -256,7 +279,8 @@ public final class MobileConnect {
          * @param val http client to be used.
          * @return builder to continue further configuration.
          */
-        public Builder withHttpClient(final HttpClient val) {
+        public Builder withHttpClient(final HttpClient val)
+        {
             this.httpClient = val;
             return this;
         }
@@ -268,7 +292,8 @@ public final class MobileConnect {
          * @param unit     the unit of the duration.
          * @return builder to continue further configuration.
          */
-        public Builder withHttpTimeout(final long duration, final TimeUnit unit) {
+        public Builder withHttpTimeout(final long duration, final TimeUnit unit)
+        {
             this.timeoutDuration = duration;
             this.timeoutTimeUnit = unit;
             return this;
@@ -280,7 +305,8 @@ public final class MobileConnect {
          * @param val cache to be used.
          * @return builder to continue further configuration.
          */
-        public Builder withCache(final ICache val) {
+        public Builder withCache(final ICache val)
+        {
             this.cache = val;
             return this;
         }
@@ -292,7 +318,8 @@ public final class MobileConnect {
          * @param val rest client to be used.
          * @return builder to continue further configuration.
          */
-        public Builder withRestClient(final IRestClient val) {
+        public Builder withRestClient(final IRestClient val)
+        {
             this.restClient = val;
             return this;
         }
@@ -304,34 +331,39 @@ public final class MobileConnect {
          * @return configured MobileConnect instance.
          */
         @Override
-        public MobileConnect build() {
-            if (this.scheduledExecutorService == null) {
+        public MobileConnect build()
+        {
+            if (this.scheduledExecutorService == null)
+            {
                 LOGGER.info("Using Executors#newScheduledThreadPool with corePoolSize={}",
-                        DefaultOptions.THREAD_POOL_SIZE);
+                    DefaultOptions.THREAD_POOL_SIZE);
                 this.scheduledExecutorService =
-                        Executors.newScheduledThreadPool(DefaultOptions.THREAD_POOL_SIZE);
+                    Executors.newScheduledThreadPool(DefaultOptions.THREAD_POOL_SIZE);
             }
 
-            if (this.restClient == null) {
-                if (this.httpClient == null) {
+            if (this.restClient == null)
+            {
+                if (this.httpClient == null)
+                {
                     LOGGER.info("Building default instance of HttpClient");
                     this.httpClient = HttpClientBuilder.create().build();
                 }
 
                 LOGGER.info("Building RestClient with timeout of duration={}, unit={}",
-                        this.timeoutDuration, this.timeoutTimeUnit.name());
+                    this.timeoutDuration, this.timeoutTimeUnit.name());
                 this.restClient = new RestClient.Builder()
-                        .withScheduledExecutorService(this.scheduledExecutorService)
-                        .withHttpClient(this.httpClient)
-                        .withJsonService(this.jsonService)
-                        .withTimeout(this.timeoutDuration, this.timeoutTimeUnit)
-                        .build();
+                    .withScheduledExecutorService(this.scheduledExecutorService)
+                    .withHttpClient(this.httpClient)
+                    .withJsonService(this.jsonService)
+                    .withTimeout(this.timeoutDuration, this.timeoutTimeUnit)
+                    .build();
             }
 
-            if (this.cache == null) {
+            if (this.cache == null)
+            {
                 LOGGER.info("Building default instance of ConcurrentCache");
                 this.cache =
-                        new ConcurrentCache.Builder().withJsonService(this.jsonService).build();
+                    new ConcurrentCache.Builder().withJsonService(this.jsonService).build();
             }
 
             return new MobileConnect(this);

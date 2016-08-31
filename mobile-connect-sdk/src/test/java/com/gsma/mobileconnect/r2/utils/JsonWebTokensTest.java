@@ -16,7 +16,7 @@
 */
 package com.gsma.mobileconnect.r2.utils;
 
-import com.gsma.mobileconnect.r2.DefaultEncodeDecoder;
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import org.testng.annotations.Test;
 
 import static org.testng.AssertJUnit.*;

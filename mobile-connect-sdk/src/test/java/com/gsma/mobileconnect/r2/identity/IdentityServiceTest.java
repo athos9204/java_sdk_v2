@@ -16,7 +16,7 @@
  */
 package com.gsma.mobileconnect.r2.identity;
 
-import com.gsma.mobileconnect.r2.DefaultEncodeDecoder;
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.InvalidArgumentException;
 import com.gsma.mobileconnect.r2.InvalidResponseException;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
@@ -44,20 +44,21 @@ import static org.testng.Assert.*;
  *
  * @since 2.0
  */
-public class IdentityServiceTest {
+public class IdentityServiceTest
+{
     private static final RestResponse UNAUTHORIZED_RESPONSE = new RestResponse.Builder()
-            .withStatusCode(HttpStatus.SC_UNAUTHORIZED)
-            .withHeaders(new KeyValuePair.ListBuilder()
-                    .add(HttpHeaders.WWW_AUTHENTICATE,
-                            "Bearer error=\"invalid_request\", error_description=\"No Access Token\"")
-                    .build())
-            .build();
+        .withStatusCode(HttpStatus.SC_UNAUTHORIZED)
+        .withHeaders(new KeyValuePair.ListBuilder()
+            .add(HttpHeaders.WWW_AUTHENTICATE,
+                "Bearer error=\"invalid_request\", error_description=\"No Access Token\"")
+            .build())
+        .build();
 
     private static final RestResponse USERINFO_RESPONSE = new RestResponse.Builder()
-            .withStatusCode(HttpStatus.SC_OK)
-            .withContent(
-                    "{\"sub\":\"411421B0-38D6-6568-A53A-DF99691B7EB6\",\"email\":\"test2@example.com\",\"email_verified\":true}")
-            .build();
+        .withStatusCode(HttpStatus.SC_OK)
+        .withContent(
+            "{\"sub\":\"411421B0-38D6-6568-A53A-DF99691B7EB6\",\"email\":\"test2@example.com\",\"email_verified\":true}")
+        .build();
 
     private static final URI USERINFO_URL = URI.create("http://userinfo");
 
@@ -65,29 +66,33 @@ public class IdentityServiceTest {
     private final ExecutorService executorService = Executors.newCachedThreadPool();
 
     private final IIdentityService identityService = new IdentityService.Builder()
-            .withJsonService(new JacksonJsonService())
-            .withRestClient(this.restClient)
-            .withExecutorService(this.executorService)
-            .build();
+        .withJsonService(new JacksonJsonService())
+        .withRestClient(this.restClient)
+        .withExecutorService(this.executorService)
+        .build();
 
     @AfterClass
-    public void afterClass() throws InterruptedException {
+    public void afterClass() throws InterruptedException
+    {
         this.executorService.shutdown();
         assertTrue(this.executorService.awaitTermination(5L, TimeUnit.SECONDS));
     }
 
     @AfterMethod
-    public void afterMethod() {
+    public void afterMethod()
+    {
         assertEquals(this.restClient.reset().size(), 0, "restClient contains responses");
     }
 
     @Test
     public void requestUserInfoShouldHandleUserInfoResponse()
-            throws RequestFailedException, InvalidResponseException {
+        throws RequestFailedException, InvalidResponseException
+    {
         this.restClient.addResponse(USERINFO_RESPONSE);
 
         final IdentityResponse response =
-                this.identityService.requestInfo(USERINFO_URL, "zmalqpxnskwocbdjeivbfhru", new DefaultEncodeDecoder());
+            this.identityService.requestInfo(USERINFO_URL, "zmalqpxnskwocbdjeivbfhru",
+                new DefaultEncodeDecoder());
 
         assertNotNull(response);
         assertEquals(response.getResponseCode(), HttpStatus.SC_OK);
@@ -96,11 +101,13 @@ public class IdentityServiceTest {
 
     @Test
     public void requestUserInfoShouldHandleUnauthorizedResponse()
-            throws RequestFailedException, InvalidResponseException {
+        throws RequestFailedException, InvalidResponseException
+    {
         this.restClient.addResponse(UNAUTHORIZED_RESPONSE);
 
         final IdentityResponse response =
-                this.identityService.requestInfo(USERINFO_URL, "zmalqpxnskwocbdjeivbfhru", new DefaultEncodeDecoder());
+            this.identityService.requestInfo(USERINFO_URL, "zmalqpxnskwocbdjeivbfhru",
+                new DefaultEncodeDecoder());
 
         assertNotNull(response);
         assertEquals(response.getResponseCode(), HttpStatus.SC_UNAUTHORIZED);
@@ -111,22 +118,27 @@ public class IdentityServiceTest {
     }
 
     @Test(expectedExceptions = RequestFailedException.class)
-    public void requestUserInfoShouldHandleHttpRequestException() throws RequestFailedException {
+    public void requestUserInfoShouldHandleHttpRequestException() throws RequestFailedException
+    {
         this.restClient.addResponse(
-                new RequestFailedException(HttpUtils.HttpMethod.POST, USERINFO_URL, null));
+            new RequestFailedException(HttpUtils.HttpMethod.POST, USERINFO_URL, null));
 
-        this.identityService.requestInfo(USERINFO_URL, "zmalqpxnskwocbdjeivbfhru", new DefaultEncodeDecoder());
+        this.identityService.requestInfo(USERINFO_URL, "zmalqpxnskwocbdjeivbfhru",
+            new DefaultEncodeDecoder());
     }
 
     @Test(expectedExceptions = InvalidArgumentException.class)
     public void requestUserInfoShouldThrowInvalidArgumentExceptionWhenUriNull()
-            throws RequestFailedException {
-        this.identityService.requestInfo(null, "zmalqpxnskwocbdjeivbfhru", new DefaultEncodeDecoder());
+        throws RequestFailedException
+    {
+        this.identityService.requestInfo(null, "zmalqpxnskwocbdjeivbfhru",
+            new DefaultEncodeDecoder());
     }
 
     @Test(expectedExceptions = InvalidArgumentException.class)
     public void requestUserInfoShouldThrowInvalidArgumentExceptionWhenTokenEmpty()
-            throws RequestFailedException {
+        throws RequestFailedException
+    {
         this.identityService.requestInfo(USERINFO_URL, "", new DefaultEncodeDecoder());
     }
 }

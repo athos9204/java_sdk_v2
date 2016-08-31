@@ -17,6 +17,7 @@
 package com.gsma.mobileconnect.r2.identity;
 
 import com.gsma.mobileconnect.r2.ErrorResponse;
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.rest.RestResponse;
@@ -55,7 +56,8 @@ public class IdentityResponse
      * @return IdentityResponse instance.
      */
     public static IdentityResponse fromRestResponse(final RestResponse restResponse,
-        final IJsonService jsonService, final JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+        final IJsonService jsonService,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         final Builder builder = new Builder().withResponseCode(restResponse.getStatusCode());
 
@@ -85,7 +87,8 @@ public class IdentityResponse
         return builder.build();
     }
 
-    private static String extractJson(String responseJson, final JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+    private static String extractJson(String responseJson,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         if (StringUtils.isNullOrEmpty(responseJson) || responseJson.indexOf('{') > -1)
         {

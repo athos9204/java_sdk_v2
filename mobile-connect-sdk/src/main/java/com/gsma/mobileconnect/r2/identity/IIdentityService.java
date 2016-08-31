@@ -16,8 +16,8 @@
  */
 package com.gsma.mobileconnect.r2.identity;
 
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.rest.RequestFailedException;
-import com.gsma.mobileconnect.r2.utils.JsonWebTokens;
 
 import java.net.URI;
 import java.util.concurrent.Future;
@@ -38,7 +38,8 @@ public interface IIdentityService
      * @param accessToken Access token for authorising user info request
      * @return IdentityResponse object if request succeeds
      */
-    IdentityResponse requestInfo(final URI infoUrl, final String accessToken, final JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+    IdentityResponse requestInfo(final URI infoUrl, final String accessToken,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
         throws RequestFailedException;
 
     /**
@@ -50,5 +51,6 @@ public interface IIdentityService
      * @param accessToken Access token for authorising user info request
      * @return Future wrapping an IdentityResponse object if request succeeds
      */
-    Future<IdentityResponse> requestInfoAsync(final URI infoUrl, final String accessToken, final JsonWebTokens.IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder);
+    Future<IdentityResponse> requestInfoAsync(final URI infoUrl, final String accessToken,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder);
 }

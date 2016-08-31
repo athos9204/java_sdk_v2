@@ -16,6 +16,8 @@
  */
 package com.gsma.mobileconnect.r2.utils;
 
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
+
 import java.nio.charset.Charset;
 
 /**
@@ -101,27 +103,5 @@ public final class JsonWebTokens
                 return new String(decoded, Charset.forName("UTF-8"));
             }
         }
-    }
-
-    /**
-     * This interface serves the purpose of having different implementations of Encoding and Decoding since Android and
-     * JAVA-Web have different ways of doing so.
-     */
-    public interface IMobileConnectEncodeDecoder
-    {
-        /**
-         * Encodes the provided string to Base64
-         *
-         * @param value the array of byte to encode
-         * @return
-         */
-        String encodeToBase64(byte[] value);
-
-        /**
-         * Decodes the provided Base64 string
-         * @param value The {@link String to} to decode
-         * @return
-         */
-        byte[] decodeFromBase64(String value);
     }
 }

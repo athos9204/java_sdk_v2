@@ -17,7 +17,7 @@
 package com.gsma.mobileconnect.r2.identity;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.gsma.mobileconnect.r2.DefaultEncodeDecoder;
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.ErrorResponse;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
