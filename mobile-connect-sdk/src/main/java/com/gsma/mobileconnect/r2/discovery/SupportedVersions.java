@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.gsma.mobileconnect.r2.MobileConnectVersions;
-import com.gsma.mobileconnect.r2.constants.Scope;
 import com.gsma.mobileconnect.r2.constants.Scopes;
 import com.gsma.mobileconnect.r2.utils.*;
 
@@ -41,13 +40,13 @@ public class SupportedVersions
 {
     private final List<String> recognised_versions = new ArrayList<String>()
     {{
-        add(Scope.OPENID);
-        add(Scope.AUTHN);
-        add(Scope.AUTHZ);
-        add(Scope.IDENTITYNATIONALID);
-        add(Scope.IDENTITYPHONE);
-        add(Scope.IDENTITYSIGNUP);
-        add(Scope.IDENTITYSIGNUPPLUS);
+        add(Scopes.MOBILECONNECT);
+        add(Scopes.MOBILECONNECTAUTHENTICATION);
+        add(Scopes.MOBILECONNECTAUTHORIZATION);
+        add(Scopes.MOBILECONNECTIDENTITYNATIONALID);
+        add(Scopes.MOBILECONNECTIDENTITYPHONE);
+        add(Scopes.MOBILECONNECTIDENTITYSIGNUP);
+        add(Scopes.MOBILECONNECTIDENTITYSIGNUPPLUS);
     }};
     private final Map<String, String> versions;
     private final String maxSupportedVersion;
