@@ -23,6 +23,7 @@ import com.gsma.mobileconnect.r2.cache.ICache;
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryService;
 import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.identity.IdentityService;
@@ -33,6 +34,7 @@ import com.gsma.mobileconnect.r2.rest.RestClient;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
 import com.gsma.mobileconnect.r2.utils.JsonWebTokens;
 import com.gsma.mobileconnect.r2.utils.ObjectUtils;
+import com.sun.istack.internal.Nullable;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
@@ -116,12 +118,24 @@ public final class MobileConnect
      * Builds a MobileConnect with all defaults.
      *
      * @param config must be specified.
+     * @param iMobileConnectEncodeDecoder An object that extends {@link IMobileConnectEncodeDecoder}. Defaults to {@link DefaultEncodeDecoder}
      * @return constructed MobileConnect instance.
      */
     public static MobileConnect build(final MobileConnectConfig config,
-        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+        @Nullable final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         return builder(config, iMobileConnectEncodeDecoder).build();
+    }
+
+    /**
+     * Builds a MobileConnect with all defaults.
+     *
+     * @param config must be specified.
+     * @return constructed MobileConnect instance.
+     */
+    public static MobileConnect build(final MobileConnectConfig config)
+    {
+        return builder(config, new DefaultEncodeDecoder()).build();
     }
 
     /**
