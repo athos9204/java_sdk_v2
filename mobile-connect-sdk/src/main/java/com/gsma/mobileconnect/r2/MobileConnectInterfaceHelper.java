@@ -22,6 +22,7 @@ import com.gsma.mobileconnect.r2.authentication.RequestTokenResponse;
 import com.gsma.mobileconnect.r2.authentication.StartAuthenticationResponse;
 import com.gsma.mobileconnect.r2.constants.Parameters;
 import com.gsma.mobileconnect.r2.discovery.*;
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.identity.IdentityResponse;
 import com.gsma.mobileconnect.r2.utils.*;
@@ -165,7 +166,8 @@ class MobileConnectInterfaceHelper
 
     static MobileConnectStatus requestToken(final IAuthenticationService authnService,
         final DiscoveryResponse discoveryResponse, final URI redirectedUrl,
-        final String expectedState, final String expectedNonce, final MobileConnectConfig config)
+        final String expectedState, final String expectedNonce, final MobileConnectConfig config,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         ObjectUtils.requireNonNull(discoveryResponse, "discoveryResponse");
         StringUtils.requireNonEmpty(expectedState, "expectedState");
@@ -211,7 +213,7 @@ class MobileConnectInterfaceHelper
                         errorResponse.getErrorDescription(), null, requestTokenResponse);
                 }
                 else if (isExpectedNonce(requestTokenResponse.getResponseData().getIdToken(),
-                    expectedNonce))
+                    expectedNonce, iMobileConnectEncodeDecoder))
                 {
                     LOGGER.warn(
                         "Responding with responseType={} for requestToken for redirectedUrl={}, expectedState={}, expectedNonce={}, as jwtToken did not contain expectedNonce; possible replay attack",
@@ -244,9 +246,11 @@ class MobileConnectInterfaceHelper
         }
     }
 
-    private static boolean isExpectedNonce(final String token, final String expectedNonce)
+    private static boolean isExpectedNonce(final String token, final String expectedNonce,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
-        final String decodedPayload = JsonWebTokens.Part.PAYLOAD.decode(token);
+        final String decodedPayload =
+            JsonWebTokens.Part.PAYLOAD.decode(token, iMobileConnectEncodeDecoder);
         final Matcher matcher = NONCE_REGEX.matcher(decodedPayload);
 
         return matcher.find() && matcher.group(1).equals(expectedNonce);
@@ -255,7 +259,8 @@ class MobileConnectInterfaceHelper
     static MobileConnectStatus handleUrlRedirect(final IDiscoveryService discoveryService,
         final IAuthenticationService authnService, final URI redirectedUrl,
         final DiscoveryResponse discoveryResponse, final String expectedState,
-        final String expectedNonce, final MobileConnectConfig config)
+        final String expectedNonce, final MobileConnectConfig config,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         ObjectUtils.requireNonNull(redirectedUrl, "redirectedUrl");
 
@@ -267,7 +272,7 @@ class MobileConnectInterfaceHelper
                 LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG));
 
             return requestToken(authnService, discoveryResponse, redirectedUrl, expectedState,
-                expectedNonce, config);
+                expectedNonce, config, iMobileConnectEncodeDecoder);
         }
         else if (HttpUtils.extractQueryValue(redirectedUrl, Parameters.MCC_MNC) != null)
         {
@@ -301,24 +306,27 @@ class MobileConnectInterfaceHelper
     }
 
     static MobileConnectStatus requestUserInfo(final IIdentityService identityService,
-        final DiscoveryResponse discoveryResponse, final String accessToken)
+        final DiscoveryResponse discoveryResponse, final String accessToken,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         return requestInfo(identityService, accessToken,
             discoveryResponse.getOperatorUrls().getUserInfoUrl(), "requestUserInfo",
-            MobileConnectStatus.ResponseType.USER_INFO);
+            MobileConnectStatus.ResponseType.USER_INFO, iMobileConnectEncodeDecoder);
     }
 
     static MobileConnectStatus requestIdentity(final IIdentityService identityService,
-        final DiscoveryResponse discoveryResponse, final String accessToken)
+        final DiscoveryResponse discoveryResponse, final String accessToken,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         return requestInfo(identityService, accessToken,
             discoveryResponse.getOperatorUrls().getPremiumInfoUri(), "requestIdentity",
-            MobileConnectStatus.ResponseType.IDENTITY);
+            MobileConnectStatus.ResponseType.IDENTITY, iMobileConnectEncodeDecoder);
     }
 
     private static MobileConnectStatus requestInfo(final IIdentityService identityService,
         final String accessToken, final String infoUrl, final String method,
-        final MobileConnectStatus.ResponseType responseType)
+        final MobileConnectStatus.ResponseType responseType,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         if (StringUtils.isNullOrEmpty(infoUrl))
         {
@@ -335,7 +343,8 @@ class MobileConnectInterfaceHelper
             try
             {
                 final IdentityResponse response =
-                    identityService.requestInfo(URI.create(infoUrl), accessToken);
+                    identityService.requestInfo(URI.create(infoUrl), accessToken,
+                        iMobileConnectEncodeDecoder);
 
                 final ErrorResponse errorResponse = response.getErrorResponse();
                 if (errorResponse != null)

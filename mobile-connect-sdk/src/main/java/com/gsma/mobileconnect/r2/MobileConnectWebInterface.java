@@ -22,6 +22,7 @@ import com.gsma.mobileconnect.r2.cache.CacheAccessException;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.utils.*;
 import org.slf4j.Logger;
@@ -54,6 +55,7 @@ public class MobileConnectWebInterface
     private final IAuthenticationService authnService;
     private final IIdentityService identityService;
     private final MobileConnectConfig config;
+    private final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
     private MobileConnectWebInterface(Builder builder)
     {
@@ -61,6 +63,7 @@ public class MobileConnectWebInterface
         this.authnService = builder.authnService;
         this.identityService = builder.identityService;
         this.config = builder.config;
+        this.iMobileConnectEncodeDecoder = builder.iMobileConnectEncodeDecoder;
 
         LOGGER.info("Created new instance of MobileConnectWebInterface");
     }
@@ -240,7 +243,7 @@ public class MobileConnectWebInterface
             LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
         return MobileConnectInterfaceHelper.requestToken(this.authnService, discoveryResponse,
-            redirectedUrl, expectedState, expectedNonce, this.config);
+            redirectedUrl, expectedState, expectedNonce, this.config, iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -311,7 +314,8 @@ public class MobileConnectWebInterface
 
         final MobileConnectStatus status =
             MobileConnectInterfaceHelper.handleUrlRedirect(this.discoveryService, this.authnService,
-                redirectedUrl, discoveryResponse, expectedState, expectedNonce, this.config);
+                redirectedUrl, discoveryResponse, expectedState, expectedNonce, this.config,
+                iMobileConnectEncodeDecoder);
 
         return this.cacheIfRequired(status);
     }
@@ -363,7 +367,8 @@ public class MobileConnectWebInterface
                         MobileConnectInterfaceHelper.handleUrlRedirect(
                             MobileConnectWebInterface.this.discoveryService,
                             MobileConnectWebInterface.this.authnService, redirectedUrl, cached,
-                            expectedState, expectedNonce, MobileConnectWebInterface.this.config));
+                            expectedState, expectedNonce, MobileConnectWebInterface.this.config,
+                            iMobileConnectEncodeDecoder));
                 }
             }
         });
@@ -390,7 +395,7 @@ public class MobileConnectWebInterface
             LogUtils.mask(accessToken, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
         return MobileConnectInterfaceHelper.requestUserInfo(this.identityService, discoveryResponse,
-            accessToken);
+            accessToken, iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -448,7 +453,7 @@ public class MobileConnectWebInterface
             LogUtils.mask(accessToken, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
         return MobileConnectInterfaceHelper.requestIdentity(this.identityService, discoveryResponse,
-            accessToken);
+            accessToken, iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -556,6 +561,7 @@ public class MobileConnectWebInterface
         private IAuthenticationService authnService;
         private IIdentityService identityService;
         private MobileConnectConfig config;
+        private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
         public Builder withDiscoveryService(final IDiscoveryService val)
         {
@@ -578,6 +584,13 @@ public class MobileConnectWebInterface
         public Builder withConfig(final MobileConnectConfig val)
         {
             this.config = val;
+            return this;
+        }
+
+        public Builder withIMobileConnectEncodeDecoder(
+            final IMobileConnectEncodeDecoder val)
+        {
+            this.iMobileConnectEncodeDecoder = val;
             return this;
         }
 

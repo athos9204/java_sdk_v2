@@ -17,6 +17,7 @@
 package com.gsma.mobileconnect.r2.identity;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.ErrorResponse;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
@@ -49,7 +50,7 @@ public class IdentityResponseTest
             .build();
 
         final IdentityResponse identityResponse =
-            IdentityResponse.fromRestResponse(restResponse, this.jsonService);
+            IdentityResponse.fromRestResponse(restResponse, this.jsonService, new DefaultEncodeDecoder());
 
         assertEquals(identityResponse.getResponseJson(), responseJson);
     }
@@ -66,7 +67,7 @@ public class IdentityResponseTest
             .build();
 
         final IdentityResponse identityResponse =
-            IdentityResponse.fromRestResponse(restResponse, this.jsonService);
+            IdentityResponse.fromRestResponse(restResponse, this.jsonService, new DefaultEncodeDecoder());
 
         final JsonNode jsonNode =
             this.jsonService.getObjectMapper().readTree(identityResponse.getResponseJson());
@@ -84,7 +85,7 @@ public class IdentityResponseTest
             new RestResponse.Builder().withStatusCode(HttpStatus.SC_ACCEPTED).build();
 
         final IdentityResponse identityResponse =
-            IdentityResponse.fromRestResponse(restResponse, this.jsonService);
+            IdentityResponse.fromRestResponse(restResponse, this.jsonService, new DefaultEncodeDecoder());
 
         assertNull(identityResponse.getResponseJson());
     }
@@ -99,7 +100,7 @@ public class IdentityResponseTest
             .build();
 
         final IdentityResponse identityResponse =
-            IdentityResponse.fromRestResponse(restResponse, this.jsonService);
+            IdentityResponse.fromRestResponse(restResponse, this.jsonService, new DefaultEncodeDecoder());
 
         assertNotNull(identityResponse.getErrorResponse());
         assertEquals(identityResponse.getErrorResponse().getError(), "invalid_format");
@@ -116,7 +117,7 @@ public class IdentityResponseTest
             .build();
 
         final IdentityResponse identityResponse =
-            IdentityResponse.fromRestResponse(restResponse, this.jsonService);
+            IdentityResponse.fromRestResponse(restResponse, this.jsonService, new DefaultEncodeDecoder());
         final UserInfoData userInfoData =
             identityResponse.getResponseAs(UserInfoData.class, this.jsonService);
 
@@ -148,7 +149,7 @@ public class IdentityResponseTest
             .build();
 
         final IdentityResponse identityResponse =
-            IdentityResponse.fromRestResponse(restResponse, this.jsonService);
+            IdentityResponse.fromRestResponse(restResponse, this.jsonService, new DefaultEncodeDecoder());
         final UserInfoData first =
             identityResponse.getResponseAs(UserInfoData.class, this.jsonService);
         final UserInfoData second =
@@ -165,7 +166,7 @@ public class IdentityResponseTest
             new RestResponse.Builder().withStatusCode(HttpStatus.SC_ACCEPTED).build();
 
         final IdentityResponse identityResponse =
-            IdentityResponse.fromRestResponse(restResponse, this.jsonService);
+            IdentityResponse.fromRestResponse(restResponse, this.jsonService, new DefaultEncodeDecoder());
         final UserInfoData userInfoData =
             identityResponse.getResponseAs(UserInfoData.class, this.jsonService);
 
@@ -183,7 +184,7 @@ public class IdentityResponseTest
             .build();
 
         final IdentityResponse identityResponse =
-            IdentityResponse.fromRestResponse(restResponse, this.jsonService);
+            IdentityResponse.fromRestResponse(restResponse, this.jsonService, new DefaultEncodeDecoder());
 
         assertNotNull(identityResponse);
 
