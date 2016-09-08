@@ -22,6 +22,7 @@ import com.gsma.mobileconnect.r2.cache.CacheAccessException;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.utils.*;
@@ -561,7 +562,7 @@ public class MobileConnectWebInterface
         private IAuthenticationService authnService;
         private IIdentityService identityService;
         private MobileConnectConfig config;
-        private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
+        private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder = new DefaultEncodeDecoder();
 
         public Builder withDiscoveryService(final IDiscoveryService val)
         {
