@@ -74,8 +74,24 @@ public class AuthenticationService implements IAuthenticationService
         final String encryptedMSISDN, final SupportedVersions versions,
         final AuthenticationOptions options)
     {
-        final String loginHint = options != null ? ObjectUtils.defaultIfNull(options.getLoginHint(),
-            String.format("ENCR_MSISDN:%s", encryptedMSISDN)) : null;
+        /**
+         // Commented out to fix GSMAQA-403
+         final String loginHint = options != null ? ObjectUtils.defaultIfNull(options.getLoginHint(),
+         String.format("ENCR_MSISDN:%s", encryptedMSISDN)) : null;
+         */
+
+        String loginHint = null;
+        if (options != null)
+        {
+            if (options.getLoginHint() != null)
+            {
+                loginHint = options.getLoginHint();
+            }
+            else if (encryptedMSISDN != null)
+            {
+                loginHint = String.format("ENCR_MSISDN:%s", encryptedMSISDN);
+            }
+        }
 
         final AuthenticationOptions.Builder optionsBuilder =
             new AuthenticationOptions.Builder(options)
@@ -288,8 +304,7 @@ public class AuthenticationService implements IAuthenticationService
             return this;
         }
 
-        public Builder withIMobileConnectEncodeDecoder(
-            final IMobileConnectEncodeDecoder val)
+        public Builder withIMobileConnectEncodeDecoder(final IMobileConnectEncodeDecoder val)
         {
             this.iMobileConnectEncodeDecoder = val;
             return this;
