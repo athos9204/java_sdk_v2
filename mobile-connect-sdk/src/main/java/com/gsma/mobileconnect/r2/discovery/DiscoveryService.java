@@ -281,16 +281,21 @@ public class DiscoveryService implements IDiscoveryService
 
     private List<KeyValuePair> extractQueryParams(final DiscoveryOptions options)
     {
-        return new KeyValuePair.ListBuilder()
-            .add(Parameters.MSISDN, StringUtils.trimLeading(options.getMsisdn(), '+'))
+        KeyValuePair.ListBuilder listBuilder = new KeyValuePair.ListBuilder()
             .add(Parameters.REDIRECT_URL, options.getRedirectUrl().toString())
             .add(Parameters.IDENTIFIED_MCC, options.getIdentifiedMcc())
             .add(Parameters.IDENTIFIED_MNC, options.getIdentifiedMnc())
             .add(Parameters.SELECTED_MCC, options.getSelectedMcc())
             .add(Parameters.SELECTED_MNC, options.getSelectedMnc())
             .add(Parameters.LOCAL_CLIENT_IP, options.getLocalClientIp())
-            .add(Parameters.USING_MOBILE_DATA, options.isUsingMobileData() ? "1" : "0")
-            .build();
+            .add(Parameters.USING_MOBILE_DATA, options.isUsingMobileData() ? "1" : "0");
+
+        if (options.getMsisdn() != null)
+        {
+            listBuilder.add(Parameters.MSISDN, StringUtils.trimLeading(options.getMsisdn(), '+'));
+        }
+
+        return listBuilder.build();
     }
 
     @Override
