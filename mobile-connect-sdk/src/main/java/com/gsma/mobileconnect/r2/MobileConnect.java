@@ -32,9 +32,7 @@ import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.rest.IRestClient;
 import com.gsma.mobileconnect.r2.rest.RestClient;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
-import com.gsma.mobileconnect.r2.utils.JsonWebTokens;
 import com.gsma.mobileconnect.r2.utils.ObjectUtils;
-import com.sun.istack.internal.Nullable;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.slf4j.Logger;
@@ -121,8 +119,7 @@ public final class MobileConnect
      * @param iMobileConnectEncodeDecoder An object that extends {@link IMobileConnectEncodeDecoder}. Defaults to {@link DefaultEncodeDecoder}
      * @return constructed MobileConnect instance.
      */
-    public static MobileConnect build(final MobileConnectConfig config,
-        @Nullable final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+    public static MobileConnect build(final MobileConnectConfig config, final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         return builder(config, iMobileConnectEncodeDecoder).build();
     }
