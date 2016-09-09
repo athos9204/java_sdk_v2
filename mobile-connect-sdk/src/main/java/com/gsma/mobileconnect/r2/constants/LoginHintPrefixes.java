@@ -17,7 +17,7 @@
 package com.gsma.mobileconnect.r2.constants;
 
 /**
- * Contants for login hint prefixes
+ * Constants for login hint prefixes
  *
  * @since 2.0
  */

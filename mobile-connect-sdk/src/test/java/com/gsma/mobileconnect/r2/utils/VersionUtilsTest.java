@@ -49,5 +49,7 @@ public class VersionUtilsTest
         assertEquals(VersionUtils.versionCompare("2.1", "1.3"), 1, "Comparing 2.1 and 1.2");
         assertEquals(VersionUtils.versionCompare("2", "1.1.1"), 1, "Comparing 2 and 1.1.1");
         assertEquals(VersionUtils.versionCompare("1.1.0", "1.1"), 0, "Comparing 1.1.0 and 1.1");
+
+        assertEquals(VersionUtils.versionCompare("mc_v1.1.0", "mc_v1.1"), 0, "Comparing mc_v1.1.0 and mc_v1.1");
     }
 }

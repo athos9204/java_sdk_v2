@@ -88,6 +88,8 @@ public class SupportedVersions
      */
     public String getSupportedVersion(final String scope)
     {
+        ObjectUtils.requireNonNull(scope, "scope");
+
         if (ListUtils.firstMatch(recognised_versions, new Predicate<String>()
             {
                 @Override
@@ -97,10 +99,9 @@ public class SupportedVersions
                 }
             }) == null)
         {
+            // TODO: 09/09/16 Should this default to something? 
             return null;
         }
-
-        ObjectUtils.requireNonNull(scope, "scope");
 
         final String version = ObjectUtils.defaultIfNull(this.versions.get(scope),
             this.versions.get(Scopes.MOBILECONNECT));
@@ -115,7 +116,7 @@ public class SupportedVersions
      */
     public boolean isVersionSupported(final String version)
     {
-        if (version == null || version == "")
+        if (StringUtils.isNullOrEmpty(version))
         {
             return false;
         }

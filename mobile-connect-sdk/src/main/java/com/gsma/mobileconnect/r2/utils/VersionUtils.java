@@ -42,6 +42,7 @@ public class VersionUtils
         }
         // compare first non-equal ordinal number
         if (i < vals1.size() && i < vals2.size()) {
+            // TODO: 09/09/16 Should this handle NumberFormatException
             int diff = Integer.valueOf(vals1.get(i).replaceAll("[\\D]", "")).compareTo(Integer.valueOf(vals2.get(i).replaceAll("[\\D]", "")));
             return Integer.signum(diff);
         }

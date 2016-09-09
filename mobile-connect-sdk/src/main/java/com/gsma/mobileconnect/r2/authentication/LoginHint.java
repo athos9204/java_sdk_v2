@@ -80,7 +80,7 @@ public class LoginHint
     {
         if (providerMetadata == null ||
             providerMetadata.getLoginHintMethodsSupported() == null ||
-            providerMetadata.getLoginHintMethodsSupported().size() == 0)
+            providerMetadata.getLoginHintMethodsSupported().isEmpty())
         {
             SupportedVersions supportedVersions = (providerMetadata != null) ? providerMetadata.getMobileConnectVersionSupported() : DEFAULT_VERSIONS;
 
@@ -104,7 +104,7 @@ public class LoginHint
             }
 
             // If we aren't at 1.2 or greater then we must be on 1.1 and therefore only MSISDN and encrypted are supported
-            if (prefix != LoginHintPrefixes.ENCRYPTED_MSISDN && prefix != LoginHintPrefixes.MSISDN)
+            if (!LoginHintPrefixes.ENCRYPTED_MSISDN .equalsIgnoreCase(prefix) && !LoginHintPrefixes.MSISDN.equalsIgnoreCase(prefix))
             {
                 return false;
             }
