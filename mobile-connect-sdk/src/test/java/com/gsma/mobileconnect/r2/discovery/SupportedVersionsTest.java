@@ -16,6 +16,7 @@
  */
 package com.gsma.mobileconnect.r2.discovery;
 
+import com.gsma.mobileconnect.r2.constants.Scopes;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
@@ -23,8 +24,7 @@ import com.gsma.mobileconnect.r2.json.JsonSerializationException;
 import com.gsma.mobileconnect.r2.utils.TestUtils;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertEqualsNoOrder;
+import static org.testng.Assert.*;
 
 /**
  * Tests {@link SupportedVersions}.
@@ -38,27 +38,28 @@ public class SupportedVersionsTest
     @Test
     public void getSupportedVersionShouldReturnVersionForScope()
     {
+        String mcAuthenticationVersion = "2.0";
         final SupportedVersions supportedVersions = new SupportedVersions.Builder()
-            .addSupportedVersion("openid", "1")
-            .addSupportedVersion("test", "2")
+            .addSupportedVersion("openid", "1.2")
+            .addSupportedVersion(Scopes.MOBILECONNECTAUTHENTICATION, mcAuthenticationVersion)
             .build();
 
-        final String actual = supportedVersions.getSupportedVersion("test");
+        final String actual = supportedVersions.getSupportedVersion(Scopes.MOBILECONNECTAUTHENTICATION);
 
-        assertEquals(actual, "2");
+        assertEquals(actual, mcAuthenticationVersion);
     }
 
     @Test
     public void getSupportedVersionShouldReturnVersionForOpenidIfScopeNotFound()
     {
         final SupportedVersions supportedVersions = new SupportedVersions.Builder()
-            .addSupportedVersion("openid", "1")
-            .addSupportedVersion("test2", "2")
+            .addSupportedVersion("openid", "1.2")
+            .addSupportedVersion(Scopes.MOBILECONNECTAUTHENTICATION, "2.0")
             .build();
 
-        final String actual = supportedVersions.getSupportedVersion("test");
+        final String actual = supportedVersions.getSupportedVersion(Scopes.MOBILECONNECTAUTHORIZATION);
 
-        assertEquals(actual, "1");
+        assertEquals(actual, "1.2");
     }
 
     @Test
@@ -88,5 +89,72 @@ public class SupportedVersionsTest
         final String actual = this.jsonService.serialize(versions);
 
         assertEqualsNoOrder(TestUtils.splitArray(actual), TestUtils.splitArray(json));
+    }
+
+    @Test
+    public void getSupportedVersionShouldReturnNullIfScopeNotRecognised()
+    {
+        final SupportedVersions supportedVersions = new SupportedVersions.Builder().build();
+
+        final String supportedVersion = supportedVersions.getSupportedVersion("testest");
+
+        assertNull(supportedVersion);
+    }
+
+    @Test
+    public void isVersionSupportedShouldReturnFalseIfVersionNull()
+    {
+        final SupportedVersions supportedVersions = new SupportedVersions.Builder().build();
+        final String version = null;
+
+        final boolean versionSupported = supportedVersions.isVersionSupported(version);
+
+        assertFalse(versionSupported);
+    }
+
+    @Test
+    public void isVersionSupportedShouldReturnFalseIfVersionEmpty()
+    {
+        final SupportedVersions supportedVersions = new SupportedVersions.Builder().build();
+        final String version = "";
+
+        final boolean versionSupported = supportedVersions.isVersionSupported(version);
+
+        assertFalse(versionSupported);
+    }
+
+    @Test
+    public void isVersionSupportedShouldReturnTrueIfMaxVersionSupported()
+    {
+        final SupportedVersions supportedVersions = new SupportedVersions.Builder().build();
+        final String version = "mc_v1.1";
+
+        final boolean versionSupported = supportedVersions.isVersionSupported(version);
+
+        assertTrue(versionSupported);
+    }
+
+    @Test
+    public void isVersionSupportedShouldReturnTrueIfLowerThanMaxVersionSupported()
+    {
+        final SupportedVersions supportedVersions = new SupportedVersions.Builder()
+            .addSupportedVersion(Scopes.MOBILECONNECT, "mc_v1.2").build();
+        final String version = "mc_v1.1";
+
+        final boolean versionSupported  = supportedVersions.isVersionSupported(version);
+
+        assertTrue(versionSupported);
+    }
+
+    @Test
+    public void isVersionSupportedShouldReturnFalseIfHigherThanMaxVersionSupported()
+    {
+        final SupportedVersions supportedVersions = new SupportedVersions.Builder()
+            .addSupportedVersion(Scopes.MOBILECONNECT, "mc_v1.2").build();
+        final String version = "mc_v1.3";
+
+        final boolean versionSupported  = supportedVersions.isVersionSupported(version);
+
+        assertFalse(versionSupported);
     }
 }
