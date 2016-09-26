@@ -75,6 +75,7 @@ public class RestClient implements IRestClient
             .setConnectionRequestTimeout(timeoutAsInt)
             .setConnectTimeout(timeoutAsInt)
             .setSocketTimeout(timeoutAsInt)
+            .setRedirectsEnabled(false)
             .build();
 
         LOGGER.info("New instance of RestClient created with timeout={} ms", timeoutAsInt);
@@ -178,6 +179,84 @@ public class RestClient implements IRestClient
             .build();
 
         return this.submitRequest(request);
+    }
+
+    @Override
+    public URI getFinalRedirect(final URI authUrl, final URI targetUrl,
+        final RestAuthentication authentication) throws RequestFailedException
+    {
+        int maxRedirects = 50;
+        RestResponse response = null;
+        URI nextUrl = authUrl;
+        int numRedirects = 0;
+
+        try
+        {
+            do
+            {
+                if (numRedirects > maxRedirects)
+                {
+                    throw new TooManyRedirectsException("Stuck in redirect loop");
+                }
+
+                if (response != null)
+                {
+                    URI locationUrl = this.retrieveLocation(response);
+                    nextUrl = locationUrl == null ? nextUrl : locationUrl;
+                    numRedirects++;
+                }
+
+                RequestBuilder requestBuilder =
+                    this.createRequest(HttpUtils.HttpMethod.GET, nextUrl, authentication, null,
+                        null);
+                response = this.submitRequest(requestBuilder.build());
+
+                //} while (String.valueOf(response.getStatusCode()).startsWith("3"));
+                //} while (response.getStatusCode() != 302);
+            } while (String.valueOf(response.getStatusCode()).startsWith("3") && !this
+                .retrieveLocation(response)
+                .toString()
+                .startsWith(targetUrl.toString()));
+            return response.getUri();
+        }
+        catch (RequestFailedException e)
+        {
+            //If the final redirect is a non-working url then it may cause a request exception,
+            // if we verify it is the redirect url then just return it.
+            //Otherwise it was a request failure at some other point in the redirect chain
+            if (nextUrl.toString().startsWith(targetUrl.toString()))
+            {
+                return nextUrl;
+            }
+            throw e;
+        }
+        catch (URISyntaxException e)
+        {
+            LOGGER.error("Invalid redirect URL", e);
+            throw new RequestFailedException(HttpUtils.HttpMethod.GET, authUrl, e);
+        }
+        catch (TooManyRedirectsException e)
+        {
+            LOGGER.error("Too many redirects", e);
+            throw new RequestFailedException(HttpUtils.HttpMethod.GET, authUrl, e);
+        }
+
+    }
+
+    private URI retrieveLocation(RestResponse response) throws URISyntaxException
+    {
+        URI uri = null;
+        for (KeyValuePair keyValuePair : response.getHeaders())
+        {
+            if ("Location".equalsIgnoreCase(keyValuePair.getKey()))
+            {
+                uri = new URI(keyValuePair.getValue());
+                break;
+            }
+        }
+        return uri;
+
+        // TODO Add checks to see if the url is an absolute or relative one & handle relative paths?
     }
 
     /**

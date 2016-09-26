@@ -46,6 +46,8 @@ public final class DefaultOptions
     public static final String VERSION_MOBILECONNECTIDENTITY = MC_V1_2;
     public static final int THREAD_POOL_SIZE = 100;
 
+    public static final String PROMPT = "mobile";
+
     private DefaultOptions()
     {
     }

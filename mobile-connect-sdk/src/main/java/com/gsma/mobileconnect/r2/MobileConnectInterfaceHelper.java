@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 import java.net.URI;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -164,6 +165,48 @@ class MobileConnectInterfaceHelper
         }
     }
 
+    static MobileConnectStatus requestHeadlessAuthentication(
+        final IAuthenticationService authnService, final DiscoveryResponse discoveryResponse,
+        final String encryptedMsisdn, final String expectedState, final String expectedNonce,
+        final MobileConnectConfig config, final AuthenticationOptions.Builder authnOptionsBuilder,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+    {
+        ObjectUtils.requireNonNull(discoveryResponse, "discoveryResponse");
+
+        try
+        {
+            final String clientId = ObjectUtils.defaultIfNull(
+                discoveryResponse.getResponseData().getResponse().getClientId(),
+                config.getClientId());
+            final String clientSecret =
+                discoveryResponse.getResponseData().getResponse().getClientSecret();
+            final URI authorizationUrl =
+                URI.create(discoveryResponse.getOperatorUrls().getAuthorizationUrl());
+            final URI tokenUrl =
+                URI.create(discoveryResponse.getOperatorUrls().getRequestTokenUrl());
+            final SupportedVersions supportedVersions =
+                discoveryResponse.getProviderMetadata().getMobileConnectVersionSupported();
+            authnOptionsBuilder.withClientName(discoveryResponse.getApplicationShortName());
+
+            final Future<RequestTokenResponse> requestTokenResponseAsync =
+                authnService.requestHeadlessAuthentication(clientId, clientSecret, authorizationUrl,
+                    tokenUrl, config.getRedirectUrl(), expectedState, expectedNonce,
+                    encryptedMsisdn, supportedVersions, authnOptionsBuilder.build());
+
+            // TODO Add the JWT token validation code here?
+            return processRequestTokenResponse(requestTokenResponseAsync.get(), expectedState,
+                expectedNonce, config.getRedirectUrl(), iMobileConnectEncodeDecoder);
+        }
+        catch (final Exception e)
+        {
+            LOGGER.warn(
+                "requestHeadlessAuthentication failed for encryptedMsisdn={}, state={}, nonce={}",
+                LogUtils.mask(encryptedMsisdn, LOGGER, Level.WARN), expectedState,
+                LogUtils.mask(expectedNonce, LOGGER, Level.WARN), e);
+            return MobileConnectStatus.error("request headless authentication", e);
+        }
+    }
+
     static MobileConnectStatus requestToken(final IAuthenticationService authnService,
         final DiscoveryResponse discoveryResponse, final URI redirectedUrl,
         final String expectedState, final String expectedNonce, final MobileConnectConfig config,
@@ -201,38 +244,8 @@ class MobileConnectInterfaceHelper
                     authnService.requestToken(clientId, clientSecret, URI.create(requestTokenUrl),
                         config.getRedirectUrl(), code);
 
-                final ErrorResponse errorResponse = requestTokenResponse.getErrorResponse();
-                if (errorResponse != null)
-                {
-                    LOGGER.warn(
-                        "Responding with responseType={} for requestToken for redirectedUrl={}, expectedState={}, expectedNonce={}, authentication service responded with error={}",
-                        MobileConnectStatus.ResponseType.ERROR, redirectedUrl, expectedState,
-                        LogUtils.mask(expectedNonce, LOGGER, Level.WARN), errorResponse);
-
-                    return MobileConnectStatus.error(errorResponse.getError(),
-                        errorResponse.getErrorDescription(), null, requestTokenResponse);
-                }
-                else if (isExpectedNonce(requestTokenResponse.getResponseData().getIdToken(),
-                    expectedNonce, iMobileConnectEncodeDecoder))
-                {
-                    LOGGER.warn(
-                        "Responding with responseType={} for requestToken for redirectedUrl={}, expectedState={}, expectedNonce={}, as jwtToken did not contain expectedNonce; possible replay attack",
-                        MobileConnectStatus.ResponseType.ERROR,
-                        LogUtils.maskUri(redirectedUrl, LOGGER, Level.WARN), expectedState,
-                        LogUtils.mask(expectedNonce, LOGGER, Level.WARN));
-
-                    return MobileConnectStatus.error("invalid_nonce",
-                        "nonce values do not match, possible replay attack", null);
-                }
-                else
-                {
-                    LOGGER.debug(
-                        "Responding with responseType={} for requestToken for redirectedUrl={}, expectedState={}, expectedNonce={}",
-                        MobileConnectStatus.ResponseType.COMPLETE,
-                        LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
-                        LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG));
-                    return MobileConnectStatus.complete(requestTokenResponse);
-                }
+                return processRequestTokenResponse(requestTokenResponse, expectedState,
+                    expectedNonce, redirectedUrl, iMobileConnectEncodeDecoder);
             }
             catch (final Exception e)
             {
@@ -243,6 +256,45 @@ class MobileConnectInterfaceHelper
 
                 return MobileConnectStatus.error("request token", e);
             }
+        }
+    }
+
+    private static MobileConnectStatus processRequestTokenResponse(
+        final RequestTokenResponse requestTokenResponse, final String expectedState,
+        final String expectedNonce, final URI redirectedUrl,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+    {
+        final ErrorResponse errorResponse = requestTokenResponse.getErrorResponse();
+        if (errorResponse != null)
+        {
+            LOGGER.warn(
+                "Responding with responseType={} for requestToken for redirectedUrl={}, expectedState={}, expectedNonce={}, authentication service responded with error={}",
+                MobileConnectStatus.ResponseType.ERROR, redirectedUrl, expectedState,
+                LogUtils.mask(expectedNonce, LOGGER, Level.WARN), errorResponse);
+
+            return MobileConnectStatus.error(errorResponse.getError(),
+                errorResponse.getErrorDescription(), null, requestTokenResponse);
+        }
+        else if (isExpectedNonce(requestTokenResponse.getResponseData().getIdToken(), expectedNonce,
+            iMobileConnectEncodeDecoder))
+        {
+            LOGGER.warn(
+                "Responding with responseType={} for requestToken for redirectedUrl={}, expectedState={}, expectedNonce={}, as jwtToken did not contain expectedNonce; possible replay attack",
+                MobileConnectStatus.ResponseType.ERROR,
+                LogUtils.maskUri(redirectedUrl, LOGGER, Level.WARN), expectedState,
+                LogUtils.mask(expectedNonce, LOGGER, Level.WARN));
+
+            return MobileConnectStatus.error("invalid_nonce",
+                "nonce values do not match, possible replay attack", null);
+        }
+        else
+        {
+            LOGGER.debug(
+                "Responding with responseType={} for requestToken for redirectedUrl={}, expectedState={}, expectedNonce={}",
+                MobileConnectStatus.ResponseType.COMPLETE,
+                LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
+                LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG));
+            return MobileConnectStatus.complete(requestTokenResponse);
         }
     }
 

@@ -74,12 +74,6 @@ public class AuthenticationService implements IAuthenticationService
         final String encryptedMSISDN, final SupportedVersions versions,
         final AuthenticationOptions options)
     {
-        /**
-         // Commented out to fix GSMAQA-403
-         final String loginHint = options != null ? ObjectUtils.defaultIfNull(options.getLoginHint(),
-         String.format("ENCR_MSISDN:%s", encryptedMSISDN)) : null;
-         */
-
         String loginHint = null;
         if (options != null)
         {
@@ -240,6 +234,44 @@ public class AuthenticationService implements IAuthenticationService
         }
 
         return builder.buildAsNameValuePairList();
+    }
+
+    @Override
+    public Future<RequestTokenResponse> requestHeadlessAuthentication(final String clientId,
+        final String clientSecret, final URI authorizationUrl, final URI requestTokenUrl,
+        final URI redirectUrl, final String state, final String nonce, final String encryptedMsisdn,
+        final SupportedVersions versions, final AuthenticationOptions options)
+        throws RequestFailedException
+    {
+        /*
+        final AuthenticationOptions.Builder optionsBuilder =
+            new AuthenticationOptions.Builder(options).withPrompt(DefaultOptions.PROMPT);
+        StartAuthenticationResponse startAuthenticationResponse =
+            startAuthentication(clientId, authorizationUrl, redirectUrl, state, nonce,
+                encryptedMsisdn, versions, optionsBuilder.build());
+         */
+        StartAuthenticationResponse startAuthenticationResponse =
+            startAuthentication(clientId, authorizationUrl, redirectUrl, state, nonce,
+                encryptedMsisdn, versions, options);
+        final RestAuthentication authentication =
+            RestAuthentication.basic(clientId, clientSecret, iMobileConnectEncodeDecoder);
+
+        URI authUrl = startAuthenticationResponse.getUrl();
+        URI finalRedirect = restClient.getFinalRedirect(authUrl, redirectUrl,authentication);
+
+        // TODO - Check if the finalRedirectUrl was an error response?
+
+        final String code = HttpUtils.extractQueryValue(finalRedirect, "code");
+
+        return this.executorService.submit(new Callable<RequestTokenResponse>()
+        {
+            @Override
+            public RequestTokenResponse call() throws Exception
+            {
+                return AuthenticationService.this.requestToken(clientId, clientSecret,
+                    requestTokenUrl, redirectUrl, code);
+            }
+        });
     }
 
     @Override

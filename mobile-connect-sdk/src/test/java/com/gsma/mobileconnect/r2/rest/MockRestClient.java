@@ -131,4 +131,10 @@ public class MockRestClient implements IRestClient
     {
         return this.getNext();
     }
+
+    @Override
+    public URI getFinalRedirect(URI authUrl, URI redirectUrl, RestAuthentication authentication)
+    {
+        return redirectUrl;
+    }
 }

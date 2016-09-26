@@ -219,6 +219,90 @@ public class MobileConnectWebInterface
     }
 
     /**
+     * Performs headless authentication followed by request token if successful.
+     * Tokens will be validated before being returned. This may be a long running method
+     * as it waits for the authenticating user to respond using their authenticating device.
+     *
+     * @param request           Originating web request
+     * @param discoveryResponse The response returned by the discovery process
+     * @param encryptedMsisdn   Encrypted MSISDN/Subscriber Id returned from the Discovery process
+     * @param state             Unique string to be used to prevent Cross Site Forgery Request
+     *                          attacks during request token process (defaults to guid if not
+     *                          supplied, value will be returned in MobileConnectStatus object)
+     * @param nonce             Unique string to be used to prevent replay attacks during request
+     *                          token process (defaults to guid if not supplied, value will be
+     *                          returned in MobileConnectStatus object)
+     * @param options           Optional parameters
+     * @return MobileConnectStatus object with required information for continuing the mobile
+     * connect process
+     */
+    public MobileConnectStatus requestHeadlessAuthenticationAsync(final HttpServletRequest request,
+        final DiscoveryResponse discoveryResponse, final String encryptedMsisdn, final String state,
+        final String nonce, final MobileConnectRequestOptions options)
+    {
+        ObjectUtils.requireNonNull(request, ARG_REQUEST);
+
+        final AuthenticationOptions.Builder builder = options != null
+                                                      ? options.getAuthenticationOptionsBuilder()
+                                                      : new AuthenticationOptions.Builder();
+
+        final String rState =
+            StringUtils.isNullOrEmpty(state) ? UUID.randomUUID().toString() : state;
+        final String rNonce =
+            StringUtils.isNullOrEmpty(nonce) ? UUID.randomUUID().toString() : nonce;
+
+        LOGGER.debug(
+            "Running requestHeadlessAuthenticationAsync for encryptedMsisdn={}, state={}, nonce={}, clientIp={}",
+            LogUtils.mask(encryptedMsisdn, LOGGER, Level.DEBUG), rState,
+            LogUtils.mask(rNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
+
+        return MobileConnectInterfaceHelper.requestHeadlessAuthentication(this.authnService,
+            discoveryResponse, encryptedMsisdn, rState, rNonce, this.config, builder,
+            iMobileConnectEncodeDecoder);
+    }
+
+    /**
+     * Performs headless authentication followed by request token if successful.
+     * Tokens will be validated before being returned. This may be a long running method
+     * as it waits for the authenticating user to respond using their authenticating device.
+     *
+     * @param request         Originating web request
+     * @param sdkSession      SDKSession id used to fetch the discovery response with additional
+     *                        parameters that are required to request a token
+     * @param encryptedMsisdn Encrypted MSISDN/Subscriber Id returned from the Discovery process
+     * @param state           Unique string to be used to prevent Cross Site Forgery Request attacks
+     *                        during request token process (defaults to guid if not supplied, value
+     *                        will be returned in MobileConnectStatus object)
+     * @param nonce           Unique string to be used to prevent replay attacks during request
+     *                        token process (defaults to guid if not supplied, value will be
+     *                        returned in MobileConnectStatus object)
+     * @param options         Optional parameters
+     * @return MobileConnectStatus object with required information for continuing the mobile
+     * connect process
+     */
+    public MobileConnectStatus requestHeadlessAuthenticationAsync(final HttpServletRequest request,
+        final String sdkSession, final String encryptedMsisdn, final String state,
+        final String nonce, final MobileConnectRequestOptions options)
+    {
+        ObjectUtils.requireNonNull(request, ARG_REQUEST);
+
+        LOGGER.debug(
+            "Running requestHeadlessAuthenticationAsync for skdSession={}, encryptedMsisdn={}, state={}, nonce={}, clientIp={}",
+            sdkSession, LogUtils.mask(encryptedMsisdn, LOGGER, Level.DEBUG), state,
+            LogUtils.mask(nonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
+
+        return this.withCachedValue(sdkSession, true, new CacheCallback()
+        {
+            @Override
+            public MobileConnectStatus apply(final DiscoveryResponse cached)
+            {
+                return MobileConnectWebInterface.this.requestHeadlessAuthenticationAsync(request,
+                    cached, encryptedMsisdn, state, nonce, options);
+            }
+        });
+    }
+
+    /**
      * Request token using the values returned from the authorization redirect.
      *
      * @param request           Originating web request
@@ -562,7 +646,8 @@ public class MobileConnectWebInterface
         private IAuthenticationService authnService;
         private IIdentityService identityService;
         private MobileConnectConfig config;
-        private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder = new DefaultEncodeDecoder();
+        private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder =
+            new DefaultEncodeDecoder();
 
         public Builder withDiscoveryService(final IDiscoveryService val)
         {
@@ -588,8 +673,7 @@ public class MobileConnectWebInterface
             return this;
         }
 
-        public Builder withIMobileConnectEncodeDecoder(
-            final IMobileConnectEncodeDecoder val)
+        public Builder withIMobileConnectEncodeDecoder(final IMobileConnectEncodeDecoder val)
         {
             this.iMobileConnectEncodeDecoder = val;
             return this;
