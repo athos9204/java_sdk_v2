@@ -16,6 +16,7 @@
  */
 package com.gsma.mobileconnect.r2.identity;
 
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.InvalidArgumentException;
 import com.gsma.mobileconnect.r2.InvalidResponseException;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
@@ -90,7 +91,8 @@ public class IdentityServiceTest
         this.restClient.addResponse(USERINFO_RESPONSE);
 
         final IdentityResponse response =
-            this.identityService.requestInfo(USERINFO_URL, "zmalqpxnskwocbdjeivbfhru");
+            this.identityService.requestInfo(USERINFO_URL, "zmalqpxnskwocbdjeivbfhru",
+                new DefaultEncodeDecoder());
 
         assertNotNull(response);
         assertEquals(response.getResponseCode(), HttpStatus.SC_OK);
@@ -104,7 +106,8 @@ public class IdentityServiceTest
         this.restClient.addResponse(UNAUTHORIZED_RESPONSE);
 
         final IdentityResponse response =
-            this.identityService.requestInfo(USERINFO_URL, "zmalqpxnskwocbdjeivbfhru");
+            this.identityService.requestInfo(USERINFO_URL, "zmalqpxnskwocbdjeivbfhru",
+                new DefaultEncodeDecoder());
 
         assertNotNull(response);
         assertEquals(response.getResponseCode(), HttpStatus.SC_UNAUTHORIZED);
@@ -120,20 +123,22 @@ public class IdentityServiceTest
         this.restClient.addResponse(
             new RequestFailedException(HttpUtils.HttpMethod.POST, USERINFO_URL, null));
 
-        this.identityService.requestInfo(USERINFO_URL, "zmalqpxnskwocbdjeivbfhru");
+        this.identityService.requestInfo(USERINFO_URL, "zmalqpxnskwocbdjeivbfhru",
+            new DefaultEncodeDecoder());
     }
 
     @Test(expectedExceptions = InvalidArgumentException.class)
     public void requestUserInfoShouldThrowInvalidArgumentExceptionWhenUriNull()
         throws RequestFailedException
     {
-        this.identityService.requestInfo(null, "zmalqpxnskwocbdjeivbfhru");
+        this.identityService.requestInfo(null, "zmalqpxnskwocbdjeivbfhru",
+            new DefaultEncodeDecoder());
     }
 
     @Test(expectedExceptions = InvalidArgumentException.class)
     public void requestUserInfoShouldThrowInvalidArgumentExceptionWhenTokenEmpty()
         throws RequestFailedException
     {
-        this.identityService.requestInfo(USERINFO_URL, "");
+        this.identityService.requestInfo(USERINFO_URL, "", new DefaultEncodeDecoder());
     }
 }

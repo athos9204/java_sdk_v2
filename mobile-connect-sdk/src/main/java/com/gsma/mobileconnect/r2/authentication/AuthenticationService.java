@@ -22,6 +22,8 @@ import com.gsma.mobileconnect.r2.constants.Parameters;
 import com.gsma.mobileconnect.r2.constants.Scope;
 import com.gsma.mobileconnect.r2.constants.Scopes;
 import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JsonSerializationException;
 import com.gsma.mobileconnect.r2.rest.IRestClient;
@@ -54,12 +56,14 @@ public class AuthenticationService implements IAuthenticationService
     private final IJsonService jsonService;
     private final ExecutorService executorService;
     private final IRestClient restClient;
+    private final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
     private AuthenticationService(final Builder builder)
     {
         this.jsonService = builder.jsonService;
         this.executorService = builder.executorService;
         this.restClient = builder.restClient;
+        this.iMobileConnectEncodeDecoder = builder.iMobileConnectEncodeDecoder;
 
         LOGGER.info("New instance of AuthenticationService created");
     }
@@ -70,8 +74,24 @@ public class AuthenticationService implements IAuthenticationService
         final String encryptedMSISDN, final SupportedVersions versions,
         final AuthenticationOptions options)
     {
-        final String loginHint = options != null ? ObjectUtils.defaultIfNull(options.getLoginHint(),
-            String.format("ENCR_MSISDN:%s", encryptedMSISDN)) : null;
+        /**
+         // Commented out to fix GSMAQA-403
+         final String loginHint = options != null ? ObjectUtils.defaultIfNull(options.getLoginHint(),
+         String.format("ENCR_MSISDN:%s", encryptedMSISDN)) : null;
+         */
+
+        String loginHint = null;
+        if (options != null)
+        {
+            if (options.getLoginHint() != null)
+            {
+                loginHint = options.getLoginHint();
+            }
+            else if (encryptedMSISDN != null)
+            {
+                loginHint = String.format("ENCR_MSISDN:%s", encryptedMSISDN);
+            }
+        }
 
         final AuthenticationOptions.Builder optionsBuilder =
             new AuthenticationOptions.Builder(options)
@@ -234,11 +254,13 @@ public class AuthenticationService implements IAuthenticationService
             .add(Parameters.GRANT_TYPE, DefaultOptions.GRANT_TYPE)
             .build();
 
-        final RestAuthentication authentication = RestAuthentication.basic(clientId, clientSecret);
+        final RestAuthentication authentication =
+            RestAuthentication.basic(clientId, clientSecret, iMobileConnectEncodeDecoder);
         final RestResponse restResponse =
             this.restClient.postFormData(requestTokenUrl, authentication, formData, null, null);
 
-        return RequestTokenResponse.fromRestResponse(restResponse, this.jsonService);
+        return RequestTokenResponse.fromRestResponse(restResponse, this.jsonService,
+            iMobileConnectEncodeDecoder);
     }
 
     @Override
@@ -262,6 +284,7 @@ public class AuthenticationService implements IAuthenticationService
         private IJsonService jsonService;
         private ExecutorService executorService;
         private IRestClient restClient;
+        private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
         public Builder withJsonService(final IJsonService val)
         {
@@ -281,12 +304,22 @@ public class AuthenticationService implements IAuthenticationService
             return this;
         }
 
+        public Builder withIMobileConnectEncodeDecoder(final IMobileConnectEncodeDecoder val)
+        {
+            this.iMobileConnectEncodeDecoder = val;
+            return this;
+        }
+
         @Override
         public AuthenticationService build()
         {
             ObjectUtils.requireNonNull(this.jsonService, "jsonService");
             ObjectUtils.requireNonNull(this.executorService, "executorService");
             ObjectUtils.requireNonNull(this.restClient, "restClient");
+            if (this.iMobileConnectEncodeDecoder == null)
+            {
+                this.iMobileConnectEncodeDecoder = new DefaultEncodeDecoder();
+            }
 
             return new AuthenticationService(this);
         }

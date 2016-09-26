@@ -17,6 +17,7 @@
 package com.gsma.mobileconnect.r2.identity;
 
 import com.gsma.mobileconnect.r2.ErrorResponse;
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.rest.RestResponse;
@@ -55,13 +56,14 @@ public class IdentityResponse
      * @return IdentityResponse instance.
      */
     public static IdentityResponse fromRestResponse(final RestResponse restResponse,
-        final IJsonService jsonService)
+        final IJsonService jsonService,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         final Builder builder = new Builder().withResponseCode(restResponse.getStatusCode());
 
         if (!HttpUtils.isHttpErrorCode(restResponse.getStatusCode()))
         {
-            final String json = extractJson(restResponse.getContent());
+            final String json = extractJson(restResponse.getContent(), iMobileConnectEncodeDecoder);
             builder.withResponseJson(json);
 
             if (!StringUtils.isNullOrEmpty(json) && ERROR_REGEX.matcher(json).find())
@@ -85,7 +87,8 @@ public class IdentityResponse
         return builder.build();
     }
 
-    private static String extractJson(String responseJson)
+    private static String extractJson(String responseJson,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         if (StringUtils.isNullOrEmpty(responseJson) || responseJson.indexOf('{') > -1)
         {
@@ -93,7 +96,7 @@ public class IdentityResponse
         }
         else if (JsonWebTokens.isValidFormat(responseJson))
         {
-            return JsonWebTokens.Part.CLAIMS.decode(responseJson);
+            return JsonWebTokens.Part.CLAIMS.decode(responseJson, iMobileConnectEncodeDecoder);
         }
         else
         {

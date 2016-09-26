@@ -18,6 +18,7 @@ package com.gsma.mobileconnect.r2.authentication;
 
 import com.gsma.mobileconnect.r2.claims.Claims;
 import com.gsma.mobileconnect.r2.claims.ClaimsConstants;
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.exceptions.MobileConnectInvalidJWKException;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
@@ -50,18 +51,23 @@ public class TokenValidation
      * Validates an id token against the mobile connect validation requirements, this includes
      * validation of some claims and validation of the signature
      *
-     * @param idToken  IDToken to validate
-     * @param clientId ClientId that is validated against the aud and azp claims
-     * @param issuer   Issuer that is validated against the iss claim
-     * @param nonce    Nonce that is validated against the nonce claim
-     * @param maxAge   MaxAge that is used to validate the auth_time claim (if supplied)
-     * @param keyset   Keyset retrieved from the jwks url, used to validate the token signature
+     * @param idToken                     IDToken to validate
+     * @param clientId                    ClientId that is validated against the aud and azp claims
+     * @param issuer                      Issuer that is validated against the iss claim
+     * @param nonce                       Nonce that is validated against the nonce claim
+     * @param maxAge                      MaxAge that is used to validate the auth_time claim (if
+     *                                    supplied)
+     * @param keyset                      Keyset retrieved from the jwks url, used to validate the
+     *                                    token signature
+     * @param iMobileConnectEncodeDecoder
      * @return TokenValidationResult that specifies if the token is valid, or if not why it is not
      * valid
      */
     public static TokenValidationResult validateIdToken(final String idToken, final String clientId,
         final String issuer, final String nonce, final long maxAge, final JWKeyset keyset,
-        final IJsonService jsonService) throws JsonDeserializationException
+        final IJsonService jsonService,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+        throws JsonDeserializationException
     {
         if (StringUtils.isNullOrEmpty(idToken))
         {
@@ -69,29 +75,33 @@ public class TokenValidation
         }
 
         TokenValidationResult result =
-            validateIdTokenClaims(idToken, clientId, issuer, nonce, maxAge, jsonService);
+            validateIdTokenClaims(idToken, clientId, issuer, nonce, maxAge, jsonService,
+                iMobileConnectEncodeDecoder);
         if (result != TokenValidationResult.Valid)
         {
             return result;
         }
 
-        return validateIdTokenSignature(idToken, keyset, jsonService);
+        return validateIdTokenSignature(idToken, keyset, jsonService, iMobileConnectEncodeDecoder);
     }
 
     /**
      * Validates an id token signature by signing the id token payload and comparing the result with
      * the signature
      *
-     * @param idToken     IDToken to validate
-     * @param keyset      Keyset retrieved from the jwks url, used to validate the token signature.
-     *                    If null the token will not be validated and {@link
-     *                    TokenValidationResult#JWKSError}
-     * @param jsonService Json service to be used deserialising strings to objects
+     * @param idToken                     IDToken to validate
+     * @param keyset                      Keyset retrieved from the jwks url, used to validate the
+     *                                    token signature. If null the token will not be validated
+     *                                    and {@link TokenValidationResult#JWKSError}
+     * @param jsonService                 Json service to be used deserialising strings to objects
+     * @param iMobileConnectEncodeDecoder
      * @return TokenValidationResult that specifies if the token signature is valid, or if not why
      * it is not valid
      */
     public static TokenValidationResult validateIdTokenSignature(final String idToken,
-        final JWKeyset keyset, final IJsonService jsonService) throws JsonDeserializationException
+        final JWKeyset keyset, final IJsonService jsonService,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+        throws JsonDeserializationException
     {
         if (keyset == null)
         {
@@ -100,8 +110,9 @@ public class TokenValidation
         JWKey jwKeyDeserialized;
         try
         {
-            jwKeyDeserialized =
-                jsonService.deserialize(JsonWebTokens.Part.HEADER.decode(idToken), JWKey.class);
+            jwKeyDeserialized = jsonService.deserialize(
+                JsonWebTokens.Part.HEADER.decode(idToken, iMobileConnectEncodeDecoder),
+                JWKey.class);
             final String alg = jwKeyDeserialized.getAlgorithm();
             final String keyId = jwKeyDeserialized.getKeyId();
 
@@ -175,20 +186,24 @@ public class TokenValidation
      * Validates an id tokens claims using validation requirements from the mobile connect and open
      * id connect specification
      *
-     * @param idToken       IDToken to validate
-     * @param clientId      ClientId that is validated against the aud and azp claims
-     * @param issuer        Issuer that is validated against the iss claim
-     * @param expectedNonce Nonce that is validated against the nonce claim
-     * @param maxAge        MaxAge that is used to validate the auth_time claim (if supplied)
+     * @param idToken                     IDToken to validate
+     * @param clientId                    ClientId that is validated against the aud and azp claims
+     * @param issuer                      Issuer that is validated against the iss claim
+     * @param expectedNonce               Nonce that is validated against the nonce claim
+     * @param maxAge                      MaxAge that is used to validate the auth_time claim (if
+     *                                    supplied)
      * @param jsonService
+     * @param iMobileConnectEncodeDecoder
      * @return TokenValidationResult that specifies if the token claims are valid, or if not why
      * they are not valid
      */
     public static TokenValidationResult validateIdTokenClaims(final String idToken,
         final String clientId, final String issuer, final String expectedNonce, final long maxAge,
-        final IJsonService jsonService) throws JsonDeserializationException
+        final IJsonService jsonService,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+        throws JsonDeserializationException
     {
-        String claimsJson = JsonWebTokens.Part.CLAIMS.decode(idToken);
+        String claimsJson = JsonWebTokens.Part.CLAIMS.decode(idToken, iMobileConnectEncodeDecoder);
         Claims claims = jsonService.deserialize(claimsJson, Claims.class);
 
         if (expectedNonce != null && !expectedNonce.equals(

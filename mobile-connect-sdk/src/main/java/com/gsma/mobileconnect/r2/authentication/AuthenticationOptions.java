@@ -60,7 +60,7 @@ public class AuthenticationOptions
         this.nonce = builder.nonce;
         this.state = builder.state;
         this.maxAge = builder.maxAge;
-        this.display = builder.display;
+        this.display = builder.display != null ? builder.display : DefaultOptions.DISPLAY;
         this.prompt = builder.prompt;
         this.uiLocales = builder.uiLocales;
         this.claimsLocales = builder.claimsLocales;

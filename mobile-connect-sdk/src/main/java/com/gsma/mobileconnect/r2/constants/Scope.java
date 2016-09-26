@@ -26,4 +26,9 @@ public interface Scope
     String AUTHZ = "mc_authz";
 
     String MCPREFIX = "mc_";
+
+    String IDENTITYPHONE = "mc_identity_phonenumber";
+    String IDENTITYSIGNUP = "mc_identity_signup";
+    String IDENTITYSIGNUPPLUS = "mc_identity_signupplus";
+    String IDENTITYNATIONALID = "mc_identity_nationalid";
 }

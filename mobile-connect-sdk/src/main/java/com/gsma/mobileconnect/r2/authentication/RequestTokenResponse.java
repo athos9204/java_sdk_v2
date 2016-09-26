@@ -18,6 +18,7 @@ package com.gsma.mobileconnect.r2.authentication;
 
 import com.gsma.mobileconnect.r2.ErrorResponse;
 import com.gsma.mobileconnect.r2.InvalidResponseException;
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.rest.RestResponse;
@@ -58,7 +59,9 @@ public class RequestTokenResponse
      * @throws InvalidResponseException if the json content could not be translated.
      */
     public static RequestTokenResponse fromRestResponse(final RestResponse restResponse,
-        final IJsonService jsonService) throws InvalidResponseException
+        final IJsonService jsonService,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+        throws InvalidResponseException
     {
         ObjectUtils.requireNonNull(restResponse, "restResponse");
         ObjectUtils.requireNonNull(jsonService, "jsonService");
@@ -82,8 +85,8 @@ public class RequestTokenResponse
 
                 builder
                     .withResponseData(data)
-                    .withDecodedIdTokenPayload(
-                        JsonWebTokens.Part.CLAIMS.decode(data.getIdToken()));
+                    .withDecodedIdTokenPayload(JsonWebTokens.Part.CLAIMS.decode(data.getIdToken(),
+                        iMobileConnectEncodeDecoder));
             }
         }
         catch (final JsonDeserializationException jde)

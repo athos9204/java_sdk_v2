@@ -20,6 +20,8 @@ import com.gsma.mobileconnect.r2.authentication.IAuthenticationService;
 import com.gsma.mobileconnect.r2.authentication.IJWKeysetService;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
@@ -51,6 +53,7 @@ public class MobileConnectInterface
     private final IJsonService jsonService;
     private final MobileConnectConfig config;
     private final ExecutorService executorService;
+    private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
     private MobileConnectInterface(Builder builder)
     {
@@ -61,6 +64,7 @@ public class MobileConnectInterface
         this.jsonService = builder.jsonService;
         this.config = builder.config;
         this.executorService = builder.executorService;
+        this.iMobileConnectEncodeDecoder = builder.iMobileConnectEncodeDecoder;
 
         LOGGER.info("New instance of MobileConnectInterface created, using config={}", this.config);
     }
@@ -245,7 +249,7 @@ public class MobileConnectInterface
 
         return MobileConnectInterfaceHelper.requestToken(this.authnService, jwKeysetService,
             discoveryResponse, redirectedUrl, expectedState, expectedNonce, this.config, options,
-            this.jsonService);
+            this.jsonService, this.iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -312,7 +316,8 @@ public class MobileConnectInterface
 
         return MobileConnectInterfaceHelper.handleUrlRedirect(this.discoveryService,
             this.jwKeysetService, this.authnService, redirectedUrl, discoveryResponse,
-            expectedState, expectedNonce, this.config, options, this.jsonService);
+            expectedState, expectedNonce, this.config, options, this.jsonService,
+            this.iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -354,7 +359,7 @@ public class MobileConnectInterface
             LogUtils.mask(accessToken, LOGGER, Level.DEBUG));
 
         return MobileConnectInterfaceHelper.requestUserInfo(this.identityService, discoveryResponse,
-            accessToken);
+            accessToken, iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -396,7 +401,7 @@ public class MobileConnectInterface
             LogUtils.mask(accessToken, LOGGER, Level.DEBUG));
 
         return MobileConnectInterfaceHelper.requestIdentity(this.identityService, discoveryResponse,
-            accessToken);
+            accessToken, iMobileConnectEncodeDecoder);
     }
 
     public static final class Builder implements IBuilder<MobileConnectInterface>
@@ -408,6 +413,7 @@ public class MobileConnectInterface
         private IJsonService jsonService;
         private MobileConnectConfig config;
         private ExecutorService executorService;
+        private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
         public Builder withDiscoveryService(final IDiscoveryService val)
         {
@@ -451,6 +457,12 @@ public class MobileConnectInterface
             return this;
         }
 
+        public Builder withiMobileConnectEncodeDecoder(final IMobileConnectEncodeDecoder val)
+        {
+            this.iMobileConnectEncodeDecoder = val;
+            return this;
+        }
+
         @Override
         public MobileConnectInterface build()
         {
@@ -459,6 +471,11 @@ public class MobileConnectInterface
             ObjectUtils.requireNonNull(this.identityService, "identityService");
             ObjectUtils.requireNonNull(this.config, "config");
             ObjectUtils.requireNonNull(this.executorService, "executorService");
+
+            if (this.iMobileConnectEncodeDecoder == null)
+            {
+                iMobileConnectEncodeDecoder = new DefaultEncodeDecoder();
+            }
 
             return new MobileConnectInterface(this);
         }

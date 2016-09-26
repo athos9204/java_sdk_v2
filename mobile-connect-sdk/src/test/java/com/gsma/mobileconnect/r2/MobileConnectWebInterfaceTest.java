@@ -20,6 +20,7 @@ import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
 import com.gsma.mobileconnect.r2.cache.CacheAccessException;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
@@ -54,7 +55,7 @@ public class MobileConnectWebInterfaceTest
     private final MockRestClient restClient = new MockRestClient();
 
     private final MobileConnect mobileConnect =
-        MobileConnect.builder(this.config).withRestClient(this.restClient).build();
+        MobileConnect.builder(this.config, new DefaultEncodeDecoder()).withRestClient(this.restClient).build();
 
     private final IJsonService jsonService = new JacksonJsonService();
     private final IDiscoveryService discoveryService = this.mobileConnect.getDiscoveryService();
@@ -233,7 +234,7 @@ public class MobileConnectWebInterfaceTest
             .withRedirectUrl(URI.create("http://redirect"))
             .build();
 
-        final MobileConnectWebInterface mcWebInterface = MobileConnect.buildWebInterface(config);
+        final MobileConnectWebInterface mcWebInterface = MobileConnect.buildWebInterface(config, new DefaultEncodeDecoder());
 
         final MobileConnectStatus status =
             mcWebInterface.requestToken(this.request, "invalidid", URI.create("http://test"),

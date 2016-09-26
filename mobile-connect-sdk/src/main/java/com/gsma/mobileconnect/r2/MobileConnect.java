@@ -25,6 +25,8 @@ import com.gsma.mobileconnect.r2.cache.ICache;
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryService;
 import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.identity.IdentityService;
 import com.gsma.mobileconnect.r2.json.IJsonService;
@@ -44,11 +46,11 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Convenience methods to construct and access the core public interfaces of MobileConnect. <p> A
- * default instance can be created via {@link #build(MobileConnectConfig)}. Limited customisation is
- * possible via the {@link #builder(MobileConnectConfig)} method.  Otherwise full customisation can
- * be achieved via the individual builders provided by each of the interfaces. </p> <p> For those
- * who wish only to work with the {@link MobileConnectInterface}, this can be reached via {@link
- * #buildInterface(MobileConnectConfig)}. </p>
+ * default instance can be created via {@link #build(MobileConnectConfig, com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder)}. Limited
+ * customisation is possible via the {@link #builder(MobileConnectConfig, com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder)} method.  Otherwise
+ * full customisation can be achieved via the individual builders provided by each of the
+ * interfaces. </p> <p> For those who wish only to work with the {@link MobileConnectInterface},
+ * this can be reached via {@link #buildInterface(MobileConnectConfig, com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder)}. </p>
  *
  * @see MobileConnectConfig
  * @see MobileConnectInterface
@@ -67,19 +69,24 @@ public final class MobileConnect
     private final IJWKeysetService jwKeysetService;
     private final MobileConnectInterface mobileConnectInterface;
     private final MobileConnectWebInterface mobileConnectWebInterface;
+    private final IMobileConnectEncodeDecoder iMobileConnectEncoderDecoder;
 
     private MobileConnect(final Builder builder)
     {
+        this.iMobileConnectEncoderDecoder = builder.iMobileConnectEncodeDecoder;
+
         this.discoveryService = new DiscoveryService.Builder()
             .withCache(builder.cache)
             .withJsonService(builder.jsonService)
             .withRestClient(builder.restClient)
+            .withIMobileConnectEncodeDecoder(this.iMobileConnectEncoderDecoder)
             .withExecutorService(builder.scheduledExecutorService)
             .build();
 
         this.authnService = new AuthenticationService.Builder()
             .withJsonService(builder.jsonService)
             .withRestClient(builder.restClient)
+            .withIMobileConnectEncodeDecoder(this.iMobileConnectEncoderDecoder)
             .withExecutorService(builder.scheduledExecutorService)
             .build();
 
@@ -100,6 +107,7 @@ public final class MobileConnect
             .withDiscoveryService(this.discoveryService)
             .withIdentityService(this.identityService)
             .withJwKeysetService(this.jwKeysetService)
+            .withiMobileConnectEncodeDecoder(this.iMobileConnectEncoderDecoder)
             .withConfig(builder.config)
             .build();
 
@@ -119,11 +127,23 @@ public final class MobileConnect
      * Builds a MobileConnect with all defaults.
      *
      * @param config must be specified.
+     * @param iMobileConnectEncodeDecoder An object that extends {@link IMobileConnectEncodeDecoder}. Defaults to {@link DefaultEncodeDecoder}
+     * @return constructed MobileConnect instance.
+     */
+    public static MobileConnect build(final MobileConnectConfig config, final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+    {
+        return builder(config, iMobileConnectEncodeDecoder).build();
+    }
+
+    /**
+     * Builds a MobileConnect with all defaults.
+     *
+     * @param config must be specified.
      * @return constructed MobileConnect instance.
      */
     public static MobileConnect build(final MobileConnectConfig config)
     {
-        return builder(config).build();
+        return builder(config, new DefaultEncodeDecoder()).build();
     }
 
     /**
@@ -132,9 +152,10 @@ public final class MobileConnect
      * @param config must be specified.
      * @return constructed MobileConnectInterface instance.
      */
-    public static MobileConnectInterface buildInterface(final MobileConnectConfig config)
+    public static MobileConnectInterface buildInterface(final MobileConnectConfig config,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
-        return build(config).getMobileConnectInterface();
+        return build(config, iMobileConnectEncodeDecoder).getMobileConnectInterface();
     }
 
     /**
@@ -143,9 +164,10 @@ public final class MobileConnect
      * @param config must be specified.
      * @return constructed MobileConnectWebInterface instance.
      */
-    public static MobileConnectWebInterface buildWebInterface(final MobileConnectConfig config)
+    public static MobileConnectWebInterface buildWebInterface(final MobileConnectConfig config,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
-        return build(config).getMobileConnectWebInterface();
+        return build(config, iMobileConnectEncodeDecoder).getMobileConnectWebInterface();
     }
 
     /**
@@ -154,9 +176,10 @@ public final class MobileConnect
      * @param config must be specified.
      * @return MobileConnect IBuilder instance.
      */
-    public static Builder builder(final MobileConnectConfig config)
+    public static Builder builder(final MobileConnectConfig config,
+        IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
-        return new Builder(config);
+        return new Builder(config, iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -216,6 +239,7 @@ public final class MobileConnect
     {
         private final IJsonService jsonService;
         private final MobileConnectConfig config;
+        private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
         private ICache cache = null;
         private ScheduledExecutorService scheduledExecutorService = null;
@@ -237,9 +261,11 @@ public final class MobileConnect
          *
          * @param config for Mobile Connect.
          */
-        public Builder(final MobileConnectConfig config)
+        public Builder(final MobileConnectConfig config,
+            IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
         {
             this.jsonService = new JacksonJsonService();
+            this.iMobileConnectEncodeDecoder = iMobileConnectEncodeDecoder;
             this.config = ObjectUtils.requireNonNull(config, "config");
         }
 
@@ -252,6 +278,20 @@ public final class MobileConnect
         public Builder withScheduledExecutorService(final ScheduledExecutorService val)
         {
             this.scheduledExecutorService = val;
+            return this;
+        }
+
+        /**
+         * Specify a {@link com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder}
+         * to use.
+         *
+         * @param val encode/decoder to be used.
+         * @return builder to continue further configuration.
+         */
+        public Builder withIMobileConnectEncodeDecoder(
+            final IMobileConnectEncodeDecoder val)
+        {
+            this.iMobileConnectEncodeDecoder = val;
             return this;
         }
 

@@ -23,6 +23,8 @@ import com.gsma.mobileconnect.r2.cache.CacheAccessException;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.utils.*;
@@ -58,6 +60,7 @@ public class MobileConnectWebInterface
     private final IJWKeysetService jwKeysetService;
     private final IJsonService jsonService;
     private final MobileConnectConfig config;
+    private final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
     private MobileConnectWebInterface(Builder builder)
     {
@@ -67,6 +70,7 @@ public class MobileConnectWebInterface
         this.jwKeysetService = builder.jwKeysetService;
         this.jsonService = builder.jsonService;
         this.config = builder.config;
+        this.iMobileConnectEncodeDecoder = builder.iMobileConnectEncodeDecoder;
 
         LOGGER.info("Created new instance of MobileConnectWebInterface");
     }
@@ -247,10 +251,9 @@ public class MobileConnectWebInterface
             LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
             LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
-
         return MobileConnectInterfaceHelper.requestToken(this.authnService, this.jwKeysetService,
             discoveryResponse, redirectedUrl, expectedState, expectedNonce, this.config, options,
-            this.jsonService);
+            this.jsonService, this.iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -325,7 +328,9 @@ public class MobileConnectWebInterface
         final MobileConnectStatus status =
             MobileConnectInterfaceHelper.handleUrlRedirect(this.discoveryService,
                 this.jwKeysetService, this.authnService, redirectedUrl, discoveryResponse,
-                expectedState, expectedNonce, this.config, options, this.jsonService);
+                expectedState, expectedNonce, this.config, options, this.jsonService,
+                this.iMobileConnectEncodeDecoder);
+
 
         return this.cacheIfRequired(status);
     }
@@ -380,7 +385,9 @@ public class MobileConnectWebInterface
                             MobileConnectWebInterface.this.jwKeysetService,
                             MobileConnectWebInterface.this.authnService, redirectedUrl, cached,
                             expectedState, expectedNonce, MobileConnectWebInterface.this.config,
-                            options, MobileConnectWebInterface.this.jsonService));
+                            options, MobileConnectWebInterface.this.jsonService,
+                            MobileConnectWebInterface.this.iMobileConnectEncodeDecoder));
+
                 }
             }
         });
@@ -407,7 +414,7 @@ public class MobileConnectWebInterface
             LogUtils.mask(accessToken, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
         return MobileConnectInterfaceHelper.requestUserInfo(this.identityService, discoveryResponse,
-            accessToken);
+            accessToken, iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -465,7 +472,7 @@ public class MobileConnectWebInterface
             LogUtils.mask(accessToken, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
         return MobileConnectInterfaceHelper.requestIdentity(this.identityService, discoveryResponse,
-            accessToken);
+            accessToken, iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -575,6 +582,8 @@ public class MobileConnectWebInterface
         private IJWKeysetService jwKeysetService;
         private IJsonService jsonService;
         private MobileConnectConfig config;
+        private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder =
+            new DefaultEncodeDecoder();
 
         public Builder withDiscoveryService(final IDiscoveryService val)
         {
@@ -609,6 +618,12 @@ public class MobileConnectWebInterface
         public Builder withConfig(final MobileConnectConfig val)
         {
             this.config = val;
+            return this;
+        }
+
+        public Builder withIMobileConnectEncodeDecoder(final IMobileConnectEncodeDecoder val)
+        {
+            this.iMobileConnectEncodeDecoder = val;
             return this;
         }
 

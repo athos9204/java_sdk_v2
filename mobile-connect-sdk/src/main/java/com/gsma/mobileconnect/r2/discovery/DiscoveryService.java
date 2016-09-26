@@ -16,11 +16,13 @@
  */
 package com.gsma.mobileconnect.r2.discovery;
 
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.InvalidResponseException;
 import com.gsma.mobileconnect.r2.cache.CacheAccessException;
 import com.gsma.mobileconnect.r2.cache.ICache;
 import com.gsma.mobileconnect.r2.constants.LinkRels;
 import com.gsma.mobileconnect.r2.constants.Parameters;
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.json.Link;
@@ -57,6 +59,7 @@ public class DiscoveryService implements IDiscoveryService
     private final IJsonService jsonService;
     private final ExecutorService executorService;
     private final IRestClient restClient;
+    private final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
     private DiscoveryService(final Builder builder)
     {
@@ -64,6 +67,7 @@ public class DiscoveryService implements IDiscoveryService
         this.jsonService = builder.jsonService;
         this.executorService = builder.executorService;
         this.restClient = builder.restClient;
+        this.iMobileConnectEncodeDecoder = builder.iMobileConnectEncodeDecoder;
 
         LOGGER.info("New instance of DiscoveryService created");
     }
@@ -183,7 +187,7 @@ public class DiscoveryService implements IDiscoveryService
             final Iterable<KeyValuePair> cookies =
                 HttpUtils.proxyRequired(REQUIRED_COOKIES, currentCookies);
             final RestAuthentication authentication =
-                RestAuthentication.basic(clientId, clientSecret);
+                RestAuthentication.basic(clientId, clientSecret, iMobileConnectEncodeDecoder);
             final List<KeyValuePair> queryParams = this.extractQueryParams(options);
 
             RestResponse restResponse = null;
@@ -277,16 +281,21 @@ public class DiscoveryService implements IDiscoveryService
 
     private List<KeyValuePair> extractQueryParams(final DiscoveryOptions options)
     {
-        return new KeyValuePair.ListBuilder()
-            .add(Parameters.MSISDN, StringUtils.trimLeading(options.getMsisdn(), '+'))
+        KeyValuePair.ListBuilder listBuilder = new KeyValuePair.ListBuilder()
             .add(Parameters.REDIRECT_URL, options.getRedirectUrl().toString())
             .add(Parameters.IDENTIFIED_MCC, options.getIdentifiedMcc())
             .add(Parameters.IDENTIFIED_MNC, options.getIdentifiedMnc())
             .add(Parameters.SELECTED_MCC, options.getSelectedMcc())
             .add(Parameters.SELECTED_MNC, options.getSelectedMnc())
             .add(Parameters.LOCAL_CLIENT_IP, options.getLocalClientIp())
-            .add(Parameters.USING_MOBILE_DATA, options.isUsingMobileData() ? "1" : "0")
-            .build();
+            .add(Parameters.USING_MOBILE_DATA, options.isUsingMobileData() ? "1" : "0");
+
+        if (options.getMsisdn() != null)
+        {
+            listBuilder.add(Parameters.MSISDN, StringUtils.trimLeading(options.getMsisdn(), '+'));
+        }
+
+        return listBuilder.build();
     }
 
     @Override
@@ -613,6 +622,7 @@ public class DiscoveryService implements IDiscoveryService
         private IJsonService jsonService;
         private ExecutorService executorService;
         private IRestClient restClient;
+        private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
         public Builder withCache(ICache val)
         {
@@ -638,6 +648,13 @@ public class DiscoveryService implements IDiscoveryService
             return this;
         }
 
+        public Builder withIMobileConnectEncodeDecoder(
+            IMobileConnectEncodeDecoder val)
+        {
+            this.iMobileConnectEncodeDecoder = val;
+            return this;
+        }
+
         @Override
         public DiscoveryService build()
         {
@@ -645,6 +662,10 @@ public class DiscoveryService implements IDiscoveryService
             ObjectUtils.requireNonNull(this.jsonService, "jsonService");
             ObjectUtils.requireNonNull(this.executorService, "executorService");
             ObjectUtils.requireNonNull(this.restClient, "restClient");
+            if (iMobileConnectEncodeDecoder == null)
+            {
+                iMobileConnectEncodeDecoder = new DefaultEncodeDecoder();
+            }
 
             return new DiscoveryService(this);
         }

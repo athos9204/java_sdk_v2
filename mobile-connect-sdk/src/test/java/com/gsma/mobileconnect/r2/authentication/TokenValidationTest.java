@@ -16,6 +16,8 @@
 */
 package com.gsma.mobileconnect.r2.authentication;
 
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import org.testng.annotations.Test;
@@ -38,6 +40,7 @@ public class TokenValidationTest
     private String clientId = "x-clientid-x";
     private String issuer = "http://mobileconnect.io";
     private final long maxAge = 300 * 24 * 60 * 60; //seconds
+    private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder = new DefaultEncodeDecoder();
 
     // TODO: 26/09/16 extra tests around claims
     @Test
@@ -51,7 +54,8 @@ public class TokenValidationTest
         final JacksonJsonService jacksonJsonService = new JacksonJsonService();
 
         final JWKeyset jwKeyset = jacksonJsonService.deserialize(jwksJson, JWKeyset.class);
-        final TokenValidationResult tokenValidationResult = TokenValidation.validateIdToken(idToken, clientId, issuer, nonce, maxAge, jwKeyset, jacksonJsonService);
+        final TokenValidationResult tokenValidationResult = TokenValidation.validateIdToken(idToken, clientId, issuer, nonce, maxAge, jwKeyset, jacksonJsonService,
+            iMobileConnectEncodeDecoder);
 
         assertEquals(tokenValidationResult, TokenValidationResult.InvalidSignature);
     }
@@ -68,7 +72,8 @@ public class TokenValidationTest
 
         final JWKeyset jwKeyset = jacksonJsonService.deserialize(jwksJson, JWKeyset.class);
         final TokenValidationResult tokenValidationResult =
-            TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService);
+            TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService,
+                iMobileConnectEncodeDecoder);
 
         assertEquals(tokenValidationResult, TokenValidationResult.Valid);
     }
@@ -85,7 +90,8 @@ public class TokenValidationTest
 
         final JWKeyset jwKeyset = jacksonJsonService.deserialize(jwksJson, JWKeyset.class);
         final TokenValidationResult tokenValidationResult =
-            TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService);
+            TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService,
+                iMobileConnectEncodeDecoder);
 
         assertEquals(tokenValidationResult, TokenValidationResult.InvalidSignature);
     }
@@ -123,7 +129,8 @@ public class TokenValidationTest
 
         final JWKeyset jwKeyset = jacksonJsonService.deserialize(jwksJson, JWKeyset.class);
         final TokenValidationResult tokenValidationResult =
-            TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService);
+            TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService,
+                iMobileConnectEncodeDecoder);
 
         assertEquals(tokenValidationResult, TokenValidationResult.JWKSError);
     }
@@ -140,7 +147,8 @@ public class TokenValidationTest
 
         final JWKeyset jwKeyset = jacksonJsonService.deserialize(jwksJson, JWKeyset.class);
         final TokenValidationResult tokenValidationResult =
-            TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService);
+            TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService,
+                iMobileConnectEncodeDecoder);
 
         assertEquals(tokenValidationResult, TokenValidationResult.NoMatchingKey);
     }
@@ -157,7 +165,8 @@ public class TokenValidationTest
 
         final JWKeyset jwKeyset = jacksonJsonService.deserialize(jwksJson, JWKeyset.class);
         final TokenValidationResult tokenValidationResult =
-            TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService);
+            TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService,
+                iMobileConnectEncodeDecoder);
 
         assertEquals(tokenValidationResult, TokenValidationResult.InvalidSignature);
     }

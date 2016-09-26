@@ -142,6 +142,25 @@ public final class ListUtils
     }
 
     /**
+     * Given an iterable of strings that can be parsed to integers returns the summation
+     * @param iterable collection of strings that can be parsed to integers
+     * @return the summation of iterable
+     */
+    public static int sum(final Iterable<String> iterable)
+    {
+        if (iterable == null)
+            return 0;
+
+        Iterator<String> iterator = iterable.iterator();
+
+        int sum = 0;
+        while (iterator.hasNext())
+            sum = sum + Integer.valueOf(iterator.next().replaceAll("[\\D]", ""));
+
+        return sum;
+    }
+
+    /**
      * IBuilder of hash maps.
      *
      * @param <K> type of key
