@@ -19,15 +19,11 @@ package com.gsma.mobileconnect.r2.constants;
 /**
  * @since 2.0
  */
-public final class Scope
+public interface Scope
 {
-    public static final String OPENID = "openid";
-    public static final String AUTHN = "mc_authn";
-    public static final String AUTHZ = "mc_authz";
+    String OPENID = "openid";
+    String AUTHN = "mc_authn";
+    String AUTHZ = "mc_authz";
 
-    public static final String MCPREFIX = "mc_";
-
-    private Scope()
-    {
-    }
+    String MCPREFIX = "mc_";
 }

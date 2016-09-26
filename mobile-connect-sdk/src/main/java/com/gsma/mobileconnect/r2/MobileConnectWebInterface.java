@@ -18,11 +18,13 @@ package com.gsma.mobileconnect.r2;
 
 import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
 import com.gsma.mobileconnect.r2.authentication.IAuthenticationService;
+import com.gsma.mobileconnect.r2.authentication.IJWKeysetService;
 import com.gsma.mobileconnect.r2.cache.CacheAccessException;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
+import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +55,8 @@ public class MobileConnectWebInterface
     private final IDiscoveryService discoveryService;
     private final IAuthenticationService authnService;
     private final IIdentityService identityService;
+    private final IJWKeysetService jwKeysetService;
+    private final IJsonService jsonService;
     private final MobileConnectConfig config;
 
     private MobileConnectWebInterface(Builder builder)
@@ -60,6 +64,8 @@ public class MobileConnectWebInterface
         this.discoveryService = builder.discoveryService;
         this.authnService = builder.authnService;
         this.identityService = builder.identityService;
+        this.jwKeysetService = builder.jwKeysetService;
+        this.jsonService = builder.jsonService;
         this.config = builder.config;
 
         LOGGER.info("Created new instance of MobileConnectWebInterface");
@@ -226,11 +232,13 @@ public class MobileConnectWebInterface
      * @param expectedNonce     The nonce value returned from the StartAuthorization call should be
      *                          passed here, it will be used to ensure the token was not requested
      *                          using a replay attack
+     * @param options           Optional parameters
      * @return MobileConnectStatus object with required information for continuing the mobile
      */
     public MobileConnectStatus requestToken(final HttpServletRequest request,
         final DiscoveryResponse discoveryResponse, final URI redirectedUrl,
-        final String expectedState, final String expectedNonce)
+        final String expectedState, final String expectedNonce,
+        final MobileConnectRequestOptions options)
     {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
@@ -239,8 +247,10 @@ public class MobileConnectWebInterface
             LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
             LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
-        return MobileConnectInterfaceHelper.requestToken(this.authnService, discoveryResponse,
-            redirectedUrl, expectedState, expectedNonce, this.config);
+
+        return MobileConnectInterfaceHelper.requestToken(this.authnService, this.jwKeysetService,
+            discoveryResponse, redirectedUrl, expectedState, expectedNonce, this.config, options,
+            this.jsonService);
     }
 
     /**
@@ -256,11 +266,12 @@ public class MobileConnectWebInterface
      * @param expectedNonce The nonce value returned from the StartAuthorization call should be
      *                      passed here, it will be used to ensure the token was not requested using
      *                      a replay attack
+     * @param options       Optional parameters
      * @return MobileConnectStatus object with required information for continuing the mobile
      */
     public MobileConnectStatus requestToken(final HttpServletRequest request,
         final String sdkSession, final URI redirectedUrl, final String expectedState,
-        final String expectedNonce)
+        final String expectedNonce, final MobileConnectRequestOptions options)
     {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
@@ -275,7 +286,7 @@ public class MobileConnectWebInterface
             public MobileConnectStatus apply(final DiscoveryResponse cached)
             {
                 return MobileConnectWebInterface.this.requestToken(request, cached, redirectedUrl,
-                    expectedState, expectedNonce);
+                    expectedState, expectedNonce, options);
             }
         });
     }
@@ -295,12 +306,14 @@ public class MobileConnectWebInterface
      * @param expectedNonce     The nonce value returned from the StartAuthorization call should be
      *                          passed here, it will be used to ensure the token was not requested
      *                          using a replay attack
+     * @param options           Optional parameters
      * @return MobileConnectStatus object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus handleUrlRedirect(final HttpServletRequest request,
         final URI redirectedUrl, final DiscoveryResponse discoveryResponse,
-        final String expectedState, final String expectedNonce)
+        final String expectedState, final String expectedNonce,
+        final MobileConnectRequestOptions options)
     {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
@@ -310,8 +323,9 @@ public class MobileConnectWebInterface
             LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
         final MobileConnectStatus status =
-            MobileConnectInterfaceHelper.handleUrlRedirect(this.discoveryService, this.authnService,
-                redirectedUrl, discoveryResponse, expectedState, expectedNonce, this.config);
+            MobileConnectInterfaceHelper.handleUrlRedirect(this.discoveryService,
+                this.jwKeysetService, this.authnService, redirectedUrl, discoveryResponse,
+                expectedState, expectedNonce, this.config, options, this.jsonService);
 
         return this.cacheIfRequired(status);
     }
@@ -332,12 +346,13 @@ public class MobileConnectWebInterface
      * @param expectedNonce The nonce value returned from the StartAuthorization call should be
      *                      passed here, it will be used to ensure the token was not requested using
      *                      a replay attack
+     * @param options       Optional parameters
      * @return MobileConnectStatus object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus handleUrlRedirect(final HttpServletRequest request,
         final URI redirectedUrl, final String sdkSession, final String expectedState,
-        final String expectedNonce)
+        final String expectedNonce, final MobileConnectRequestOptions options)
     {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
@@ -362,8 +377,10 @@ public class MobileConnectWebInterface
                     return MobileConnectWebInterface.this.cacheIfRequired(
                         MobileConnectInterfaceHelper.handleUrlRedirect(
                             MobileConnectWebInterface.this.discoveryService,
+                            MobileConnectWebInterface.this.jwKeysetService,
                             MobileConnectWebInterface.this.authnService, redirectedUrl, cached,
-                            expectedState, expectedNonce, MobileConnectWebInterface.this.config));
+                            expectedState, expectedNonce, MobileConnectWebInterface.this.config,
+                            options, MobileConnectWebInterface.this.jsonService));
                 }
             }
         });
@@ -371,7 +388,7 @@ public class MobileConnectWebInterface
 
     /**
      * Request user info using the access token returned by <see cref="RequestTokenAsync(HttpRequestMessage,
-     * DiscoveryResponse, Uri, string, string)"/>
+     * DiscoveryResponse, Uri, string, string, MobileConnectRequestOptions)"/>
      *
      * @param request           Originating web request
      * @param discoveryResponse The response returned by the discovery process
@@ -395,7 +412,7 @@ public class MobileConnectWebInterface
 
     /**
      * Request user info using the access token returned by <see cref="RequestTokenAsync(HttpRequestMessage,
-     * DiscoveryResponse, Uri, string, string)"/>
+     * DiscoveryResponse, Uri, string, string, MobileConnectRequestOptions)"/>
      *
      * @param request     Originating web request
      * @param sdkSession  SDKSession id used to fetch the discovery response with additional
@@ -428,7 +445,7 @@ public class MobileConnectWebInterface
 
     /**
      * Request identity using the access token returned by {@link #requestToken(
-     *HttpServletRequest, DiscoveryResponse, URI, String, String)}
+     *HttpServletRequest, DiscoveryResponse, URI, String, String, MobileConnectRequestOptions)}
      *
      * @param request           Originating web request
      * @param discoveryResponse SDKSession id used to fetch the discovery response with additional
@@ -453,7 +470,7 @@ public class MobileConnectWebInterface
 
     /**
      * Request identity using the access token returned by {@link #requestToken(
-     *HttpServletRequest, DiscoveryResponse, URI, String, String)}
+     *HttpServletRequest, DiscoveryResponse, URI, String, String, MobileConnectRequestOptions)}
      *
      * @param request     Originating web request
      * @param sdkSession  SDKSession id used to fetch the discovery response with additional
@@ -555,6 +572,8 @@ public class MobileConnectWebInterface
         private IDiscoveryService discoveryService;
         private IAuthenticationService authnService;
         private IIdentityService identityService;
+        private IJWKeysetService jwKeysetService;
+        private IJsonService jsonService;
         private MobileConnectConfig config;
 
         public Builder withDiscoveryService(final IDiscoveryService val)
@@ -572,6 +591,18 @@ public class MobileConnectWebInterface
         public Builder withIdentityService(final IIdentityService val)
         {
             this.identityService = val;
+            return this;
+        }
+
+        public Builder withJwKeysetService(final IJWKeysetService val)
+        {
+            this.jwKeysetService = val;
+            return this;
+        }
+
+        public Builder withJsonService(final IJsonService val)
+        {
+            this.jsonService = val;
             return this;
         }
 

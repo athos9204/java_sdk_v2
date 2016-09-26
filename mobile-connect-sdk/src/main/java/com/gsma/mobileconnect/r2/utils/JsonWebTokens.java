@@ -59,7 +59,7 @@ public final class JsonWebTokens
         /**
          * Second part of the JWT containing data and required claims.
          */
-        PAYLOAD(1),
+        CLAIMS(1),
 
         /**
          * Third part of the JWT use to verify the token authenticity.

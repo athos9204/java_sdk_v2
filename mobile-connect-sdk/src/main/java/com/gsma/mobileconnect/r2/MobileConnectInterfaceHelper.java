@@ -16,20 +16,20 @@
  */
 package com.gsma.mobileconnect.r2;
 
-import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
-import com.gsma.mobileconnect.r2.authentication.IAuthenticationService;
-import com.gsma.mobileconnect.r2.authentication.RequestTokenResponse;
-import com.gsma.mobileconnect.r2.authentication.StartAuthenticationResponse;
+import com.gsma.mobileconnect.r2.authentication.*;
+import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.constants.Parameters;
 import com.gsma.mobileconnect.r2.discovery.*;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.identity.IdentityResponse;
+import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 import java.net.URI;
+import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -127,7 +127,7 @@ class MobileConnectInterfaceHelper
         final AuthenticationOptions.Builder authnOptionsBuilder)
     {
         ObjectUtils.requireNonNull(discoveryResponse, "discoveryResponse");
-
+        
         try
         {
             final String clientId = ObjectUtils.defaultIfNull(
@@ -164,11 +164,24 @@ class MobileConnectInterfaceHelper
     }
 
     static MobileConnectStatus requestToken(final IAuthenticationService authnService,
-        final DiscoveryResponse discoveryResponse, final URI redirectedUrl,
-        final String expectedState, final String expectedNonce, final MobileConnectConfig config)
+        final IJWKeysetService jwks, final DiscoveryResponse discoveryResponse,
+        final URI redirectedUrl, final String expectedState, final String expectedNonce,
+        final MobileConnectConfig config, final MobileConnectRequestOptions options,
+        final IJsonService jsonService)
     {
         ObjectUtils.requireNonNull(discoveryResponse, "discoveryResponse");
         StringUtils.requireNonEmpty(expectedState, "expectedState");
+
+        long maxAge = DefaultOptions.AUTHENTICATION_MAX_AGE;
+        if (options != null && options.getAuthenticationOptions() != null)
+        {
+            maxAge = options.getAuthenticationOptions().getMaxAge();
+        }
+
+        if (!isUsableDiscoveryResponse(discoveryResponse))
+        {
+            return MobileConnectStatus.startDiscovery();
+        }
 
         final String actualState = HttpUtils.extractQueryValue(redirectedUrl, "state");
         if (!expectedState.equals(actualState))
@@ -192,12 +205,18 @@ class MobileConnectInterfaceHelper
                 discoveryResponse.getResponseData().getResponse().getClientSecret(),
                 config.getClientSecret());
             final String requestTokenUrl = discoveryResponse.getOperatorUrls().getRequestTokenUrl();
+            final String issuer = discoveryResponse.getProviderMetadata().getIssuer();
 
             try
             {
-                final RequestTokenResponse requestTokenResponse =
-                    authnService.requestToken(clientId, clientSecret, URI.create(requestTokenUrl),
-                        config.getRedirectUrl(), code);
+                final Future<RequestTokenResponse> requestTokenResponseFuture =
+                    authnService.requestTokenAsync(clientId, clientSecret,
+                        URI.create(requestTokenUrl), config.getRedirectUrl(), code);
+
+                final JWKeyset jwKeyset =
+                    jwks.retrieveJwks(discoveryResponse.getOperatorUrls().getJwksUri());
+
+                final RequestTokenResponse requestTokenResponse = requestTokenResponseFuture.get();
 
                 final ErrorResponse errorResponse = requestTokenResponse.getErrorResponse();
                 if (errorResponse != null)
@@ -224,12 +243,36 @@ class MobileConnectInterfaceHelper
                 }
                 else
                 {
+                    TokenValidationResult accessTokenValidationResult =
+                        TokenValidation.validateAccessToken(requestTokenResponse.getResponseData());
+                    if (!TokenValidationResult.Valid.equals(accessTokenValidationResult))
+                    {
+                        LOGGER.info("Access Token Validation Failure...");
+                        return MobileConnectStatus.error("Invalid Access Token",
+                            "Access Token validation failed", null, requestTokenResponse);
+                    }
+
                     LOGGER.debug(
                         "Responding with responseType={} for requestToken for redirectedUrl={}, expectedState={}, expectedNonce={}",
                         MobileConnectStatus.ResponseType.COMPLETE,
                         LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
                         LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG));
-                    return MobileConnectStatus.complete(requestTokenResponse);
+
+                    TokenValidationResult tokenValidationResult = TokenValidation.validateIdToken(
+                        requestTokenResponse.getResponseData().getIdToken(), clientId, issuer,
+                        expectedNonce, maxAge, jwKeyset, jsonService);
+
+                    if (TokenValidationResult.Valid.equals(tokenValidationResult))
+                    {
+                        LOGGER.info("Id Token Validation Success");
+                        return MobileConnectStatus.complete(requestTokenResponse);
+                    }
+                    else
+                    {
+                        LOGGER.info("Id Token Validation Failure");
+                        return MobileConnectStatus.error("Invalid Id Token",
+                            "Token validation failed", null, requestTokenResponse);
+                    }
                 }
             }
             catch (final Exception e)
@@ -246,16 +289,17 @@ class MobileConnectInterfaceHelper
 
     private static boolean isExpectedNonce(final String token, final String expectedNonce)
     {
-        final String decodedPayload = JsonWebTokens.Part.PAYLOAD.decode(token);
+        final String decodedPayload = JsonWebTokens.Part.CLAIMS.decode(token);
         final Matcher matcher = NONCE_REGEX.matcher(decodedPayload);
 
         return matcher.find() && matcher.group(1).equals(expectedNonce);
     }
 
     static MobileConnectStatus handleUrlRedirect(final IDiscoveryService discoveryService,
-        final IAuthenticationService authnService, final URI redirectedUrl,
-        final DiscoveryResponse discoveryResponse, final String expectedState,
-        final String expectedNonce, final MobileConnectConfig config)
+        final IJWKeysetService jwKeysetService, final IAuthenticationService authnService,
+        final URI redirectedUrl, final DiscoveryResponse discoveryResponse,
+        final String expectedState, final String expectedNonce, final MobileConnectConfig config,
+        final MobileConnectRequestOptions options, final IJsonService jsonService)
     {
         ObjectUtils.requireNonNull(redirectedUrl, "redirectedUrl");
 
@@ -266,8 +310,8 @@ class MobileConnectInterfaceHelper
                 LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
                 LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG));
 
-            return requestToken(authnService, discoveryResponse, redirectedUrl, expectedState,
-                expectedNonce, config);
+            return requestToken(authnService, jwKeysetService, discoveryResponse, redirectedUrl,
+                expectedState, expectedNonce, config, options, jsonService);
         }
         else if (HttpUtils.extractQueryValue(redirectedUrl, Parameters.MCC_MNC) != null)
         {
@@ -409,5 +453,12 @@ class MobileConnectInterfaceHelper
                 return MobileConnectStatus.startAuthentication(response);
             }
         }
+    }
+
+    private static boolean isUsableDiscoveryResponse(final DiscoveryResponse response)
+    {
+        // if response is null or does not have operator urls
+        // then it isn't usable for the process after discovery
+        return response != null && response.getOperatorUrls() != null;
     }
 }

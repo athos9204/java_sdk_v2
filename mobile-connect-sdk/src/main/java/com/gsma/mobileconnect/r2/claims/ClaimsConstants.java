@@ -14,35 +14,42 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. YOU AGREE TO
  * INDEMNIFY AND HOLD HARMLESS THE AUTHORS AND COPYRIGHT HOLDERS FROM AND AGAINST ANY SUCH LIABILITY.
  */
-package com.gsma.mobileconnect.r2.constants;
-
-import java.util.concurrent.TimeUnit;
+package com.gsma.mobileconnect.r2.claims;
 
 /**
+ * Constants relating to claims
+ *
  * @since 2.0
  */
-public interface DefaultOptions
+public interface ClaimsConstants
 {
-    String MC_V1_1 = "mc_v1.1";
-    String MC_V1_2 = "mc_v1.2";
+    /**
+     * Key for NONCE
+     */
+    String NONCE = "nonce";
 
-    long TIMEOUT_MS = TimeUnit.SECONDS.toMillis(300L);
-    boolean MANUAL_SELECT = false;
-    boolean COOKIES_ENABLED = true;
-    String DISPLAY = "page";
-    boolean CHECK_ID_TOKEN_SIGNATURE = true;
-    long MIN_TTL_MS = TimeUnit.SECONDS.toMillis(300L);
-    long MAX_TTL_MS = TimeUnit.DAYS.toMillis(180L);
-    String AUTHENTICATION_ACR_VALUES = "2";
-    String AUTHENTICATION_SCOPE = Scope.OPENID;
-    long AUTHENTICATION_MAX_AGE = TimeUnit.HOURS.toSeconds(1L);
-    String AUTHENTICATION_RESPONSE_TYPE = "code";
-    String AUTHENTICATION_DEFAULT_VERSION = MC_V1_1;
-    String GRANT_TYPE = "authorization_code";
-    long PROVIDER_METADATA_TTL_MS = TimeUnit.SECONDS.toMillis(9L);
-    String VERSION_MOBILECONNECT = MC_V1_1;
-    String VERSION_MOBILECONNECTAUTHN = MC_V1_1;
-    String VERSION_MOBILECONNECTAUTHZ = MC_V1_2;
-    String VERSION_MOBILECONNECTIDENTITY = MC_V1_2;
-    int THREAD_POOL_SIZE = 100;
+    /**
+     * Key for AUD
+     */
+    String AUD = "aud";
+
+    /**
+     * Key for AZP
+     */
+    String AZP = "azp";
+
+    /**
+     * Key for Issuer
+     */
+    String ISSUER = "iss";
+
+    /**
+     * Key for expiry time
+     */
+    String EXPIRED = "exp";
+
+    /**
+     * Key for issued at tme
+     */
+    String ISSUED_AT_TIME = "iat";
 }

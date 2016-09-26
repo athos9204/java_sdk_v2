@@ -21,49 +21,45 @@ package com.gsma.mobileconnect.r2.constants;
  *
  * @since 2.0
  */
-public final class LinkRels
+public interface LinkRels
 {
     /**
      * Key for authorization url
      */
-    public static final String AUTHORIZATION = "authorization";
+    String AUTHORIZATION = "authorization";
 
     /**
      * Key for token url
      */
-    public static final String TOKEN = "token";
+    String TOKEN = "token";
 
     /**
      * Key for userinfo url
      */
-    public static final String USERINFO = "userinfo";
+    String USERINFO = "userinfo";
 
     /**
      * Key for premiuminfo url
      */
-    public static final String PREMIUMINFO = "premiuminfo";
+    String PREMIUMINFO = "premiuminfo";
 
     /**
      * Key for jwks url
      */
-    public static final String JWKS = "jwks";
+    String JWKS = "jwks";
 
     /**
      * Key for applicationShortName
      */
-    public static final String APPLICATION_SHORT_NAME = "applicationShortName";
+    String APPLICATION_SHORT_NAME = "applicationShortName";
 
     /**
      * Key for openid-configuration
      */
-    public static final String OPENID_CONFIGURATION = "openid-configuration";
+    String OPENID_CONFIGURATION = "openid-configuration";
 
     /**
      * Key for operator selection
      */
-    public static final String OPERATOR_SELECTION = "operatorSelection";
-
-    private LinkRels()
-    {
-    }
+    String OPERATOR_SELECTION = "operatorSelection";
 }

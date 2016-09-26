@@ -83,7 +83,7 @@ public class RequestTokenResponse
                 builder
                     .withResponseData(data)
                     .withDecodedIdTokenPayload(
-                        JsonWebTokens.Part.PAYLOAD.decode(data.getIdToken()));
+                        JsonWebTokens.Part.CLAIMS.decode(data.getIdToken()));
             }
         }
         catch (final JsonDeserializationException jde)

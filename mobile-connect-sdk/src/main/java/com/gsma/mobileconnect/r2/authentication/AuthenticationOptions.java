@@ -17,6 +17,7 @@
 package com.gsma.mobileconnect.r2.authentication;
 
 import com.gsma.mobileconnect.r2.claims.ClaimsParameter;
+import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
 
@@ -54,8 +55,8 @@ public class AuthenticationOptions
     {
         this.clientId = builder.clientId;
         this.redirectUrl = builder.redirectUrl;
-        this.acrValues = builder.acrValues;
-        this.scope = builder.scope;
+        this.acrValues = builder.acrValues != null ? builder.acrValues : DefaultOptions.AUTHENTICATION_ACR_VALUES;
+        this.scope = builder.scope != null ? builder.scope : DefaultOptions.AUTHENTICATION_SCOPE;
         this.nonce = builder.nonce;
         this.state = builder.state;
         this.maxAge = builder.maxAge;
