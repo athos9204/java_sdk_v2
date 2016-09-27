@@ -211,12 +211,13 @@ public class RestClient implements IRestClient
                         null);
                 response = this.submitRequest(requestBuilder.build());
 
-                //} while (String.valueOf(response.getStatusCode()).startsWith("3"));
-                //} while (response.getStatusCode() != 302);
-            } while (String.valueOf(response.getStatusCode()).startsWith("3") && !this
-                .retrieveLocation(response)
-                .toString()
-                .startsWith(targetUrl.toString()));
+                URI locationUri = this.retrieveLocation(response);
+
+                if (locationUri != null && locationUri.toString().startsWith(targetUrl.toString()))
+                {
+                    break;
+                }
+            } while (true);
             return response.getUri();
         }
         catch (RequestFailedException e)
