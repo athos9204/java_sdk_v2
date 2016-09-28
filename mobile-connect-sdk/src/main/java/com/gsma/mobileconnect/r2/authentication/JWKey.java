@@ -19,6 +19,7 @@ package com.gsma.mobileconnect.r2.authentication;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gsma.mobileconnect.r2.exceptions.MobileConnectInvalidJWKException;
+import com.gsma.mobileconnect.r2.utils.ByteUtils;
 import com.gsma.mobileconnect.r2.utils.StringUtils;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.impl.crypto.MacValidator;
@@ -224,13 +225,16 @@ class JWKey
             throw new MobileConnectInvalidJWKException(
                 "RSA key does not have required Modulus and Exponent components");
         }
-        byte[] mod = decode(this.getRsaN());
-        byte[] exp = decode(this.getRsaE());
+
+        byte[] mod = ByteUtils.addZeroPrefix(Base64.decodeBase64(this.getRsaN()));
+        byte[] exp = ByteUtils.addZeroPrefix(Base64.decodeBase64(this.getRsaE()));
+
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         Key rsaKey = keyFactory.generatePublic(
             new RSAPublicKeySpec(new BigInteger(mod), new BigInteger(exp)));
+
         return new RsaSignatureValidator(signatureAlgorithm, rsaKey).isValid(input.getBytes(),
-            decode(expected));
+            Base64.decodeBase64(expected));
     }
 
     private boolean verifyMac(final String input, final String expected, final String algorithm,
@@ -245,18 +249,6 @@ class JWKey
         Key hmacKey =
             keyFactory.generatePublic(new SecretKeySpec(this.getKey().getBytes(), algorithm));
         return new MacValidator(signatureAlgorithm, hmacKey).isValid(input.getBytes(),
-            decode(expected));
-    }
-
-    private byte[] decode(String rsaN)
-    {
-        String base64 = rsaN.replace('-', '+').replace('_', '/');
-        final int padding = 4 - (base64.length() % 4);
-        final StringBuilder builder = new StringBuilder(base64);
-        for (int i = 0; i < padding; i++)
-        {
-            builder.append("=");
-        }
-        return Base64.decodeBase64(builder.toString());
+            Base64.decodeBase64(expected));
     }
 }
