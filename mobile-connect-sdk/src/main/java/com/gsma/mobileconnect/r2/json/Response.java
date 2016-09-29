@@ -16,6 +16,7 @@
  */
 package com.gsma.mobileconnect.r2.json;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
 
@@ -34,6 +35,7 @@ public class Response
     private final String clientId;
     private final String clientSecret;
     private final String subscriberId;
+    private final String applicationShortName;
 
     private Response(Builder builder)
     {
@@ -44,6 +46,7 @@ public class Response
         this.clientId = builder.clientId;
         this.clientSecret = builder.clientSecret;
         this.subscriberId = builder.subscriberId;
+        this.applicationShortName = builder.applicationShortName;
     }
 
     public String getServingOperator()
@@ -81,6 +84,11 @@ public class Response
         return this.subscriberId;
     }
 
+    public String getApplicationShortName()
+    {
+        return applicationShortName;
+    }
+
     public static final class Builder implements IBuilder<Response>
     {
         private String servingOperator = null;
@@ -90,6 +98,7 @@ public class Response
         private String clientId = null;
         private String clientSecret = null;
         private String subscriberId = null;
+        private String applicationShortName = null;
 
         public Builder withServingOperator(final String val)
         {
@@ -130,6 +139,13 @@ public class Response
         public Builder withSubscriberId(final String val)
         {
             this.subscriberId = val;
+            return this;
+        }
+
+        @JsonProperty("applicationShortName")
+        public Builder withApplicationShortName(final String val)
+        {
+            this.applicationShortName = val;
             return this;
         }
 

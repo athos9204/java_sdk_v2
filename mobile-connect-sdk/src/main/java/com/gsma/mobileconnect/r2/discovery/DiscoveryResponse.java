@@ -308,6 +308,7 @@ public class DiscoveryResponse extends AbstractCacheable
                 this.ttl = calculateTtl(this.ttl.getTime());
             }
 
+            this.applicationShortName = this.responseData.getApplicationShortName();
             this.operatorUrls = OperatorUrls.fromDiscoveryResponse(this.responseData);
 
             if (this.responseData.getResponse() != null)
