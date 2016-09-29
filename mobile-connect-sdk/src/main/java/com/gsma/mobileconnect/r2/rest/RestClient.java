@@ -189,6 +189,7 @@ public class RestClient implements IRestClient
         RestResponse response = null;
         URI nextUrl = authUrl;
         int numRedirects = 0;
+        URI locationUri = null;
 
         try
         {
@@ -201,8 +202,7 @@ public class RestClient implements IRestClient
 
                 if (response != null)
                 {
-                    URI locationUrl = this.retrieveLocation(response);
-                    nextUrl = locationUrl == null ? nextUrl : locationUrl;
+                    nextUrl = locationUri == null ? nextUrl : locationUri;
                     numRedirects++;
                 }
 
@@ -211,14 +211,23 @@ public class RestClient implements IRestClient
                         null);
                 response = this.submitRequest(requestBuilder.build());
 
-                URI locationUri = this.retrieveLocation(response);
+                locationUri = this.retrieveLocation(response);
 
                 if (locationUri != null && locationUri.toString().startsWith(targetUrl.toString()))
                 {
                     break;
                 }
+
+                try
+                {
+                    Thread.sleep(5000);
+                }
+                catch (InterruptedException e)
+                {
+                    LOGGER.info("Waking up and trying again");
+                }
             } while (true);
-            return response.getUri();
+            return locationUri;
         }
         catch (RequestFailedException e)
         {
