@@ -64,8 +64,10 @@ public final class Parameters
     public static final String BINDING_MESSAGE = "binding_message";
 
     // Params for AuthorizationResponse
+
     public static final String ERROR = "error";
     public static final String ERROR_DESCRIPTION = "error_description";
+    public static final String DESCRIPTION = "description";
     public static final String ERROR_URI = "error_uri";
     public static final String CODE = "code";
 
