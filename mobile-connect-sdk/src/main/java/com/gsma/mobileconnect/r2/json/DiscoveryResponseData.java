@@ -36,6 +36,7 @@ public class DiscoveryResponseData
     private final List<Link> links;
     private final Response response;
     private String subscriberId;
+    private String applicationShortName;
 
     private DiscoveryResponseData(final Builder builder)
     {
@@ -45,6 +46,7 @@ public class DiscoveryResponseData
         this.description = builder.description;
         this.links = builder.links;
         this.response = builder.response;
+        this.applicationShortName = builder.applicationShortName;
     }
 
     public long getTtl()
@@ -82,6 +84,11 @@ public class DiscoveryResponseData
         return this.response;
     }
 
+    public String getApplicationShortName()
+    {
+        return applicationShortName;
+    }
+
     public static final class Builder implements IBuilder<DiscoveryResponseData>
     {
         private long ttl = 0L;
@@ -90,6 +97,7 @@ public class DiscoveryResponseData
         private String description = null;
         private List<Link> links = null;
         private Response response = null;
+        private String applicationShortName = null;
 
         public Builder()
         {
@@ -106,6 +114,7 @@ public class DiscoveryResponseData
                 this.description = responseData.description;
                 this.links = responseData.links;
                 this.response = responseData.response;
+                this.applicationShortName = responseData.applicationShortName;
             }
         }
 
@@ -145,6 +154,12 @@ public class DiscoveryResponseData
             return this;
         }
 
+        public Builder withApplicationShortName(final String val)
+        {
+            this.applicationShortName = val;
+            return this;
+        }
+
         @Override
         public DiscoveryResponseData build()
         {
@@ -159,6 +174,11 @@ public class DiscoveryResponseData
                         this.links = operatorId.getLink();
                     }
                 }
+            }
+
+            if (this.applicationShortName == null && this.response != null)
+            {
+                this.applicationShortName = this.response.getApplicationShortName();
             }
 
             return new DiscoveryResponseData(this);
