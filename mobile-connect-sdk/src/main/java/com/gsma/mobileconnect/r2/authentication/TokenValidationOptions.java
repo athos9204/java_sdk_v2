@@ -46,18 +46,9 @@ public class TokenValidationOptions
 
         public Builder()
         {
+            // empty constructor for builder class
         }
         
-        public Builder(final TokenValidationOptions tokenValidationOptions)
-        {
-            this.acceptedValidationResults = tokenValidationOptions.acceptedValidationResults;
-        }
-
-        public static Builder aTokenValidationOptions()
-        {
-            return new Builder();
-        }
-
         public Builder withAcceptedValidationResults(
             TokenValidationResult acceptedValidationResults)
         {

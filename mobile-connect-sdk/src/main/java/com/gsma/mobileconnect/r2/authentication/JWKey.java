@@ -193,31 +193,19 @@ class JWKey
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.forName(algorithm);
 
         boolean isValid = false;
-        try
+        if (isRsa())
         {
-
-            if (isRsa())
-            {
-                isValid = verifyRsa(input, expected, signatureAlgorithm, isValid);
-            }
-            else if (isSymmetric())
-            {
-                isValid = verifyMac(input, expected, algorithm, signatureAlgorithm);
-            }
+            isValid = verifyRsa(input, expected, signatureAlgorithm);
         }
-        catch (NoSuchAlgorithmException e)
+        else if (isSymmetric())
         {
-            throw e;
-        }
-        catch (InvalidKeySpecException e)
-        {
-            throw e;
+            isValid = verifyMac(input, expected, algorithm, signatureAlgorithm);
         }
         return isValid;
     }
 
     private boolean verifyRsa(final String input, final String expected,
-        final SignatureAlgorithm signatureAlgorithm, boolean isValid)
+        final SignatureAlgorithm signatureAlgorithm)
         throws NoSuchAlgorithmException, InvalidKeySpecException, MobileConnectInvalidJWKException
     {
         if (StringUtils.isNullOrEmpty(this.getRsaN()) || StringUtils.isNullOrEmpty(this.getRsaE()))
@@ -226,11 +214,11 @@ class JWKey
                 "RSA key does not have required Modulus and Exponent components");
         }
 
-        byte[] mod = ByteUtils.addZeroPrefix(Base64.decodeBase64(this.getRsaN()));
-        byte[] exp = ByteUtils.addZeroPrefix(Base64.decodeBase64(this.getRsaE()));
+        final byte[] mod = ByteUtils.addZeroPrefix(Base64.decodeBase64(this.getRsaN()));
+        final byte[] exp = ByteUtils.addZeroPrefix(Base64.decodeBase64(this.getRsaE()));
 
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        Key rsaKey = keyFactory.generatePublic(
+        final KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        final Key rsaKey = keyFactory.generatePublic(
             new RSAPublicKeySpec(new BigInteger(mod), new BigInteger(exp)));
 
         return new RsaSignatureValidator(signatureAlgorithm, rsaKey).isValid(input.getBytes(),
@@ -245,8 +233,8 @@ class JWKey
         {
             throw new MobileConnectInvalidJWKException("HMAC key does not have secret");
         }
-        KeyFactory keyFactory = KeyFactory.getInstance("HMAC");
-        Key hmacKey =
+        final KeyFactory keyFactory = KeyFactory.getInstance("HMAC");
+        final Key hmacKey =
             keyFactory.generatePublic(new SecretKeySpec(this.getKey().getBytes(), algorithm));
         return new MacValidator(signatureAlgorithm, hmacKey).isValid(input.getBytes(),
             Base64.decodeBase64(expected));

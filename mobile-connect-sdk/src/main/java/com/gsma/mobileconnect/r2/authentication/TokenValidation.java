@@ -59,7 +59,7 @@ public class TokenValidation
      *                                    supplied)
      * @param keyset                      Keyset retrieved from the jwks url, used to validate the
      *                                    token signature
-     * @param iMobileConnectEncodeDecoder
+     * @param iMobileConnectEncodeDecoder Class used to encode/decode id_tokens
      * @return TokenValidationResult that specifies if the token is valid, or if not why it is not
      * valid
      */
@@ -153,7 +153,6 @@ public class TokenValidation
             LOGGER.warn("Error deserializing idToken");
             throw new JsonDeserializationException(JWKey.class, idToken, e);
         }
-
     }
 
     private static TokenValidationResult verifySignature(final JWKey jwKey, final String dataToSign,

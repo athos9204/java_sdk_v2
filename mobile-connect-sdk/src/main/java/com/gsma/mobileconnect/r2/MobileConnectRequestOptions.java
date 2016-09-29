@@ -66,7 +66,7 @@ public class MobileConnectRequestOptions
 
     TokenValidationOptions.Builder getValidationOptionsBuilder()
     {
-        return new TokenValidationOptions.Builder(this.validationOptions);
+        return new TokenValidationOptions.Builder().withAcceptedValidationResults(this.getValidationOptions().getAcceptedValidationResults());
     }
 
     public static final class Builder implements IBuilder<MobileConnectRequestOptions>

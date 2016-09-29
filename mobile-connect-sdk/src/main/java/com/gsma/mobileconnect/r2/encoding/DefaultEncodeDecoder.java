@@ -25,11 +25,23 @@ import org.apache.commons.codec.binary.Base64;
  */
 public class DefaultEncodeDecoder implements IMobileConnectEncodeDecoder {
 
+    /**
+     * method to encode byte arrays to base64
+     *
+     * @param value the array of byte to encode
+     * @return Base64 encoded String
+     */
     @Override
     public String encodeToBase64(byte[] value) {
         return Base64.encodeBase64String(value);
     }
 
+    /**
+     * method to decode base64 strings into byte array
+     *
+     * @param value The string to to decode
+     * @return decoded byte array
+     */
     @Override
     public byte[] decodeFromBase64(String value) {
         return Base64.decodeBase64(value);
