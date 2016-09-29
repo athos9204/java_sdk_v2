@@ -66,6 +66,7 @@ public interface Parameters
     // Params for AuthorizationResponse
      String ERROR = "error";
      String ERROR_DESCRIPTION = "error_description";
+     String DESCRIPTION = "description";
      String ERROR_URI = "error_uri";
      String CODE = "code";
 
