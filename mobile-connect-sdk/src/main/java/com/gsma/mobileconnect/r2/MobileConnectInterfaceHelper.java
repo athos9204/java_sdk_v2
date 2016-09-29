@@ -331,8 +331,14 @@ class MobileConnectInterfaceHelper
         else
         {
             final String errorCode = HttpUtils.extractQueryValue(redirectedUrl, Parameters.ERROR);
-            final String errorDescription =
+            String errorDescription =
                 HttpUtils.extractQueryValue(redirectedUrl, Parameters.ERROR_DESCRIPTION);
+
+            // TODO Remove hack once endpoint has been made compliant with OpenId Specification
+            if (errorDescription == null) {
+                errorDescription =
+                    HttpUtils.extractQueryValue(redirectedUrl, Parameters.DESCRIPTION);
+            }
 
             final MobileConnectStatus status =
                 MobileConnectStatus.error(ObjectUtils.defaultIfNull(errorCode, "invalid_request"),

@@ -39,7 +39,7 @@ import java.security.spec.RSAPublicKeySpec;
  *
  * @since 2.0
  */
-public class JWKey
+class JWKey
 {
     private String keyType;
     private String use;
@@ -200,7 +200,7 @@ public class JWKey
             {
                 isValid = verifyRsa(input, expected, signatureAlgorithm, isValid);
             }
-            if (isSymmetric())
+            else if (isSymmetric())
             {
                 isValid = verifyMac(input, expected, algorithm, signatureAlgorithm);
             }
@@ -250,110 +250,5 @@ public class JWKey
             keyFactory.generatePublic(new SecretKeySpec(this.getKey().getBytes(), algorithm));
         return new MacValidator(signatureAlgorithm, hmacKey).isValid(input.getBytes(),
             Base64.decodeBase64(expected));
-    }
-
-    public JWKey(final Builder builder)
-    {
-        this.keyType = builder.keyType;
-        this.use = builder.use;
-        this.keyOps = builder.keyOps;
-        this.algorithm = builder.algorithm;
-        this.keyId = builder.keyId;
-        this.key = builder.key;
-        this.eccCurve = builder.eccCurve;
-        this.eccX = builder.eccX;
-        this.eccY = builder.eccY;
-        this.rsaN = builder.rsaN;
-        this.rsaE = builder.rsaE;
-    }
-
-    public static final class Builder
-    {
-        private String keyType;
-        private String use;
-        private String keyOps;
-        private String algorithm;
-        private String keyId;
-        private String key;
-        private String eccCurve;
-        private String eccX;
-        private String eccY;
-        private String rsaN;
-        private String rsaE;
-
-        public Builder()
-        {
-        }
-
-        public Builder withKeyType(final String keyType)
-        {
-            this.keyType = keyType;
-            return this;
-        }
-
-        public Builder withUse(final String use)
-        {
-            this.use = use;
-            return this;
-        }
-
-        public Builder withKeyOps(final String keyOps)
-        {
-            this.keyOps = keyOps;
-            return this;
-        }
-
-        public Builder withAlgorithm(final String algorithm)
-        {
-            this.algorithm = algorithm;
-            return this;
-        }
-
-        public Builder withKeyId(final String keyId)
-        {
-            this.keyId = keyId;
-            return this;
-        }
-
-        public Builder withKey(final String key)
-        {
-            this.key = key;
-            return this;
-        }
-
-        public Builder withEccCurve(final String eccCurve)
-        {
-            this.eccCurve = eccCurve;
-            return this;
-        }
-
-        public Builder withEccX(final String eccX)
-        {
-            this.eccX = eccX;
-            return this;
-        }
-
-        public Builder withEccY(final String eccY)
-        {
-            this.eccY = eccY;
-            return this;
-        }
-
-        public Builder withRsaN(final String rsaN)
-        {
-            this.rsaN = rsaN;
-            return this;
-        }
-
-        public Builder withRsaE(final String rsaE)
-        {
-            this.rsaE = rsaE;
-            return this;
-        }
-
-        public JWKey build()
-        {
-            return new JWKey(this);
-        }
     }
 }

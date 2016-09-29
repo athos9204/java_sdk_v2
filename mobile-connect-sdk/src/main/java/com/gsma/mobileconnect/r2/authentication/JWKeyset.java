@@ -37,11 +37,6 @@ public class JWKeyset extends AbstractCacheable
     {
     }
 
-    public JWKeyset(final Builder builder)
-    {
-        this.keys = builder.keys;
-    }
-
     /**
      * @return All available keys
      */
@@ -65,36 +60,5 @@ public class JWKeyset extends AbstractCacheable
             return keys;
         }
         return ListUtils.allMatches(keys, predicate);
-    }
-
-
-    public static final class Builder
-    {
-        List<JWKey> keys;
-
-        public Builder()
-        {
-        }
-
-        public Builder from(final JWKeyset jwKeyset)
-        {
-            if (jwKeyset == null)
-            {
-                return this;
-            }
-            this.keys = jwKeyset.getKeys();
-            return this;
-        }
-
-        public Builder withKeys(final List<JWKey> keys)
-        {
-            this.keys = keys;
-            return this;
-        }
-
-        public JWKeyset build()
-        {
-            return new JWKeyset(this);
-        }
     }
 }
