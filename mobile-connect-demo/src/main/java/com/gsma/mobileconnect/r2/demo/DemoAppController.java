@@ -98,7 +98,7 @@ public class DemoAppController
 
     @GetMapping("headless_authentication")
     @ResponseBody
-    public MobileConnectWebResponse requestStartAuthentication(
+    public MobileConnectWebResponse headlessAuthentication(
         @RequestParam(required = false) final String sdkSession,
         @RequestParam(required = false) final String subscriberId,
         @RequestParam(required = false) final String scope, final HttpServletRequest request)
@@ -115,8 +115,8 @@ public class DemoAppController
             .build();
 
         final MobileConnectStatus status =
-            this.mobileConnectWebInterface.requestHeadlessAuthenticationAsync(request, sdkSession, subscriberId,
-                null, null, options);
+            this.mobileConnectWebInterface.requestHeadlessAuthenticationAsync(request, sdkSession,
+                subscriberId, null, null, options);
 
         return new MobileConnectWebResponse(status);
     }

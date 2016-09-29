@@ -102,7 +102,7 @@ public class RestClient implements IRestClient
                     sourceIp, cookies)
                 .build();
 
-            return this.submitRequest(request);
+            return this.submitRequest(request, true);
         }
         catch (final URISyntaxException use)
         {
@@ -126,7 +126,7 @@ public class RestClient implements IRestClient
                 ObjectUtils.requireNonNull(formData, "formData").toArray(new NameValuePair[] {}))
             .build();
 
-        return this.submitRequest(request);
+        return this.submitRequest(request, true);
     }
 
     @Override
@@ -178,14 +178,13 @@ public class RestClient implements IRestClient
             .setEntity(ObjectUtils.requireNonNull(content, "content"))
             .build();
 
-        return this.submitRequest(request);
+        return this.submitRequest(request, true);
     }
 
     @Override
     public URI getFinalRedirect(final URI authUrl, final URI targetUrl,
         final RestAuthentication authentication) throws RequestFailedException
     {
-        int maxRedirects = 50;
         RestResponse response = null;
         URI nextUrl = authUrl;
         int numRedirects = 0;
@@ -195,21 +194,19 @@ public class RestClient implements IRestClient
         {
             do
             {
-                if (numRedirects > maxRedirects)
+                if (numRedirects > DefaultOptions.MAX_REDIRECTS)
                 {
                     throw new TooManyRedirectsException("Stuck in redirect loop");
                 }
-
                 if (response != null)
                 {
                     nextUrl = locationUri == null ? nextUrl : locationUri;
                     numRedirects++;
                 }
-
                 RequestBuilder requestBuilder =
                     this.createRequest(HttpUtils.HttpMethod.GET, nextUrl, authentication, null,
                         null);
-                response = this.submitRequest(requestBuilder.build());
+                response = this.submitRequest(requestBuilder.build(), false);
 
                 locationUri = this.retrieveLocation(response);
 
@@ -217,15 +214,7 @@ public class RestClient implements IRestClient
                 {
                     break;
                 }
-
-                try
-                {
-                    Thread.sleep(5000);
-                }
-                catch (InterruptedException e)
-                {
-                    LOGGER.info("Waking up and trying again");
-                }
+                waitForSometime();
             } while (true);
             return locationUri;
         }
@@ -250,7 +239,18 @@ public class RestClient implements IRestClient
             LOGGER.error("Too many redirects", e);
             throw new RequestFailedException(HttpUtils.HttpMethod.GET, authUrl, e);
         }
+    }
 
+    private void waitForSometime()
+    {
+        try
+        {
+            Thread.sleep(DefaultOptions.WAIT_TIME);
+        }
+        catch (InterruptedException e)
+        {
+            LOGGER.info("Waking up and trying again");
+        }
     }
 
     private URI retrieveLocation(RestResponse response) throws URISyntaxException
@@ -324,11 +324,13 @@ public class RestClient implements IRestClient
      * Submits a request to the executor.  When the request runs, an additional task is scheduled in
      * the future which will abort the request after the configured timeout period.
      *
-     * @param request to be run.
+     * @param request   to be run.
+     * @param addHeader boolean flag to specify is headers should be added
      * @return the RestResponse.
      * @throws RequestFailedException if there is a failure issuing the request.
      */
-    private RestResponse submitRequest(final HttpUriRequest request) throws RequestFailedException
+    private RestResponse submitRequest(final HttpUriRequest request, boolean addHeader)
+        throws RequestFailedException
     {
         ObjectUtils.requireNonNull(request, "request");
 
@@ -348,7 +350,10 @@ public class RestClient implements IRestClient
 
         try
         {
-            request.addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
+            if (addHeader)
+            {
+                request.addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
+            }
 
             LOGGER.debug("Issuing httpMethod={} request to uri={}", request.getMethod(),
                 LogUtils.maskUri(request.getURI(), LOGGER, Level.DEBUG));

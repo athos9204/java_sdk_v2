@@ -243,25 +243,37 @@ public class AuthenticationService implements IAuthenticationService
         final SupportedVersions versions, final AuthenticationOptions options)
         throws RequestFailedException
     {
-        /*
-        final AuthenticationOptions.Builder optionsBuilder =
-            new AuthenticationOptions.Builder(options).withPrompt(DefaultOptions.PROMPT);
+        final String scope;
+        final String context;
+        final AuthenticationOptions.Builder optionsBuilder;
+        if (options == null)
+        {
+            optionsBuilder = new AuthenticationOptions.Builder();
+            scope = "";
+            context = "";
+        }
+        else
+        {
+            optionsBuilder = new AuthenticationOptions.Builder(options);
+            scope = ObjectUtils.defaultIfNull(options.getScope(), "").toLowerCase();
+            context = options.getContext();
+        }
+
+        if (this.shouldUseAuthorize(scope, context))
+        {
+            optionsBuilder.withPrompt(DefaultOptions.PROMPT);
+        }
+
         StartAuthenticationResponse startAuthenticationResponse =
             startAuthentication(clientId, authorizationUrl, redirectUrl, state, nonce,
                 encryptedMsisdn, versions, optionsBuilder.build());
-         */
-        StartAuthenticationResponse startAuthenticationResponse =
-            startAuthentication(clientId, authorizationUrl, redirectUrl, state, nonce,
-                encryptedMsisdn, versions, options);
         final RestAuthentication authentication =
             RestAuthentication.basic(clientId, clientSecret, iMobileConnectEncodeDecoder);
 
         URI authUrl = startAuthenticationResponse.getUrl();
-        URI finalRedirect = restClient.getFinalRedirect(authUrl, redirectUrl,authentication);
+        URI finalRedirectUrl = restClient.getFinalRedirect(authUrl, redirectUrl,authentication);
 
-        // TODO - Check if the finalRedirectUrl was an error response?
-
-        final String code = HttpUtils.extractQueryValue(finalRedirect, "code");
+        final String code = HttpUtils.extractQueryValue(finalRedirectUrl, "code");
 
         return this.executorService.submit(new Callable<RequestTokenResponse>()
         {

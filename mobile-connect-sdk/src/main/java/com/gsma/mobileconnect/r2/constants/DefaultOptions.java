@@ -48,6 +48,10 @@ public final class DefaultOptions
 
     public static final String PROMPT = "mobile";
 
+    // Since the wait time is 5 seconds & the maximum timeout = 2 mins
+    public static final long MAX_REDIRECTS = 24;
+    public static final long WAIT_TIME = 5000L; // 5 seconds
+
     private DefaultOptions()
     {
     }
