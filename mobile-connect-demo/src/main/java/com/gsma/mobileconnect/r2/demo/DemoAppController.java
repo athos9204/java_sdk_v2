@@ -112,6 +112,7 @@ public class DemoAppController
                 .withContext("headless")
                 .withBindingMessage("demo headless")
                 .build())
+            .witAutoRetrieveIdentitySet(true)
             .build();
 
         final MobileConnectStatus status =

@@ -166,13 +166,17 @@ class MobileConnectInterfaceHelper
     }
 
     static MobileConnectStatus requestHeadlessAuthentication(
-        final IAuthenticationService authnService, final DiscoveryResponse discoveryResponse,
-        final String encryptedMsisdn, final String expectedState, final String expectedNonce,
-        final MobileConnectConfig config, final AuthenticationOptions.Builder authnOptionsBuilder,
+        final IAuthenticationService authnService, final IIdentityService identityService,
+        final DiscoveryResponse discoveryResponse, final String encryptedMsisdn,
+        final String expectedState, final String expectedNonce, final MobileConnectConfig config,
+        final MobileConnectRequestOptions options,
         final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         ObjectUtils.requireNonNull(discoveryResponse, "discoveryResponse");
 
+        final AuthenticationOptions.Builder builder = options != null
+                                                      ? options.getAuthenticationOptionsBuilder()
+                                                      : new AuthenticationOptions.Builder();
         try
         {
             final String clientId = ObjectUtils.defaultIfNull(
@@ -186,16 +190,38 @@ class MobileConnectInterfaceHelper
                 URI.create(discoveryResponse.getOperatorUrls().getRequestTokenUrl());
             final SupportedVersions supportedVersions =
                 discoveryResponse.getProviderMetadata().getMobileConnectVersionSupported();
-            authnOptionsBuilder.withClientName(discoveryResponse.getApplicationShortName());
+            builder.withClientName(discoveryResponse.getApplicationShortName());
+
+            AuthenticationOptions authenticationOptions = builder.build();
 
             final Future<RequestTokenResponse> requestTokenResponseAsync =
                 authnService.requestHeadlessAuthentication(clientId, clientSecret, authorizationUrl,
                     tokenUrl, config.getRedirectUrl(), expectedState, expectedNonce,
-                    encryptedMsisdn, supportedVersions, authnOptionsBuilder.build());
+                    encryptedMsisdn, supportedVersions, authenticationOptions);
 
-            // TODO Add the JWT token validation code here?
-            return processRequestTokenResponse(requestTokenResponseAsync.get(), expectedState,
-                expectedNonce, config.getRedirectUrl(), iMobileConnectEncodeDecoder);
+            RequestTokenResponse requestTokenResponse = requestTokenResponseAsync.get();
+
+            MobileConnectStatus status =
+                processRequestTokenResponse(requestTokenResponse, expectedState,
+                    expectedNonce, config.getRedirectUrl(), iMobileConnectEncodeDecoder);
+
+            //TODO Add the JWT token validation code here
+
+            if (status.getResponseType() == MobileConnectStatus.ResponseType.ERROR ||
+                (options != null && options.isAutoRetrieveIdentitySet()) ||
+                StringUtils.isNullOrEmpty(discoveryResponse.getOperatorUrls().getPremiumInfoUri()))
+            {
+                return status;
+            }
+
+            MobileConnectStatus identityStatus = requestInfo(identityService,
+                requestTokenResponse.getResponseData().getAccessToken(),
+                discoveryResponse.getOperatorUrls().getPremiumInfoUri(), "requestIdentity",
+                MobileConnectStatus.ResponseType.IDENTITY, iMobileConnectEncodeDecoder);
+
+            return new MobileConnectStatus.Builder(status)
+                .withIdentityResponse(identityStatus.getIdentityResponse())
+                .build();
         }
         catch (final Exception e)
         {
@@ -342,7 +368,8 @@ class MobileConnectInterfaceHelper
                 HttpUtils.extractQueryValue(redirectedUrl, Parameters.ERROR_DESCRIPTION);
 
             // TODO Remove hack once endpoint has been made compliant with OpenId Specification
-            if (errorDescription == null) {
+            if (errorDescription == null)
+            {
                 errorDescription =
                     HttpUtils.extractQueryValue(redirectedUrl, Parameters.DESCRIPTION);
             }

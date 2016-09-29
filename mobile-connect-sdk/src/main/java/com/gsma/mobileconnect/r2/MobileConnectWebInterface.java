@@ -242,10 +242,6 @@ public class MobileConnectWebInterface
     {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
-        final AuthenticationOptions.Builder builder = options != null
-                                                      ? options.getAuthenticationOptionsBuilder()
-                                                      : new AuthenticationOptions.Builder();
-
         final String rState =
             StringUtils.isNullOrEmpty(state) ? UUID.randomUUID().toString() : state;
         final String rNonce =
@@ -257,8 +253,8 @@ public class MobileConnectWebInterface
             LogUtils.mask(rNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
         return MobileConnectInterfaceHelper.requestHeadlessAuthentication(this.authnService,
-            discoveryResponse, encryptedMsisdn, rState, rNonce, this.config, builder,
-            iMobileConnectEncodeDecoder);
+            this.identityService, discoveryResponse, encryptedMsisdn, rState, rNonce, this.config,
+            options, iMobileConnectEncodeDecoder);
     }
 
     /**
