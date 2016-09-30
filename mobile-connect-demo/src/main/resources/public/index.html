@@ -144,6 +144,7 @@
         <div id="value-access-token" class="display-value"></div>
         <div id="value-id-token" class="display-value"></div>
         <div id="value-time-received" class="display-value"></div>
+        <div id="value-identity-prefetched" class="display-value pre-whitespace"></div>
         <div class="error"></div>
         <input class="feature-button" type="button" id="user-info-button" name="user-info-button"
                value="Request UserInfo"/>
@@ -256,6 +257,9 @@
         var printInfo = function printInfo(response) {
             $('#value-application-name').html(api.currentAttempt.applicationShortName);
             printTokenInfo(response.token);
+            if (response.identity) {
+                setContent('#value-identity-prefetched', JSON.stringify(response.identity, null, 2));
+            }
         }
 
         var api = {

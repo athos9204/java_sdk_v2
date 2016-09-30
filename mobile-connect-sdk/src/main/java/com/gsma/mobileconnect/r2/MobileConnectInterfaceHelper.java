@@ -213,9 +213,9 @@ class MobileConnectInterfaceHelper
                     config.getRedirectUrl(), iMobileConnectEncodeDecoder, jwKeysetService,
                     discoveryResponse, clientId, issuer, maxAge, jsonService);
 
-            if (status.getResponseType() == MobileConnectStatus.ResponseType.ERROR || (options
-                != null && options.isAutoRetrieveIdentitySet()) || StringUtils.isNullOrEmpty(
-                discoveryResponse.getOperatorUrls().getPremiumInfoUri()))
+            if (status.getResponseType() == MobileConnectStatus.ResponseType.ERROR ||
+                (options != null && !options.isAutoRetrieveIdentitySet()) ||
+                StringUtils.isNullOrEmpty(discoveryResponse.getOperatorUrls().getPremiumInfoUri()))
             {
                 return status;
             }
