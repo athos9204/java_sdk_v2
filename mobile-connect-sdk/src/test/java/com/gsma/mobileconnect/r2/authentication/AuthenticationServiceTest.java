@@ -25,21 +25,22 @@ import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.json.JsonSerializationException;
-import com.gsma.mobileconnect.r2.rest.IRestClient;
-import com.gsma.mobileconnect.r2.rest.RequestFailedException;
-import com.gsma.mobileconnect.r2.rest.RestAuthentication;
-import com.gsma.mobileconnect.r2.rest.RestClient;
+import com.gsma.mobileconnect.r2.rest.*;
 import com.gsma.mobileconnect.r2.utils.HttpUtils;
 import com.gsma.mobileconnect.r2.utils.KeyValuePair;
 import com.gsma.mobileconnect.r2.utils.TestUtils;
+import com.sun.org.apache.regexp.internal.RE;
 import org.apache.http.HttpStatus;
 import org.mockito.Mockito;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
@@ -54,6 +55,7 @@ public class AuthenticationServiceTest
 {
     private final static URI REDIRECT_URL = URI.create("http://localhost:8080/");
     private final static URI AUTHORIZE_URL = URI.create("http://localhost:8080/authorize");
+    //private final static URI HEADLESS_URL = URI.create("http://localhost:8080/headless");
     private final static URI TOKEN_URL = URI.create("http://localhost:8080/token");
 
     private final IJsonService jsonService = new JacksonJsonService();
@@ -304,5 +306,36 @@ public class AuthenticationServiceTest
     {
         this.authentication.requestToken(clientId, clientSecret, requestTokenUrl, redirectUrl,
             code);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void headlessAuthenticationTest()
+        throws RequestFailedException, TooManyRedirectsException, ExecutionException,
+        InterruptedException, URISyntaxException
+    {
+        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
+            anyListOf(KeyValuePair.class), isNull(String.class),
+            isNull(Iterable.class))).thenReturn(TestUtils.TOKEN_RESPONSE);
+
+        when(this.restClient.getFinalRedirect(isA(URI.class), isA(URI.class),
+            isA(RestAuthentication.class))).thenReturn(new URI(REDIRECT_URL + "?code=code"));
+
+        final Future<RequestTokenResponse> response =
+            this.authentication.requestHeadlessAuthentication(this.config.getClientId(),
+                this.config.getClientSecret(), AUTHORIZE_URL, REDIRECT_URL, TOKEN_URL, "state",
+                "nonce", null, null, null);
+
+        assertNotNull(response);
+        RequestTokenResponse requestTokenResponse = response.get();
+        assertNotNull(response.get());
+        //assertTrue(response.getUrl().toString().contains(AUTHORIZE_URL.toString()));
+
+
+        assertNotNull(requestTokenResponse);
+        assertEquals(requestTokenResponse.getResponseCode(), HttpStatus.SC_ACCEPTED);
+        assertNotNull(requestTokenResponse.getResponseData());
+        assertEquals(requestTokenResponse.getResponseData().getAccessToken(),
+            "966ad150-16c5-11e6-944f-43079d13e2f3");
     }
 }

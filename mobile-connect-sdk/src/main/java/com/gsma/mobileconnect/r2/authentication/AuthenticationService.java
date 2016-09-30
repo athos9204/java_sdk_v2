@@ -271,7 +271,7 @@ public class AuthenticationService implements IAuthenticationService
             RestAuthentication.basic(clientId, clientSecret, iMobileConnectEncodeDecoder);
 
         URI authUrl = startAuthenticationResponse.getUrl();
-        URI finalRedirectUrl = restClient.getFinalRedirect(authUrl, redirectUrl,authentication);
+        URI finalRedirectUrl = restClient.getFinalRedirect(authUrl, redirectUrl, authentication);
 
         final String code = HttpUtils.extractQueryValue(finalRedirectUrl, "code");
 
