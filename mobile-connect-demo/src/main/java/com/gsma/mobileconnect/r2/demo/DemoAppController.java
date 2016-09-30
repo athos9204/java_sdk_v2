@@ -171,7 +171,7 @@ public class DemoAppController
 
         final MobileConnectStatus status =
             this.mobileConnectWebInterface.handleUrlRedirect(request, requestUri, sdkSession,
-                expectedState, expectedNonce);
+                expectedState, expectedNonce, null);
 
         return new MobileConnectWebResponse(status);
     }

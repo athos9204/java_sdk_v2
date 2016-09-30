@@ -14,52 +14,42 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. YOU AGREE TO
  * INDEMNIFY AND HOLD HARMLESS THE AUTHORS AND COPYRIGHT HOLDERS FROM AND AGAINST ANY SUCH LIABILITY.
  */
-package com.gsma.mobileconnect.r2.constants;
+package com.gsma.mobileconnect.r2.claims;
 
 /**
- * Constants for links provided from the discovery process.
+ * Constants relating to claims
  *
  * @since 2.0
  */
-public interface LinkRels
+public interface ClaimsConstants
 {
     /**
-     * Key for authorization url
+     * Key for NONCE
      */
-    String AUTHORIZATION = "authorization";
+    String NONCE = "nonce";
 
     /**
-     * Key for token url
+     * Key for AUD
      */
-    String TOKEN = "token";
+    String AUD = "aud";
 
     /**
-     * Key for userinfo url
+     * Key for AZP
      */
-    String USERINFO = "userinfo";
+    String AZP = "azp";
 
     /**
-     * Key for premiuminfo url
+     * Key for Issuer
      */
-    String PREMIUMINFO = "premiuminfo";
+    String ISSUER = "iss";
 
     /**
-     * Key for jwks url
+     * Key for expiry time
      */
-    String JWKS = "jwks";
+    String EXPIRED = "exp";
 
     /**
-     * Key for applicationShortName
+     * Key for issued at tme
      */
-    String APPLICATION_SHORT_NAME = "applicationShortName";
-
-    /**
-     * Key for openid-configuration
-     */
-    String OPENID_CONFIGURATION = "openid-configuration";
-
-    /**
-     * Key for operator selection
-     */
-    String OPERATOR_SELECTION = "operatorSelection";
+    String ISSUED_AT_TIME = "iat";
 }

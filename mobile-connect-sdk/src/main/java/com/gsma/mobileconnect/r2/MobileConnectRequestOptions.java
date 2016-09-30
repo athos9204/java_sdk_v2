@@ -17,6 +17,7 @@
 package com.gsma.mobileconnect.r2;
 
 import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
+import com.gsma.mobileconnect.r2.authentication.TokenValidationOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
 
@@ -29,6 +30,7 @@ public class MobileConnectRequestOptions
 {
     private final DiscoveryOptions discoveryOptions;
     private final AuthenticationOptions authenticationOptions;
+    private final TokenValidationOptions validationOptions;
 
     private final boolean autoRetrieveIdentitySet;
 
@@ -37,6 +39,7 @@ public class MobileConnectRequestOptions
         this.discoveryOptions = builder.discoveryOptions;
         this.authenticationOptions = builder.authenticationOptions;
         this.autoRetrieveIdentitySet = builder.autoRetrieveIdentitySet;
+        this.validationOptions = builder.validationOptions;
     }
 
     public DiscoveryOptions getDiscoveryOptions()
@@ -64,11 +67,22 @@ public class MobileConnectRequestOptions
         return new AuthenticationOptions.Builder(this.authenticationOptions);
     }
 
+    public TokenValidationOptions getValidationOptions()
+    {
+        return validationOptions;
+    }
+
+    TokenValidationOptions.Builder getValidationOptionsBuilder()
+    {
+        return new TokenValidationOptions.Builder(this.validationOptions);
+    }
+
     public static final class Builder implements IBuilder<MobileConnectRequestOptions>
     {
         private DiscoveryOptions discoveryOptions;
         private AuthenticationOptions authenticationOptions;
         private boolean autoRetrieveIdentitySet = false;
+        private TokenValidationOptions validationOptions;
 
         public Builder withDiscoveryOptions(final DiscoveryOptions val)
         {
@@ -88,6 +102,11 @@ public class MobileConnectRequestOptions
             return this;
         }
 
+        public Builder withValidationOptions(final TokenValidationOptions val)
+        {
+            this.validationOptions = val;
+            return this;
+        }
 
         @Override
         public MobileConnectRequestOptions build()
@@ -100,6 +119,11 @@ public class MobileConnectRequestOptions
             if (this.authenticationOptions == null)
             {
                 this.authenticationOptions = new AuthenticationOptions.Builder().build();
+            }
+
+            if (this.validationOptions == null)
+            {
+                this.validationOptions = new TokenValidationOptions.Builder().build();
             }
 
             return new MobileConnectRequestOptions(this);

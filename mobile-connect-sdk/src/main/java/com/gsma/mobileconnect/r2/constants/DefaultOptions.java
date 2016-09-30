@@ -21,38 +21,34 @@ import java.util.concurrent.TimeUnit;
 /**
  * @since 2.0
  */
-public final class DefaultOptions
+public interface DefaultOptions
 {
-    private static final String MC_V1_1 = "mc_v1.1";
-    private static final String MC_V1_2 = "mc_v1.2";
+    String MC_V1_1 = "mc_v1.1";
+    String MC_V1_2 = "mc_v1.2";
 
-    public static final long TIMEOUT_MS = TimeUnit.SECONDS.toMillis(300L);
-    public static final boolean MANUAL_SELECT = false;
-    public static final boolean COOKIES_ENABLED = true;
-    public static final String DISPLAY = "page";
-    public static final boolean CHECK_ID_TOKEN_SIGNATURE = true;
-    public static final long MIN_TTL_MS = TimeUnit.SECONDS.toMillis(300L);
-    public static final long MAX_TTL_MS = TimeUnit.DAYS.toMillis(180L);
-    public static final String AUTHENTICATION_ACR_VALUES = "2";
-    public static final String AUTHENTICATION_SCOPE = Scope.OPENID;
-    public static final long AUTHENTICATION_MAX_AGE = TimeUnit.HOURS.toSeconds(1L);
-    public static final String AUTHENTICATION_RESPONSE_TYPE = "code";
-    public static final String AUTHENTICATION_DEFAULT_VERSION = MC_V1_1;
-    public static final String GRANT_TYPE = "authorization_code";
-    public static final long PROVIDER_METADATA_TTL_MS = TimeUnit.SECONDS.toMillis(9L);
-    public static final String VERSION_MOBILECONNECT = MC_V1_1;
-    public static final String VERSION_MOBILECONNECTAUTHN = MC_V1_1;
-    public static final String VERSION_MOBILECONNECTAUTHZ = MC_V1_2;
-    public static final String VERSION_MOBILECONNECTIDENTITY = MC_V1_2;
-    public static final int THREAD_POOL_SIZE = 100;
+    long TIMEOUT_MS = TimeUnit.SECONDS.toMillis(300L);
+    boolean MANUAL_SELECT = false;
+    boolean COOKIES_ENABLED = true;
+    String DISPLAY = "page";
+    boolean CHECK_ID_TOKEN_SIGNATURE = true;
+    long MIN_TTL_MS = TimeUnit.SECONDS.toMillis(300L);
+    long MAX_TTL_MS = TimeUnit.DAYS.toMillis(180L);
+    String AUTHENTICATION_ACR_VALUES = "2";
+    String AUTHENTICATION_SCOPE = Scope.OPENID;
+    long AUTHENTICATION_MAX_AGE = TimeUnit.HOURS.toSeconds(1L);
+    String AUTHENTICATION_RESPONSE_TYPE = "code";
+    String AUTHENTICATION_DEFAULT_VERSION = MC_V1_1;
+    String GRANT_TYPE = "authorization_code";
+    long PROVIDER_METADATA_TTL_MS = TimeUnit.SECONDS.toMillis(9L);
+    String VERSION_MOBILECONNECT = MC_V1_1;
+    String VERSION_MOBILECONNECTAUTHN = MC_V1_1;
+    String VERSION_MOBILECONNECTAUTHZ = MC_V1_2;
+    String VERSION_MOBILECONNECTIDENTITY = MC_V1_2;
+    int THREAD_POOL_SIZE = 100;
 
-    public static final String PROMPT = "mobile";
+    String PROMPT = "mobile";
 
     // Since the wait time is 5 seconds & the maximum timeout = 2 mins
-    public static final long MAX_REDIRECTS = 24;
-    public static final long WAIT_TIME = 5000L; // 5 seconds
-
-    private DefaultOptions()
-    {
-    }
+    long MAX_REDIRECTS = 24;
+    long WAIT_TIME = 5000L; // 5 seconds
 }

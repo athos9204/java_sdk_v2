@@ -17,13 +17,14 @@
 package com.gsma.mobileconnect.r2;
 
 import com.gsma.mobileconnect.r2.authentication.IAuthenticationService;
+import com.gsma.mobileconnect.r2.authentication.IJWKeysetService;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
+import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
-import com.gsma.mobileconnect.r2.utils.JsonWebTokens;
 import com.gsma.mobileconnect.r2.utils.LogUtils;
 import com.gsma.mobileconnect.r2.utils.ObjectUtils;
 import org.slf4j.Logger;
@@ -48,6 +49,8 @@ public class MobileConnectInterface
     private final IDiscoveryService discoveryService;
     private final IAuthenticationService authnService;
     private final IIdentityService identityService;
+    private final IJWKeysetService jwKeysetService;
+    private final IJsonService jsonService;
     private final MobileConnectConfig config;
     private final ExecutorService executorService;
     private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
@@ -57,6 +60,8 @@ public class MobileConnectInterface
         this.discoveryService = builder.discoveryService;
         this.authnService = builder.authnService;
         this.identityService = builder.identityService;
+        this.jwKeysetService = builder.jwKeysetService;
+        this.jsonService = builder.jsonService;
         this.config = builder.config;
         this.executorService = builder.executorService;
         this.iMobileConnectEncodeDecoder = builder.iMobileConnectEncodeDecoder;
@@ -193,11 +198,13 @@ public class MobileConnectInterface
      * @param expectedNonce     The nonce value returned from the StartAuthorization call should be
      *                          passed here, it will be used to ensure the token was not requested
      *                          using a replay attack
+     * @param options           Optional parameters
      * @return MobileConnectStatus object with required information for continuing the Mobile
      * Connect process
      */
     public Future<MobileConnectStatus> requestTokenAsync(final DiscoveryResponse discoveryResponse,
-        final URI redirectedUrl, final String expectedState, final String expectedNonce)
+        final URI redirectedUrl, final String expectedState, final String expectedNonce,
+        final MobileConnectRequestOptions options)
     {
         LOGGER.debug(
             "Queuing requestToken async for redirectedUrl={}, expectedState={}, expectedNonce={}",
@@ -210,14 +217,14 @@ public class MobileConnectInterface
             public MobileConnectStatus call() throws Exception
             {
                 return MobileConnectInterface.this.requestToken(discoveryResponse, redirectedUrl,
-                    expectedState, expectedNonce);
+                    expectedState, expectedNonce, options);
             }
         });
     }
 
     /**
      * Synchronous wrapper for <see cref="MobileConnectInterface.requestToken(DiscoveryResponse,
-     * URI, String, String)"/>
+     * URI, String, String, MobileConnectRequestOptions)"/>
      *
      * @param discoveryResponse The response returned by the discovery process
      * @param redirectedUrl     URI redirected to by the completion of the authorization UI
@@ -227,19 +234,22 @@ public class MobileConnectInterface
      * @param expectedNonce     The nonce value returned from the StartAuthorization call should be
      *                          passed here, it will be used to ensure the token was not requested
      *                          using a replay attack
+     * @param options           Optional parameters
      * @return MobileConnectStatus object with required information for continuing the Mobile
      * Connect process
      */
     public MobileConnectStatus requestToken(final DiscoveryResponse discoveryResponse,
-        final URI redirectedUrl, final String expectedState, final String expectedNonce)
+        final URI redirectedUrl, final String expectedState, final String expectedNonce,
+        final MobileConnectRequestOptions options)
     {
         LOGGER.debug(
             "Running requestToken for redirectedUrl={}, expectedState={}, expectedNonce={}",
             LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
             LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG));
 
-        return MobileConnectInterfaceHelper.requestToken(this.authnService, discoveryResponse,
-            redirectedUrl, expectedState, expectedNonce, this.config, iMobileConnectEncodeDecoder);
+        return MobileConnectInterfaceHelper.requestToken(this.authnService, jwKeysetService,
+            discoveryResponse, redirectedUrl, expectedState, expectedNonce, this.config, options,
+            this.jsonService, this.iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -255,12 +265,13 @@ public class MobileConnectInterface
      * @param expectedNonce     The nonce value returned from the StartAuthorization call should be
      *                          passed here, it will be used to ensure the token was not requested
      *                          using a replay attack
+     * @param options           Optional parameters
      * @return MobileConnectStatus object with required information for continuing the Mobile
      * Connect process
      */
     public Future<MobileConnectStatus> handleUrlRedirectAsync(final URI redirectedUrl,
         final DiscoveryResponse discoveryResponse, final String expectedState,
-        final String expectedNonce)
+        final String expectedNonce, final MobileConnectRequestOptions options)
     {
         LOGGER.debug(
             "Queuing handleUrlRedirect async for redirectedUrl={}, expectedState={}, expectedNonce={}",
@@ -273,14 +284,14 @@ public class MobileConnectInterface
             public MobileConnectStatus call() throws Exception
             {
                 return MobileConnectInterface.this.handleUrlRedirect(redirectedUrl,
-                    discoveryResponse, expectedState, expectedNonce);
+                    discoveryResponse, expectedState, expectedNonce, options);
             }
         });
     }
 
     /**
      * Synchronous wrapper for <see cref="MobileConnectInterface.HandleUrlRedirectAsync(URI,
-     * DiscoveryResponse, String, String)"/>
+     * DiscoveryResponse, String, String, MobileConnectRequestOptions)"/>
      *
      * @param redirectedUrl     Url redirected to by the completion of the previous step
      * @param discoveryResponse The response returned by the discovery process
@@ -290,12 +301,13 @@ public class MobileConnectInterface
      * @param expectedNonce     The nonce value returned from the StartAuthorization call should be
      *                          passed here, it will be used to ensure the token was not requested
      *                          using a replay attack
+     * @param options           Optional parameters
      * @return MobileConnectStatus object with required information for continuing the Mobile
      * Connect process
      */
     public MobileConnectStatus handleUrlRedirect(final URI redirectedUrl,
         final DiscoveryResponse discoveryResponse, final String expectedState,
-        final String expectedNonce)
+        final String expectedNonce, final MobileConnectRequestOptions options)
     {
         LOGGER.debug(
             "Running handleUrlRedirect for redirectedUrl={}, expectedState={}, expectedNonce={}",
@@ -303,8 +315,9 @@ public class MobileConnectInterface
             LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG));
 
         return MobileConnectInterfaceHelper.handleUrlRedirect(this.discoveryService,
-            this.authnService, redirectedUrl, discoveryResponse, expectedState, expectedNonce,
-            this.config, iMobileConnectEncodeDecoder);
+            this.jwKeysetService, this.authnService, redirectedUrl, discoveryResponse,
+            expectedState, expectedNonce, this.config, options, this.jsonService,
+            this.iMobileConnectEncodeDecoder);
     }
 
     /**
@@ -396,6 +409,8 @@ public class MobileConnectInterface
         private IDiscoveryService discoveryService;
         private IAuthenticationService authnService;
         private IIdentityService identityService;
+        private IJWKeysetService jwKeysetService;
+        private IJsonService jsonService;
         private MobileConnectConfig config;
         private ExecutorService executorService;
         private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
@@ -418,6 +433,18 @@ public class MobileConnectInterface
             return this;
         }
 
+        public Builder withJwKeysetService(final IJWKeysetService val)
+        {
+            this.jwKeysetService = val;
+            return this;
+        }
+
+        public Builder withJsonService(final IJsonService val)
+        {
+            this.jsonService = val;
+            return this;
+        }
+
         public Builder withConfig(final MobileConnectConfig val)
         {
             this.config = val;
@@ -430,8 +457,7 @@ public class MobileConnectInterface
             return this;
         }
 
-        public Builder withiMobileConnectEncodeDecoder(
-            final IMobileConnectEncodeDecoder val)
+        public Builder withiMobileConnectEncodeDecoder(final IMobileConnectEncodeDecoder val)
         {
             this.iMobileConnectEncodeDecoder = val;
             return this;

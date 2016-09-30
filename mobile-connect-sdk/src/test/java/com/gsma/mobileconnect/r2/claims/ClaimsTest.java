@@ -57,17 +57,18 @@ public class ClaimsTest
     public void claimsShouldDeserialize() throws JsonDeserializationException
     {
         final String expected =
-            "{\"test\":null,\"test2\":{\"essential\":true},\"test3\":{\"value\":\"1634\"},\"test4\":{\"values\":[\"123\",\"456\"]}}";
+            "{\"nonce\":\"1234567890\",\"aud\":\"x-clientid-x\",\"azp\":\"x-clientid-x\",\"iss\":\"http://mobileconnect.io\",\"exp\":2147483647,\"auth_time\":2147483647,\"iat\":1471007327}";
 
         final Claims claims = this.jsonService.deserialize(expected, Claims.class);
 
         assertFalse(claims.isEmpty());
         assertNull(claims.get("test"));
-        assertTrue(claims.get("test2").isEssential());
-        assertNull(claims.get("test2").getValue());
-        assertFalse(claims.get("test3").isEssential());
-        assertEquals(claims.get("test3").getValue(), "1634");
-        assertFalse(claims.get("test4").isEssential());
-        assertEqualsNoOrder(claims.get("test4").getValues(), new Object[] {"123", "456"});
+        assertEquals(claims.get("nonce").getValue(), "1234567890");
+        assertEquals(claims.get("aud").getValue(), "x-clientid-x");
+        assertEquals(claims.get("azp").getValue(), "x-clientid-x");
+        assertEquals(claims.get("iss").getValue(), "http://mobileconnect.io");
+        assertEquals(claims.get("exp").getValue(), 2147483647L);
+        assertEquals(claims.get("auth_time").getValue(), 2147483647L);
+        assertEquals(claims.get("iat").getValue(), 1471007327L);
     }
 }

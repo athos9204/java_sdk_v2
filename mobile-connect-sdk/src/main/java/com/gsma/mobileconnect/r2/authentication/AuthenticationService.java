@@ -299,12 +299,12 @@ public class AuthenticationService implements IAuthenticationService
             .build();
 
         final RestAuthentication authentication =
-            RestAuthentication.basic(clientId, clientSecret, iMobileConnectEncodeDecoder);
+            RestAuthentication.basic(clientId, clientSecret, this.iMobileConnectEncodeDecoder);
         final RestResponse restResponse =
             this.restClient.postFormData(requestTokenUrl, authentication, formData, null, null);
 
         return RequestTokenResponse.fromRestResponse(restResponse, this.jsonService,
-            iMobileConnectEncodeDecoder);
+            this.iMobileConnectEncodeDecoder);
     }
 
     @Override

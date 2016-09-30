@@ -96,7 +96,7 @@ public class IdentityResponse
         }
         else if (JsonWebTokens.isValidFormat(responseJson))
         {
-            return JsonWebTokens.Part.PAYLOAD.decode(responseJson, iMobileConnectEncodeDecoder);
+            return JsonWebTokens.Part.CLAIMS.decode(responseJson, iMobileConnectEncodeDecoder);
         }
         else
         {

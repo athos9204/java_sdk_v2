@@ -117,9 +117,9 @@ public class Claims
                 }
                 else
                 {
-                    final ClaimsValue.Builder builder = new ClaimsValue.Builder()
-                        .withEssential(value.has("essential"))
-                        .withValue(value.has(VALUE) ? value.get(VALUE).textValue() : null);
+                    final ClaimsValue.Builder builder =
+                        new ClaimsValue.Builder().withEssential(value.has("essential"))
+                            .withValue(value.isNumber() ? value.longValue() : value.textValue());
 
                     if (value.has(VALUES))
                     {

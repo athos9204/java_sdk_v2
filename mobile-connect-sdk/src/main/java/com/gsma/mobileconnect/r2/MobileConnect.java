@@ -18,6 +18,8 @@ package com.gsma.mobileconnect.r2;
 
 import com.gsma.mobileconnect.r2.authentication.AuthenticationService;
 import com.gsma.mobileconnect.r2.authentication.IAuthenticationService;
+import com.gsma.mobileconnect.r2.authentication.IJWKeysetService;
+import com.gsma.mobileconnect.r2.authentication.JWKeysetService;
 import com.gsma.mobileconnect.r2.cache.ConcurrentCache;
 import com.gsma.mobileconnect.r2.cache.ICache;
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;
@@ -44,11 +46,11 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Convenience methods to construct and access the core public interfaces of MobileConnect. <p> A
- * default instance can be created via {@link #build(MobileConnectConfig, * com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder)}. Limited
- * customisation is possible via the {@link #builder(MobileConnectConfig, * com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder)} method.  Otherwise
+ * default instance can be created via {@link #build(MobileConnectConfig, com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder)}. Limited
+ * customisation is possible via the {@link #builder(MobileConnectConfig, com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder)} method.  Otherwise
  * full customisation can be achieved via the individual builders provided by each of the
  * interfaces. </p> <p> For those who wish only to work with the {@link MobileConnectInterface},
- * this can be reached via {@link #buildInterface(MobileConnectConfig, * com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder)}. </p>
+ * this can be reached via {@link #buildInterface(MobileConnectConfig, com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder)}. </p>
  *
  * @see MobileConnectConfig
  * @see MobileConnectInterface
@@ -64,6 +66,7 @@ public final class MobileConnect
     private final IDiscoveryService discoveryService;
     private final IAuthenticationService authnService;
     private final IIdentityService identityService;
+    private final IJWKeysetService jwKeysetService;
     private final MobileConnectInterface mobileConnectInterface;
     private final MobileConnectWebInterface mobileConnectWebInterface;
     private final IMobileConnectEncodeDecoder iMobileConnectEncoderDecoder;
@@ -93,11 +96,17 @@ public final class MobileConnect
             .withExecutorService(builder.scheduledExecutorService)
             .build();
 
+        this.jwKeysetService = new JWKeysetService.Builder()
+            .withRestClient(builder.restClient)
+            .withICache(builder.cache)
+            .build();
+
         this.mobileConnectInterface = new MobileConnectInterface.Builder()
             .withExecutorService(builder.scheduledExecutorService)
             .withAuthnService(this.authnService)
             .withDiscoveryService(this.discoveryService)
             .withIdentityService(this.identityService)
+            .withJwKeysetService(this.jwKeysetService)
             .withiMobileConnectEncodeDecoder(this.iMobileConnectEncoderDecoder)
             .withConfig(builder.config)
             .build();
@@ -106,6 +115,8 @@ public final class MobileConnect
             .withAuthnService(this.authnService)
             .withDiscoveryService(this.discoveryService)
             .withIdentityService(this.identityService)
+            .withJwKeysetService(this.jwKeysetService)
+            .withJsonService(builder.jsonService)
             .withConfig(builder.config)
             .build();
 

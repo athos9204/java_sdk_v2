@@ -85,7 +85,7 @@ public class RequestTokenResponse
 
                 builder
                     .withResponseData(data)
-                    .withDecodedIdTokenPayload(JsonWebTokens.Part.PAYLOAD.decode(data.getIdToken(),
+                    .withDecodedIdTokenPayload(JsonWebTokens.Part.CLAIMS.decode(data.getIdToken(),
                         iMobileConnectEncodeDecoder));
             }
         }
