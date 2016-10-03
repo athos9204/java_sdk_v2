@@ -45,4 +45,10 @@ public interface DefaultOptions
     String VERSION_MOBILECONNECTAUTHZ = MC_V1_2;
     String VERSION_MOBILECONNECTIDENTITY = MC_V1_2;
     int THREAD_POOL_SIZE = 100;
+
+    String PROMPT = "mobile";
+
+    // Since the wait time is 5 seconds & the maximum timeout = 2 mins
+    long MAX_REDIRECTS = 24;
+    long WAIT_TIME = 5000L; // 5 seconds
 }

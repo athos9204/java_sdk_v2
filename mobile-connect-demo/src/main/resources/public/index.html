@@ -135,6 +135,8 @@
                                                                     id="identity-nationalid-toggle"
                                                                     data-scope="mc_identity_nationalid"/>National
             ID</label>
+        <h2 class="subheader">Headless</h2>
+        <label><input type="checkbox" id="headless-toggle" />Request Headless Auth (No UI Shown)</label>
     </div>
     <div id="logged-in" class="responsive logged-in hidden">
         <div id="logged-in-message">Succesfully Logged In</div>
@@ -142,6 +144,8 @@
         <div id="value-access-token" class="display-value"></div>
         <div id="value-id-token" class="display-value"></div>
         <div id="value-time-received" class="display-value"></div>
+        <div id="value-identity-prefetched" class="display-value pre-whitespace"></div>
+        <div class="error"></div>
         <input class="feature-button" type="button" id="user-info-button" name="user-info-button"
                value="Request UserInfo"/>
         <input class="feature-button" type="button" id="identity-button" name="identity-button"
@@ -159,6 +163,7 @@
 <script>
         var discoveryUrl = '/api/mobileconnect/start_discovery';
         var authorizationUrl = '/api/mobileconnect/start_authentication';
+        var headlessUrl = '/api/mobileconnect/headless_authentication';
         var userInfoUrl = '/api/mobileconnect/user_info';
         var identityUrl = '/api/mobileconnect/identity';
 
@@ -252,6 +257,9 @@
         var printInfo = function printInfo(response) {
             $('#value-application-name').html(api.currentAttempt.applicationShortName);
             printTokenInfo(response.token);
+            if (response.identity) {
+                setContent('#value-identity-prefetched', JSON.stringify(response.identity, null, 2));
+            }
         }
 
         var api = {
@@ -279,7 +287,11 @@
                 api.currentAttempt.session = response.sdkSession;
                 api.currentAttempt.applicationShortName = response.applicationShortName;
 
-                $.get(authorizationUrl + queryString, api.httpCallback);
+                var url = authorizationUrl;
+                if ($('#headless-toggle').prop('checked')) {
+                    url = headlessUrl;
+                }
+                $.get(url + queryString, api.httpCallback);
             },
             authentication: function authentication(response) {
                 api.currentAttempt.expectedState = response.state;

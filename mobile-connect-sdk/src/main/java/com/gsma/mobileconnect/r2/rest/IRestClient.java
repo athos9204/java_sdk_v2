@@ -21,6 +21,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 
 /**
@@ -110,4 +111,17 @@ public interface IRestClient
     RestResponse postContent(final URI uri, final RestAuthentication authentication,
         final HttpEntity content, final String sourceIp, final Iterable<KeyValuePair> cookies)
         throws RequestFailedException;
+
+    /**
+     * Attempts to follow a redirect path until a concrete url is loaded or the expectedRedirectUrl
+     * is reached
+     *
+     * @param authUrl        Target uri to attempt a HTTP GET
+     * @param redirectUrl    Redirect url expected, if a redirect with this location is hit the
+     *                       absolute uri of the location will be returned
+     * @param authentication value to be used (if auth required).
+     * @return Final redirected url
+     */
+    URI getFinalRedirect(final URI authUrl, final URI redirectUrl,
+        final RestAuthentication authentication) throws RequestFailedException;
 }

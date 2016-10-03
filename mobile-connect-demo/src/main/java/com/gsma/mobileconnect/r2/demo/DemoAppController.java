@@ -96,6 +96,32 @@ public class DemoAppController
         return new MobileConnectWebResponse(status);
     }
 
+    @GetMapping("headless_authentication")
+    @ResponseBody
+    public MobileConnectWebResponse headlessAuthentication(
+        @RequestParam(required = false) final String sdkSession,
+        @RequestParam(required = false) final String subscriberId,
+        @RequestParam(required = false) final String scope, final HttpServletRequest request)
+    {
+        LOGGER.info("* Starting authentication for sdkSession={}, subscriberId={}, scope={}",
+            sdkSession, LogUtils.mask(subscriberId, LOGGER, Level.INFO), scope);
+
+        final MobileConnectRequestOptions options = new MobileConnectRequestOptions.Builder()
+            .withAuthenticationOptions(new AuthenticationOptions.Builder()
+                .withScope(scope)
+                .withContext("headless")
+                .withBindingMessage("demo headless")
+                .build())
+            .witAutoRetrieveIdentitySet(true)
+            .build();
+
+        final MobileConnectStatus status =
+            this.mobileConnectWebInterface.requestHeadlessAuthentication(request, sdkSession,
+                subscriberId, null, null, options);
+
+        return new MobileConnectWebResponse(status);
+    }
+
     @GetMapping("user_info")
     @ResponseBody
     public MobileConnectWebResponse requestUserInfo(
