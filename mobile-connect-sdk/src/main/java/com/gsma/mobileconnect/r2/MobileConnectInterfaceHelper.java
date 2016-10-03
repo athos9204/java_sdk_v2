@@ -182,7 +182,7 @@ class MobileConnectInterfaceHelper
                                                       : new AuthenticationOptions.Builder();
         try
         {
-            long maxAge = extractMaxAge(options);
+            final long maxAge = extractMaxAge(options);
 
             final String clientId = ObjectUtils.defaultIfNull(
                 discoveryResponse.getResponseData().getResponse().getClientId(),
@@ -199,16 +199,16 @@ class MobileConnectInterfaceHelper
 
             final String issuer = discoveryResponse.getProviderMetadata().getIssuer();
 
-            AuthenticationOptions authenticationOptions = builder.build();
+            final AuthenticationOptions authenticationOptions = builder.build();
 
             final Future<RequestTokenResponse> requestTokenResponseAsync =
                 authnService.requestHeadlessAuthentication(clientId, clientSecret, authorizationUrl,
                     tokenUrl, config.getRedirectUrl(), expectedState, expectedNonce,
                     encryptedMsisdn, supportedVersions, authenticationOptions);
 
-            RequestTokenResponse requestTokenResponse = requestTokenResponseAsync.get();
+            final RequestTokenResponse requestTokenResponse = requestTokenResponseAsync.get();
 
-            MobileConnectStatus status =
+            final MobileConnectStatus status =
                 processRequestTokenResponse(requestTokenResponse, expectedState, expectedNonce,
                     config.getRedirectUrl(), iMobileConnectEncodeDecoder, jwKeysetService,
                     discoveryResponse, clientId, issuer, maxAge, jsonService);

@@ -54,7 +54,6 @@ public class AuthenticationServiceTest
 {
     private final static URI REDIRECT_URL = URI.create("http://localhost:8080/");
     private final static URI AUTHORIZE_URL = URI.create("http://localhost:8080/authorize");
-    //private final static URI HEADLESS_URL = URI.create("http://localhost:8080/headless");
     private final static URI TOKEN_URL = URI.create("http://localhost:8080/token");
 
     private final IJsonService jsonService = new JacksonJsonService();

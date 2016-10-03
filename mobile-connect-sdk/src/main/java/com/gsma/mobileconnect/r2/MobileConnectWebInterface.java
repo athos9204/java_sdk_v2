@@ -87,7 +87,7 @@ public class MobileConnectWebInterface
      * @param shouldProxyCookies If cookies from the original request should be sent onto the
      *                           discovery service
      * @param options            Optional parameters
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus attemptDiscovery(final HttpServletRequest request,
@@ -124,7 +124,7 @@ public class MobileConnectWebInterface
      *
      * @param request       Originating web request.
      * @param redirectedUrl Uri redirected to by the completion of the operator selection UI.
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus attemptDiscoveryAfterOperatorSelection(
@@ -157,7 +157,7 @@ public class MobileConnectWebInterface
      *                          token process (defaults to guid if not supplied, value will be
      *                          returned in MobileConnectStatus object)
      * @param options           Optional parameters
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus startAuthentication(final HttpServletRequest request,
@@ -199,7 +199,7 @@ public class MobileConnectWebInterface
      *                   process (defaults to guid if not supplied, value will be returned in
      *                   MobileConnectStatus object)
      * @param options    Optional parameters
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus startAuthentication(final HttpServletRequest request,
@@ -239,7 +239,7 @@ public class MobileConnectWebInterface
      *                          token process (defaults to guid if not supplied, value will be
      *                          returned in MobileConnectStatus object)
      * @param options           Optional parameters
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus requestHeadlessAuthentication(final HttpServletRequest request,
@@ -279,7 +279,7 @@ public class MobileConnectWebInterface
      *                        token process (defaults to guid if not supplied, value will be
      *                        returned in MobileConnectStatus object)
      * @param options         Optional parameters
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus requestHeadlessAuthentication(final HttpServletRequest request,
@@ -317,7 +317,7 @@ public class MobileConnectWebInterface
      *                          passed here, it will be used to ensure the token was not requested
      *                          using a replay attack
      * @param options           Optional parameters
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      */
     public MobileConnectStatus requestToken(final HttpServletRequest request,
         final DiscoveryResponse discoveryResponse, final URI redirectedUrl,
@@ -350,7 +350,7 @@ public class MobileConnectWebInterface
      *                      passed here, it will be used to ensure the token was not requested using
      *                      a replay attack
      * @param options       Optional parameters
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      */
     public MobileConnectStatus requestToken(final HttpServletRequest request,
         final String sdkSession, final URI redirectedUrl, final String expectedState,
@@ -390,7 +390,7 @@ public class MobileConnectWebInterface
      *                          passed here, it will be used to ensure the token was not requested
      *                          using a replay attack
      * @param options           Optional parameters
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus handleUrlRedirect(final HttpServletRequest request,
@@ -432,7 +432,7 @@ public class MobileConnectWebInterface
      *                      passed here, it will be used to ensure the token was not requested using
      *                      a replay attack
      * @param options       Optional parameters
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus handleUrlRedirect(final HttpServletRequest request,

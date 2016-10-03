@@ -266,8 +266,6 @@ public class RestClient implements IRestClient
             }
         }
         return uri;
-
-        // TODO Add checks to see if the url is an absolute or relative one & handle relative paths?
     }
 
     /**
@@ -326,11 +324,11 @@ public class RestClient implements IRestClient
      * the future which will abort the request after the configured timeout period.
      *
      * @param request   to be run.
-     * @param addHeader boolean flag to specify is headers should be added
+     * @param addHeader boolean flag to specify if headers should be added
      * @return the RestResponse.
      * @throws RequestFailedException if there is a failure issuing the request.
      */
-    private RestResponse submitRequest(final HttpUriRequest request, boolean addHeader)
+    private RestResponse submitRequest(final HttpUriRequest request, final boolean addHeader)
         throws RequestFailedException
     {
         ObjectUtils.requireNonNull(request, "request");

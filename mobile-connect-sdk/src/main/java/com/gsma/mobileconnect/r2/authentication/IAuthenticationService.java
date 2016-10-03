@@ -93,7 +93,7 @@ public interface IAuthenticationService
      * @param clientId         The application ClientId returned by the discovery process
      *                         (Required)
      * @param clientSecret     The ClientSecret returned by the discovery response (Required)
-     * @param authorizationUrl >The authorization url returned by the discovery process (Required)
+     * @param authorizationUrl The authorization url returned by the discovery process (Required)
      * @param requestTokenUrl  The token url returned by the discovery process (Required)
      * @param redirectUrl      On completion or error where the result information is sent using a
      *                         HTTP 302 redirect (Required)
