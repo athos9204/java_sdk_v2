@@ -26,7 +26,7 @@ import org.apache.commons.codec.binary.Base64;
 public class DefaultEncodeDecoder implements IMobileConnectEncodeDecoder {
 
     /**
-     * method to encode byte arrays to base64
+     * Method to encode byte arrays to base64
      *
      * @param value the array of byte to encode
      * @return Base64 encoded String
@@ -37,7 +37,7 @@ public class DefaultEncodeDecoder implements IMobileConnectEncodeDecoder {
     }
 
     /**
-     * method to decode base64 strings into byte array
+     * Method to decode base64 strings into byte array
      *
      * @param value The string to to decode
      * @return decoded byte array
