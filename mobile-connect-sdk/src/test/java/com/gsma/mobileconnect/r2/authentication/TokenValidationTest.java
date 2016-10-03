@@ -271,7 +271,20 @@ public class TokenValidationTest
                 jacksonJsonService, iMobileConnectEncodeDecoder);
 
         assertEquals(tokenValidationResult, TokenValidationResult.InvalidIssuer);
+    }
 
+    @Test
+    public void validateIdTokenClaimsShouldReturnInvalidAudAndAzp() throws JsonDeserializationException
+    {
+        final String idToken =
+            "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJub25jZSI6IjEyMzQ1Njc4OTAiLCJhdWQiOiJ4LWNsaWVudGlkLXgiLCJhenAiOiJ4LWNsaWVudGlkLXgiLCJpc3MiOiJodHRwOi8vbW9iaWxlY29ubmVjdC5pbyIsImV4cCI6MjE0NzQ4MzY0NywiYXV0aF90aW1lIjoyMTQ3NDgzNjQ3LCJpYXQiOjE0NzEwMDczMjd9.U9c5iuybG4GIvrbQH5BT9AgllRbPL6SuIzL4Y3MW7VlCVIQOc_HFfkiLa0LNvqZiP-kFlADmnkzuuQxPq7IyaOILVYct20mrcOb_U_zMli4jg-t9P3BxHaq3ds9JlLBjz0oewd01ZQtWHgRnrGymfKAIojzHlde-aePuL1M26Eld5zoKQvCLcKAynZsjKsWF_6YdLk-uhlC5ofMOaOoPirPSPAxYvbj91z3o9XIgSHoU-umN7AJ6UQ4H-ulfftlRGK8hz0Yzpf2MHOy9OHg1u3ayfCaaf8g5zKGngcz0LgK9VAw2B31xJw-RHkPPh0Hz82FgBcabd8oEFC1c22GGT1";
+
+        final String invalid_clientid = "invalid_clientid";
+        final TokenValidationResult tokenValidationResult =
+            TokenValidation.validateIdTokenClaims(idToken, invalid_clientid, issuer, nonce, maxAge,
+                jacksonJsonService, iMobileConnectEncodeDecoder);
+
+        assertEquals(tokenValidationResult, TokenValidationResult.InvalidAudAndAzp);
     }
 
     @Test
