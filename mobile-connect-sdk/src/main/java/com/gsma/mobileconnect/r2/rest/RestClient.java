@@ -196,7 +196,8 @@ public class RestClient implements IRestClient
             {
                 if (numRedirects > DefaultOptions.MAX_REDIRECTS)
                 {
-                    throw new TooManyRedirectsException("Stuck in redirect loop");
+                    throw new HeadlessOperationFailedException(
+                        "Headless operation failed either due to too many redirects or it timed out");
                 }
                 if (response != null)
                 {
@@ -234,7 +235,7 @@ public class RestClient implements IRestClient
             LOGGER.error("Invalid redirect URL", e);
             throw new RequestFailedException(HttpUtils.HttpMethod.GET, authUrl, e);
         }
-        catch (TooManyRedirectsException e)
+        catch (HeadlessOperationFailedException e)
         {
             LOGGER.error("Too many redirects", e);
             throw new RequestFailedException(HttpUtils.HttpMethod.GET, authUrl, e);

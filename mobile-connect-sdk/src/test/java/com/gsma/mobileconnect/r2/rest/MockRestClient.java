@@ -21,6 +21,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
@@ -134,7 +135,16 @@ public class MockRestClient implements IRestClient
 
     @Override
     public URI getFinalRedirect(URI authUrl, URI redirectUrl, RestAuthentication authentication)
+        throws RequestFailedException
     {
-        return redirectUrl;
+        try
+        {
+            return new URI(redirectUrl.toString() + "?code=code");
+        }
+        catch (URISyntaxException e)
+        {
+            e.printStackTrace();
+            throw new RequestFailedException("GET", redirectUrl, e);
+        }
     }
 }

@@ -23,11 +23,11 @@ import com.gsma.mobileconnect.r2.utils.HttpUtils;
 import java.net.URI;
 
 /**
- * Exception thrown when there are too many redirects.
+ * Exception thrown when the headless operation fails due to too many redirects or when it times out
  *
  * @since 2.0
  */
-public class TooManyRedirectsException extends Exception implements IHasMobileConnectStatus
+public class HeadlessOperationFailedException extends Exception implements IHasMobileConnectStatus
 {
     private final String message;
 
@@ -36,7 +36,7 @@ public class TooManyRedirectsException extends Exception implements IHasMobileCo
      *
      * @param message HTTP method of the request.
      */
-    public TooManyRedirectsException(final String message)
+    public HeadlessOperationFailedException(final String message)
     {
         super(message);
         this.message = message;
@@ -54,6 +54,7 @@ public class TooManyRedirectsException extends Exception implements IHasMobileCo
     public MobileConnectStatus toMobileConnectStatus(final String task)
     {
         return MobileConnectStatus.error("http_failure",
-            String.format("Too many redirects while performing '%s'", task), this);
+            String.format("%s headless operation either had too many redirects or it timed out",
+                task), this);
     }
 }

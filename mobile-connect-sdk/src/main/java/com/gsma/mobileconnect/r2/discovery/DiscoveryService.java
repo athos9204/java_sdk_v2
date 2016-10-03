@@ -256,7 +256,7 @@ public class DiscoveryService implements IDiscoveryService
                : null;
     }
 
-    private void addCachedDiscoveryResponse(final DiscoveryOptions options,
+    public void addCachedDiscoveryResponse(final DiscoveryOptions options,
         final DiscoveryResponse response)
     {
         final String mcc =

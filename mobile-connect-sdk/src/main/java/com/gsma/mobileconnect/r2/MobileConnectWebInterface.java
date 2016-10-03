@@ -242,7 +242,7 @@ public class MobileConnectWebInterface
      * @return MobileConnectStatus object with required information for continuing the mobile
      * connect process
      */
-    public MobileConnectStatus requestHeadlessAuthenticationAsync(final HttpServletRequest request,
+    public MobileConnectStatus requestHeadlessAuthentication(final HttpServletRequest request,
         final DiscoveryResponse discoveryResponse, final String encryptedMsisdn, final String state,
         final String nonce, final MobileConnectRequestOptions options)
     {
@@ -254,7 +254,7 @@ public class MobileConnectWebInterface
             StringUtils.isNullOrEmpty(nonce) ? UUID.randomUUID().toString() : nonce;
 
         LOGGER.debug(
-            "Running requestHeadlessAuthenticationAsync for encryptedMsisdn={}, state={}, nonce={}, clientIp={}",
+            "Running requestHeadlessAuthentication for encryptedMsisdn={}, state={}, nonce={}, clientIp={}",
             LogUtils.mask(encryptedMsisdn, LOGGER, Level.DEBUG), rState,
             LogUtils.mask(rNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
@@ -282,14 +282,14 @@ public class MobileConnectWebInterface
      * @return MobileConnectStatus object with required information for continuing the mobile
      * connect process
      */
-    public MobileConnectStatus requestHeadlessAuthenticationAsync(final HttpServletRequest request,
+    public MobileConnectStatus requestHeadlessAuthentication(final HttpServletRequest request,
         final String sdkSession, final String encryptedMsisdn, final String state,
         final String nonce, final MobileConnectRequestOptions options)
     {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
         LOGGER.debug(
-            "Running requestHeadlessAuthenticationAsync for skdSession={}, encryptedMsisdn={}, state={}, nonce={}, clientIp={}",
+            "Running requestHeadlessAuthentication for skdSession={}, encryptedMsisdn={}, state={}, nonce={}, clientIp={}",
             sdkSession, LogUtils.mask(encryptedMsisdn, LOGGER, Level.DEBUG), state,
             LogUtils.mask(nonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
 
@@ -298,7 +298,7 @@ public class MobileConnectWebInterface
             @Override
             public MobileConnectStatus apply(final DiscoveryResponse cached)
             {
-                return MobileConnectWebInterface.this.requestHeadlessAuthenticationAsync(request,
+                return MobileConnectWebInterface.this.requestHeadlessAuthentication(request,
                     cached, encryptedMsisdn, state, nonce, options);
             }
         });

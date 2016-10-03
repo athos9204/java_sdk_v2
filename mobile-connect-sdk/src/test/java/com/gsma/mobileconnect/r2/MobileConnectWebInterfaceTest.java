@@ -18,7 +18,10 @@ package com.gsma.mobileconnect.r2;
 
 import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
 import com.gsma.mobileconnect.r2.cache.CacheAccessException;
+import com.gsma.mobileconnect.r2.constants.DefaultOptions;
+import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
+import com.gsma.mobileconnect.r2.discovery.DiscoveryService;
 import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.IJsonService;
@@ -26,8 +29,12 @@ import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.rest.MockRestClient;
 import com.gsma.mobileconnect.r2.rest.RequestFailedException;
+import com.gsma.mobileconnect.r2.rest.RestAuthentication;
+import com.gsma.mobileconnect.r2.rest.RestClient;
 import com.gsma.mobileconnect.r2.utils.HttpUtils;
 import com.gsma.mobileconnect.r2.utils.TestUtils;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -35,8 +42,14 @@ import org.testng.annotations.Test;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
 
 /**
@@ -54,8 +67,10 @@ public class MobileConnectWebInterfaceTest
         .build();
     private final MockRestClient restClient = new MockRestClient();
 
-    private final MobileConnect mobileConnect =
-        MobileConnect.builder(this.config, new DefaultEncodeDecoder()).withRestClient(this.restClient).build();
+    private final MobileConnect mobileConnect = MobileConnect
+        .builder(this.config, new DefaultEncodeDecoder())
+        .withRestClient(this.restClient)
+        .build();
 
     private final IJsonService jsonService = new JacksonJsonService();
     private final IDiscoveryService discoveryService = this.mobileConnect.getDiscoveryService();
@@ -234,7 +249,8 @@ public class MobileConnectWebInterfaceTest
             .withRedirectUrl(URI.create("http://redirect"))
             .build();
 
-        final MobileConnectWebInterface mcWebInterface = MobileConnect.buildWebInterface(config, new DefaultEncodeDecoder());
+        final MobileConnectWebInterface mcWebInterface =
+            MobileConnect.buildWebInterface(config, new DefaultEncodeDecoder());
 
         final MobileConnectStatus status =
             mcWebInterface.requestToken(this.request, "invalidid", URI.create("http://test"),
@@ -242,5 +258,89 @@ public class MobileConnectWebInterfaceTest
 
         assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.ERROR);
         assertEquals(status.getErrorCode(), "cache_disabled");
+    }
+
+    @Test(dataProvider = "startAuthnData")
+    public void testHeadlessAuthenticationGetTokenButValidationFails(final AuthenticationOptions authnOptions,
+        final String[] includes, final String exclude)
+        throws RequestFailedException, InvalidResponseException, URISyntaxException
+    {
+         final DiscoveryResponse discoveryResponse = this.completeDiscovery();
+         this.restClient.addResponse(TestUtils.VALIDATED_TOKEN_RESPONSE);
+         this.restClient.addResponse(TestUtils.JWKS_RESPONSE);
+
+         final MobileConnectRequestOptions options = authnOptions == null
+         ? null
+         : new MobileConnectRequestOptions.Builder()
+         .withAuthenticationOptions(authnOptions)
+         .build();
+
+         final MobileConnectStatus status =
+         this.mcWebInterface.requestHeadlessAuthentication(this.request, discoveryResponse,
+         "1111222233334444", "state", "81991496-48bb-4d13-bd0c-117d994411a6", options);
+
+        assertNotNull(status);
+
+        // Since the token validation fails as the token is an old token
+        assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.ERROR);
+
+        assertEquals(status.getErrorCode(), "Invalid Id Token");
+        assertEquals(status.getErrorMessage(), "Token validation failed");
+
+        assertEquals(status.getRequestTokenResponse().getResponseCode(), 202);
+
+        assertEquals(status.getRequestTokenResponse().getResponseData().getAccessToken(),
+            "966ad150-16c5-11e6-944f-43079d13e2f3");
+        assertEquals(status.getRequestTokenResponse().getResponseData().getIdToken(),
+            "eyJhbGciOiJSUzI1NiIsImtpZCI6IlBIUE9QLTAwIn0.eyJpc3MiOiJodHRwczpcL1wvcmVmZXJlbmNlLm1vYmlsZWNvbm5lY3QuaW9cL21vYmlsZWNvbm5lY3QiLCJzdWIiOiI0MTE0MjFCMC0zOEQ2LTY1NjgtQTUzQS1ERjk5NjkxQjdFQjYiLCJhdWQiOlsieC1aV1JoTmpVM09XSTNNR0l3WVRSaCJdLCJleHAiOjE0NzQ2MjYzMzAsImlhdCI6MTQ3NDYyNjAzMCwibm9uY2UiOiI4MTk5MTQ5Ni00OGJiLTRkMTMtYmQwYy0xMTdkOTk0NDExYTYiLCJhdF9oYXNoIjoiNTZGMXo3RjZ3eWhUYUhVY1ZGY0xJQSIsImF1dGhfdGltZSI6MTQ3NDYyNjAyMCwiYWNyIjoiMiIsImFtciI6WyJTSU1fUElOIl0sImF6cCI6IngtWldSaE5qVTNPV0kzTUdJd1lUUmgifQ.TYcvfIHeKigkvjYta6fy90EffiA6u6NFCSIPlPM2WxEUi8Kxc5JIrjXnM8l0rFJOLmgNFUBpSqIRhuxwZkUV52KWf8jzswi3jTI8wEjonbjgviz7c6WzlZdb0Pw5kUEWy2xMam7VprESphPaIkHCDor2yR2g6Uq3Wtqyg7MCqek");
+
+        assertEquals(status.getRequestTokenResponse().getDecodedIdTokenPayload(),
+            "{\"iss\":\"https:\\/\\/reference.mobileconnect.io\\/mobileconnect\",\"sub\":\"411421B0-38D6-6568-A53A-DF99691B7EB6\",\"aud\":[\"x-ZWRhNjU3OWI3MGIwYTRh\"],\"exp\":1474626330,\"iat\":1474626030,\"nonce\":\"81991496-48bb-4d13-bd0c-117d994411a6\",\"at_hash\":\"56F1z7F6wyhTaHUcVFcLIA\",\"auth_time\":1474626020,\"acr\":\"2\",\"amr\":[\"SIM_PIN\"],\"azp\":\"x-ZWRhNjU3OWI3MGIwYTRh\"}");
+    }
+
+    @Test(dataProvider = "startAuthnData")
+    public void testHeadlessAuthenticationWithoutDiscoveryResponse(final AuthenticationOptions authnOptions,
+        final String[] includes, final String exclude)
+        throws RequestFailedException, InvalidResponseException, URISyntaxException
+    {
+        final DiscoveryResponse discoveryResponse = this.completeDiscovery();
+        DiscoveryOptions discoveryOptions = new DiscoveryOptions.Builder()
+            .withIdentifiedMcc("111")
+            .withIdentifiedMnc("11")
+            .build();
+        ((DiscoveryService) this.discoveryService).addCachedDiscoveryResponse(discoveryOptions,
+            discoveryResponse);
+
+        this.restClient.addResponse(TestUtils.VALIDATED_TOKEN_RESPONSE);
+        this.restClient.addResponse(TestUtils.JWKS_RESPONSE);
+
+        final MobileConnectRequestOptions options = authnOptions == null
+                                                    ? null
+                                                    : new MobileConnectRequestOptions.Builder()
+                                                        .withAuthenticationOptions(authnOptions)
+                                                        .build();
+
+        final MobileConnectStatus status =
+            this.mcWebInterface.requestHeadlessAuthentication(this.request,
+                "111_11",
+                "1111222233334444", "state", "81991496-48bb-4d13-bd0c-117d994411a6", options);
+
+        assertNotNull(status);
+
+        // Since the token validation fails as the token is an old token
+        assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.ERROR);
+
+        assertEquals(status.getErrorCode(), "Invalid Id Token");
+        assertEquals(status.getErrorMessage(), "Token validation failed");
+
+        assertEquals(status.getRequestTokenResponse().getResponseCode(), 202);
+
+        assertEquals(status.getRequestTokenResponse().getResponseData().getAccessToken(),
+            "966ad150-16c5-11e6-944f-43079d13e2f3");
+        assertEquals(status.getRequestTokenResponse().getResponseData().getIdToken(),
+            "eyJhbGciOiJSUzI1NiIsImtpZCI6IlBIUE9QLTAwIn0.eyJpc3MiOiJodHRwczpcL1wvcmVmZXJlbmNlLm1vYmlsZWNvbm5lY3QuaW9cL21vYmlsZWNvbm5lY3QiLCJzdWIiOiI0MTE0MjFCMC0zOEQ2LTY1NjgtQTUzQS1ERjk5NjkxQjdFQjYiLCJhdWQiOlsieC1aV1JoTmpVM09XSTNNR0l3WVRSaCJdLCJleHAiOjE0NzQ2MjYzMzAsImlhdCI6MTQ3NDYyNjAzMCwibm9uY2UiOiI4MTk5MTQ5Ni00OGJiLTRkMTMtYmQwYy0xMTdkOTk0NDExYTYiLCJhdF9oYXNoIjoiNTZGMXo3RjZ3eWhUYUhVY1ZGY0xJQSIsImF1dGhfdGltZSI6MTQ3NDYyNjAyMCwiYWNyIjoiMiIsImFtciI6WyJTSU1fUElOIl0sImF6cCI6IngtWldSaE5qVTNPV0kzTUdJd1lUUmgifQ.TYcvfIHeKigkvjYta6fy90EffiA6u6NFCSIPlPM2WxEUi8Kxc5JIrjXnM8l0rFJOLmgNFUBpSqIRhuxwZkUV52KWf8jzswi3jTI8wEjonbjgviz7c6WzlZdb0Pw5kUEWy2xMam7VprESphPaIkHCDor2yR2g6Uq3Wtqyg7MCqek");
+
+        assertEquals(status.getRequestTokenResponse().getDecodedIdTokenPayload(),
+            "{\"iss\":\"https:\\/\\/reference.mobileconnect.io\\/mobileconnect\",\"sub\":\"411421B0-38D6-6568-A53A-DF99691B7EB6\",\"aud\":[\"x-ZWRhNjU3OWI3MGIwYTRh\"],\"exp\":1474626330,\"iat\":1474626030,\"nonce\":\"81991496-48bb-4d13-bd0c-117d994411a6\",\"at_hash\":\"56F1z7F6wyhTaHUcVFcLIA\",\"auth_time\":1474626020,\"acr\":\"2\",\"amr\":[\"SIM_PIN\"],\"azp\":\"x-ZWRhNjU3OWI3MGIwYTRh\"}");
     }
 }

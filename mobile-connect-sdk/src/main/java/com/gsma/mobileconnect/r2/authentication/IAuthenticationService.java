@@ -19,7 +19,7 @@ package com.gsma.mobileconnect.r2.authentication;
 import com.gsma.mobileconnect.r2.InvalidResponseException;
 import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
 import com.gsma.mobileconnect.r2.rest.RequestFailedException;
-import com.gsma.mobileconnect.r2.rest.TooManyRedirectsException;
+import com.gsma.mobileconnect.r2.rest.HeadlessOperationFailedException;
 
 import java.net.URI;
 import java.util.concurrent.Future;
@@ -108,5 +108,5 @@ public interface IAuthenticationService
     Future<RequestTokenResponse> requestHeadlessAuthentication(String clientId, String clientSecret,
         URI authorizationUrl, URI requestTokenUrl, URI redirectUrl, String state, String nonce,
         String encryptedMsisdn, SupportedVersions versions, AuthenticationOptions options)
-        throws RequestFailedException, TooManyRedirectsException;
+        throws RequestFailedException, HeadlessOperationFailedException;
 }

@@ -29,7 +29,6 @@ import com.gsma.mobileconnect.r2.rest.*;
 import com.gsma.mobileconnect.r2.utils.HttpUtils;
 import com.gsma.mobileconnect.r2.utils.KeyValuePair;
 import com.gsma.mobileconnect.r2.utils.TestUtils;
-import com.sun.org.apache.regexp.internal.RE;
 import org.apache.http.HttpStatus;
 import org.mockito.Mockito;
 import org.testng.annotations.DataProvider;
@@ -311,9 +310,10 @@ public class AuthenticationServiceTest
     @SuppressWarnings("unchecked")
     @Test
     public void headlessAuthenticationTest()
-        throws RequestFailedException, TooManyRedirectsException, ExecutionException,
+        throws RequestFailedException, HeadlessOperationFailedException, ExecutionException,
         InterruptedException, URISyntaxException
     {
+        // Given
         when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
             anyListOf(KeyValuePair.class), isNull(String.class),
             isNull(Iterable.class))).thenReturn(TestUtils.TOKEN_RESPONSE);
@@ -321,16 +321,16 @@ public class AuthenticationServiceTest
         when(this.restClient.getFinalRedirect(isA(URI.class), isA(URI.class),
             isA(RestAuthentication.class))).thenReturn(new URI(REDIRECT_URL + "?code=code"));
 
+        // When
         final Future<RequestTokenResponse> response =
             this.authentication.requestHeadlessAuthentication(this.config.getClientId(),
                 this.config.getClientSecret(), AUTHORIZE_URL, REDIRECT_URL, TOKEN_URL, "state",
                 "nonce", null, null, null);
 
+        // Then
         assertNotNull(response);
         RequestTokenResponse requestTokenResponse = response.get();
         assertNotNull(response.get());
-        //assertTrue(response.getUrl().toString().contains(AUTHORIZE_URL.toString()));
-
 
         assertNotNull(requestTokenResponse);
         assertEquals(requestTokenResponse.getResponseCode(), HttpStatus.SC_ACCEPTED);
@@ -338,4 +338,45 @@ public class AuthenticationServiceTest
         assertEquals(requestTokenResponse.getResponseData().getAccessToken(),
             "966ad150-16c5-11e6-944f-43079d13e2f3");
     }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void headlessAuthorizationTest()
+        throws RequestFailedException, HeadlessOperationFailedException, ExecutionException,
+        InterruptedException, URISyntaxException
+    {
+        // Given
+        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
+            anyListOf(KeyValuePair.class), isNull(String.class),
+            isNull(Iterable.class))).thenReturn(TestUtils.TOKEN_RESPONSE);
+
+        when(this.restClient.getFinalRedirect(isA(URI.class), isA(URI.class),
+            isA(RestAuthentication.class))).thenReturn(new URI(REDIRECT_URL + "?code=code"));
+
+        final AuthenticationOptions options = new AuthenticationOptions.Builder()
+            .withScope("openid mc_authz")
+            .withClientName("test")
+            .withContext("context-val")
+            .withBindingMessage("binding-val")
+            .build();
+
+        // When
+        final Future<RequestTokenResponse> response =
+            this.authentication.requestHeadlessAuthentication(this.config.getClientId(),
+                this.config.getClientSecret(), AUTHORIZE_URL, REDIRECT_URL, TOKEN_URL, "state",
+                "nonce", null, null, options);
+
+
+        // Then
+        assertNotNull(response);
+        RequestTokenResponse requestTokenResponse = response.get();
+        assertNotNull(response.get());
+
+        assertNotNull(requestTokenResponse);
+        assertEquals(requestTokenResponse.getResponseCode(), HttpStatus.SC_ACCEPTED);
+        assertNotNull(requestTokenResponse.getResponseData());
+        assertEquals(requestTokenResponse.getResponseData().getAccessToken(),
+            "966ad150-16c5-11e6-944f-43079d13e2f3");
+    }
+
 }

@@ -116,7 +116,7 @@ public class DemoAppController
             .build();
 
         final MobileConnectStatus status =
-            this.mobileConnectWebInterface.requestHeadlessAuthenticationAsync(request, sdkSession,
+            this.mobileConnectWebInterface.requestHeadlessAuthentication(request, sdkSession,
                 subscriberId, null, null, options);
 
         return new MobileConnectWebResponse(status);
