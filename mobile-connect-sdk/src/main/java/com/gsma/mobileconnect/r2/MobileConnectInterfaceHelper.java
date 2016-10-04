@@ -576,4 +576,62 @@ class MobileConnectInterfaceHelper
         // then it isn't usable for the process after discovery
         return response != null && response.getOperatorUrls() != null;
     }
+
+    static MobileConnectStatus refreshToken(final IAuthenticationService authnService,
+        final String refreshToken, final DiscoveryResponse discoveryResponse, final URI redirectedUrl,
+        final MobileConnectConfig config, final MobileConnectRequestOptions options,
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+    {
+        ObjectUtils.requireNonNull(discoveryResponse, "discoveryResponse");
+        ObjectUtils.requireNonNull(refreshToken, "refreshToken");
+
+        if (!isUsableDiscoveryResponse(discoveryResponse))
+        {
+            return MobileConnectStatus.startDiscovery();
+        }
+
+        final String refreshTokenUrl =
+            ObjectUtils.defaultIfNull(discoveryResponse.getOperatorUrls().getRefreshTokenUrl(),
+                discoveryResponse.getOperatorUrls().getRequestTokenUrl());
+
+        final String clientId = ObjectUtils.defaultIfNull(
+            discoveryResponse.getResponseData().getResponse().getClientId(),
+            config.getClientId());
+
+        final String clientSecret = ObjectUtils.defaultIfNull(
+            discoveryResponse.getResponseData().getResponse().getClientSecret(),
+            config.getClientSecret());
+
+        try
+        {
+            final RequestTokenResponse requestTokenResponse =
+                authnService.refreshToken(clientId, clientSecret,
+                    URI.create(refreshTokenUrl), refreshToken, config.getRedirectUrl());
+
+            final ErrorResponse errorResponse = requestTokenResponse.getErrorResponse();
+            if (errorResponse != null)
+            {
+                LOGGER.warn(
+                    "Responding with responseType={} for requestToken for redirectedUrl={}, "
+                        + "authentication service responded with error={}",
+                    MobileConnectStatus.ResponseType.ERROR, redirectedUrl, errorResponse);
+
+                return MobileConnectStatus.error(errorResponse.getError(),
+                    errorResponse.getErrorDescription(), null, requestTokenResponse);
+            }
+            else
+            {
+                LOGGER.info("Refresh token success");
+                return MobileConnectStatus.complete(requestTokenResponse);
+            }
+        }
+        catch (final Exception e)
+        {
+            LOGGER.warn(
+                "requestToken failed for redirectedUrl={} ",
+                LogUtils.maskUri(redirectedUrl, LOGGER, Level.WARN), e);
+
+            return MobileConnectStatus.error("request token", e);
+        }
+    }
 }

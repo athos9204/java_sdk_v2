@@ -287,6 +287,28 @@ public class AuthenticationService implements IAuthenticationService
     }
 
     @Override
+    public RequestTokenResponse refreshToken(final String clientId, final String clientSecret,
+        final URI refreshTokenUrl, final String refreshToken, final URI redirectUrl)
+        throws RequestFailedException, InvalidResponseException
+    {
+        final List<KeyValuePair> formData = new KeyValuePair.ListBuilder()
+            .add(Parameters.AUTHENTICATION_REDIRECT_URI,
+                ObjectUtils.requireNonNull(redirectUrl, "redirectUrl").toString())
+            .add(Parameters.REFRESH_TOKEN,
+                StringUtils.requireNonEmpty(refreshToken, "refreshToken"))
+            .add(Parameters.GRANT_TYPE, DefaultOptions.GRANT_TYPE_REFRESH_TOKEN)
+            .build();
+
+        final RestAuthentication authentication =
+            RestAuthentication.basic(clientId, clientSecret, this.iMobileConnectEncodeDecoder);
+        final RestResponse restResponse =
+            this.restClient.postFormData(refreshTokenUrl, authentication, formData, null, null);
+
+        return RequestTokenResponse.fromRestResponse(restResponse, this.jsonService,
+            this.iMobileConnectEncodeDecoder);
+    }
+
+    @Override
     public RequestTokenResponse requestToken(final String clientId, final String clientSecret,
         final URI requestTokenUrl, final URI redirectUrl, final String code)
         throws RequestFailedException, InvalidResponseException
@@ -295,7 +317,7 @@ public class AuthenticationService implements IAuthenticationService
             .add(Parameters.AUTHENTICATION_REDIRECT_URI,
                 ObjectUtils.requireNonNull(redirectUrl, "redirectUrl").toString())
             .add(Parameters.CODE, StringUtils.requireNonEmpty(code, "code"))
-            .add(Parameters.GRANT_TYPE, DefaultOptions.GRANT_TYPE)
+            .add(Parameters.GRANT_TYPE, DefaultOptions.GRANT_TYPE_AUTH_CODE)
             .build();
 
         final RestAuthentication authentication =

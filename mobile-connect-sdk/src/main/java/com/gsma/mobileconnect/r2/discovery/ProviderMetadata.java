@@ -40,7 +40,8 @@ public class ProviderMetadata extends AbstractCacheable
     private final String premiuminfoEndpoint;
     private final String checkSessionIframe;
     private final String endSessionEndpoint;
-    private final String revokeEndpoint;
+    private final String revocationEndpoint;
+    private final String refreshEndpoint;
     private final String registrationEndpoint;
     private final String jwksUri;
     private final List<String> scopesSupported;
@@ -85,7 +86,8 @@ public class ProviderMetadata extends AbstractCacheable
         this.premiuminfoEndpoint = builder.premiuminfoEndpoint;
         this.checkSessionIframe = builder.checkSessionIframe;
         this.endSessionEndpoint = builder.endSessionEndpoint;
-        this.revokeEndpoint = builder.revokeEndpoint;
+        this.revocationEndpoint = builder.revocationEndpoint;
+        this.refreshEndpoint = builder.refreshEndpoint;
         this.registrationEndpoint = builder.registrationEndpoint;
         this.jwksUri = builder.jwksUri;
         this.scopesSupported = builder.scopesSupported;
@@ -187,9 +189,17 @@ public class ProviderMetadata extends AbstractCacheable
     /**
      * @return Revoke Token endpoint to use if different from url returned by discovery
      */
-    public String getRevokeEndpoint()
+    public String getRevocationEndpoint()
     {
-        return this.revokeEndpoint;
+        return this.revocationEndpoint;
+    }
+
+    /**
+     * @return Refresh Token endpoint to use if different from url returned by discovery
+     */
+    public String getRefreshEndpoint()
+    {
+        return this.refreshEndpoint;
     }
 
     /**
@@ -497,7 +507,8 @@ public class ProviderMetadata extends AbstractCacheable
         private String premiuminfoEndpoint;
         private String checkSessionIframe;
         private String endSessionEndpoint;
-        private String revokeEndpoint;
+        private String revocationEndpoint;
+        private String refreshEndpoint;
         private String registrationEndpoint;
         private String jwksUri;
         private List<String> scopesSupported;
@@ -580,9 +591,15 @@ public class ProviderMetadata extends AbstractCacheable
             return this;
         }
 
-        public Builder withRevokeEndpoint(final String val)
+        public Builder withRevocationEndpoint(final String val)
         {
-            this.revokeEndpoint = val;
+            this.revocationEndpoint = val;
+            return this;
+        }
+
+        public Builder withRefreshEndpoint(final String val)
+        {
+            this.refreshEndpoint = val;
             return this;
         }
 

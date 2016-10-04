@@ -72,4 +72,5 @@ public interface Parameters
 
     // Params for Token
     String GRANT_TYPE = "grant_type";
+    String REFRESH_TOKEN = "refresh_token";
 }

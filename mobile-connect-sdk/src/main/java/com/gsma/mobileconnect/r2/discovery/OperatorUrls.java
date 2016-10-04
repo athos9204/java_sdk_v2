@@ -42,6 +42,8 @@ public class OperatorUrls
     private String userInfoUrl;
     private String premiumInfoUri;
     private String jwksUri;
+    private String revokeTokenUrl;
+    private String refreshTokenUrl;
     private final String providerMetadataUri;
 
     private OperatorUrls(Builder builder)
@@ -51,6 +53,8 @@ public class OperatorUrls
         this.userInfoUrl = builder.userInfoUrl;
         this.premiumInfoUri = builder.premiumInfoUri;
         this.jwksUri = builder.jwksUri;
+        this.revokeTokenUrl = builder.revokeTokenUrl;
+        this.refreshTokenUrl = builder.refreshTokenUrl;
         this.providerMetadataUri = builder.providerMetadataUri;
     }
 
@@ -76,7 +80,10 @@ public class OperatorUrls
                 .withUserInfoUrl(getUrl(LinkRels.USERINFO, links))
                 .withPremiumInfoUri(getUrl(LinkRels.PREMIUMINFO, links))
                 .withJwksUri(getUrl(LinkRels.JWKS, links))
+                .withRefershTokenUrl(getUrl(LinkRels.TOKENREFRESH, links))
+                .withRevokeTokenUrl(getUrl(LinkRels.TOKENREVOKE, links))
                 .withProviderMetadataUri(getUrl(LinkRels.OPENID_CONFIGURATION, links));
+
         }
 
         return builder.build();
@@ -147,6 +154,22 @@ public class OperatorUrls
     }
 
     /**
+     * @return Url for token revoke call.
+     */
+    public String getRevokeTokenUrl()
+    {
+        return revokeTokenUrl;
+    }
+
+    /**
+     * @return Url for token refresh call.
+     */
+    public String getRefreshTokenUrl()
+    {
+        return refreshTokenUrl;
+    }
+
+    /**
      * @return Url for Provider Metadata.
      */
     public String getProviderMetadataUri()
@@ -171,6 +194,10 @@ public class OperatorUrls
             this.premiumInfoUri =
                 defaultIfNull(metadata.getPremiuminfoEndpoint(), this.premiumInfoUri);
             this.jwksUri = defaultIfNull(metadata.getJwksUri(), this.jwksUri);
+            this.revokeTokenUrl =
+                defaultIfNull(metadata.getRevocationEndpoint(), this.revokeTokenUrl);
+            this.refreshTokenUrl =
+                defaultIfNull(metadata.getRefreshEndpoint(), this.refreshTokenUrl);
         }
     }
 
@@ -181,6 +208,8 @@ public class OperatorUrls
         private String userInfoUrl;
         private String premiumInfoUri;
         private String jwksUri;
+        private String revokeTokenUrl;
+        private String refreshTokenUrl;
         private String providerMetadataUri;
 
         public Builder withAuthorizationUrl(final String val)
@@ -210,6 +239,18 @@ public class OperatorUrls
         public Builder withJwksUri(final String val)
         {
             this.jwksUri = val;
+            return this;
+        }
+
+        public Builder withRevokeTokenUrl(final String val)
+        {
+            this.revokeTokenUrl = val;
+            return this;
+        }
+
+        public Builder withRefershTokenUrl(final String val)
+        {
+            this.refreshTokenUrl = val;
             return this;
         }
 
