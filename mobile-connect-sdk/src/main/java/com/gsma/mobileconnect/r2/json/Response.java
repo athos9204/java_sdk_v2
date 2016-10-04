@@ -35,7 +35,7 @@ public class Response
     private final String clientId;
     private final String clientSecret;
     private final String subscriberId;
-    private final String applicationShortName;
+    private final String clientName;
 
     private Response(Builder builder)
     {
@@ -46,7 +46,7 @@ public class Response
         this.clientId = builder.clientId;
         this.clientSecret = builder.clientSecret;
         this.subscriberId = builder.subscriberId;
-        this.applicationShortName = builder.applicationShortName;
+        this.clientName = builder.clientName;
     }
 
     public String getServingOperator()
@@ -84,9 +84,9 @@ public class Response
         return this.subscriberId;
     }
 
-    public String getApplicationShortName()
+    public String getClientName()
     {
-        return applicationShortName;
+        return clientName;
     }
 
     public static final class Builder implements IBuilder<Response>
@@ -98,7 +98,7 @@ public class Response
         private String clientId = null;
         private String clientSecret = null;
         private String subscriberId = null;
-        private String applicationShortName = null;
+        private String clientName = null;
 
         public Builder withServingOperator(final String val)
         {
@@ -142,10 +142,10 @@ public class Response
             return this;
         }
 
-        @JsonProperty("applicationShortName")
-        public Builder withApplicationShortName(final String val)
+        @JsonProperty("client_name")
+        public Builder withClientName(final String val)
         {
-            this.applicationShortName = val;
+            this.clientName = val;
             return this;
         }
 
