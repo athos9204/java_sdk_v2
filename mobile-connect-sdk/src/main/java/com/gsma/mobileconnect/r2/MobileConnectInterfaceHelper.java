@@ -653,24 +653,9 @@ class MobileConnectInterfaceHelper
 
         try
         {
-            final ErrorResponse errorResponse =
+            return MobileConnectStatus.complete(
                 authnService.revokeToken(clientId, clientSecret, URI.create(revokeTokenUrl), token,
-                    tokenTypeHint, config.getRedirectUrl());
-
-            if (errorResponse != null)
-            {
-                LOGGER.warn("Responding with responseType={} for revokeToken for redirectedUrl={}, "
-                    + "authentication service responded with error={}",
-                MobileConnectStatus.ResponseType.ERROR, redirectedUrl, errorResponse);
-
-                return MobileConnectStatus.error(errorResponse.getError(),
-                    errorResponse.getErrorDescription(), null);
-            }
-            else
-            {
-                LOGGER.info("Revoke token success");
-                return MobileConnectStatus.complete();
-            }
+                    tokenTypeHint, config.getRedirectUrl()));
         }
         catch (final Exception e)
         {

@@ -152,6 +152,42 @@ public class DemoAppController
         return new MobileConnectWebResponse(status);
     }
 
+    @GetMapping("refresh_token")
+    @ResponseBody
+    public MobileConnectWebResponse refreshToken(
+        @RequestParam(required = false) final String sdkSession,
+        @RequestParam(required = false) final String refreshToken, final HttpServletRequest request)
+    {
+        LOGGER.info("* Calling refresh token for sdkSession={}, refreshToken={}", sdkSession,
+            LogUtils.mask(refreshToken, LOGGER, Level.INFO));
+
+        final URI requestUri = HttpUtils.extractCompleteUrl(request);
+
+        final MobileConnectStatus status =
+            this.mobileConnectWebInterface.refreshToken(request, refreshToken, sdkSession,
+                requestUri, null);
+
+        return new MobileConnectWebResponse(status);
+    }
+
+    @GetMapping("revoke_token")
+    @ResponseBody
+    public MobileConnectWebResponse revokeToken(
+        @RequestParam(required = false) final String sdkSession,
+        @RequestParam(required = false) final String accessToken, final HttpServletRequest request)
+    {
+        LOGGER.info("* Calling revoke token for sdkSession={}, accessToken={}", sdkSession,
+            LogUtils.mask(accessToken, LOGGER, Level.INFO));
+
+        final URI requestUri = HttpUtils.extractCompleteUrl(request);
+
+        final MobileConnectStatus status =
+            this.mobileConnectWebInterface.revokeToken(request, accessToken, "access_token",
+                sdkSession, requestUri, null);
+
+        return new MobileConnectWebResponse(status);
+    }
+
     @GetMapping("")
     @ResponseBody
     public MobileConnectWebResponse handleRedirect(

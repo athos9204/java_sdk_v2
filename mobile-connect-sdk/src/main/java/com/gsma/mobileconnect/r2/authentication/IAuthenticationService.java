@@ -148,7 +148,7 @@ public interface IAuthenticationService
      *                        returned if the endpoint returned an unsupported_token_type error else
      *                        it returns a null error response
      */
-    ErrorResponse revokeToken(final String clientId, final String clientSecret,
+    String revokeToken(final String clientId, final String clientSecret,
         final URI refreshTokenUrl, final String token, final String tokenTypeHint, final URI redirectUrl)
         throws RequestFailedException, InvalidResponseException;
 }

@@ -84,7 +84,7 @@ public class AuthenticationService implements IAuthenticationService
             }
             else if (encryptedMSISDN != null)
             {
-                //loginHint = String.format("ENCR_MSISDN:%s", encryptedMSISDN);
+                loginHint = String.format("ENCR_MSISDN:%s", encryptedMSISDN);
             }
         }
 
@@ -310,9 +310,9 @@ public class AuthenticationService implements IAuthenticationService
     }
 
     @Override
-    public ErrorResponse revokeToken(final String clientId, final String clientSecret,
-        final URI refreshTokenUrl, final String token, final String tokenTypeHint, final URI redirectUrl)
-        throws RequestFailedException, InvalidResponseException
+    public String revokeToken(final String clientId, final String clientSecret,
+        final URI refreshTokenUrl, final String token, final String tokenTypeHint,
+        final URI redirectUrl) throws RequestFailedException, InvalidResponseException
     {
         final List<KeyValuePair> formData = new KeyValuePair.ListBuilder()
             .add(Parameters.AUTHENTICATION_REDIRECT_URI,
@@ -326,13 +326,9 @@ public class AuthenticationService implements IAuthenticationService
         final RestResponse restResponse =
             this.restClient.postFormData(refreshTokenUrl, authentication, formData, null, null);
 
-        RequestTokenResponse requestTokenResponse =
-            RequestTokenResponse.fromRestResponse(restResponse, this.jsonService,
-            this.iMobileConnectEncodeDecoder);
-
-        return requestTokenResponse.getResponseCode() == 200? null :
-               requestTokenResponse.getErrorResponse();
-
+        return restResponse.getStatusCode() == 200
+               ? "Revoke token successful"
+               : "Unsupported token type";
     }
 
     @Override
