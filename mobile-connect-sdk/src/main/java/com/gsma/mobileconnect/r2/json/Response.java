@@ -142,7 +142,6 @@ public class Response
             return this;
         }
 
-        @JsonProperty("client_name")
         public Builder withClientName(final String val)
         {
             this.clientName = val;
