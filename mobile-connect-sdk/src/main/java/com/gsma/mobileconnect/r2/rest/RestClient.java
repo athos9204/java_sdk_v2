@@ -59,6 +59,7 @@ public class RestClient implements IRestClient
     private final ScheduledExecutorService scheduledExecutorService;
     private final HttpClient httpClient;
     private final long timeout;
+    private final long waitTime;
     private final RequestConfig requestConfig;
 
     private RestClient(Builder builder)
@@ -67,6 +68,7 @@ public class RestClient implements IRestClient
         this.scheduledExecutorService = builder.scheduledExecutorService;
         this.httpClient = builder.httpClient;
         this.timeout = builder.timeout;
+        this.waitTime = builder.waitTime;
 
         final int timeoutAsInt = (int) this.timeout;
 
@@ -246,7 +248,7 @@ public class RestClient implements IRestClient
     {
         try
         {
-            Thread.sleep(DefaultOptions.WAIT_TIME);
+            Thread.sleep(this.waitTime);
         }
         catch (InterruptedException e)
         {
@@ -435,6 +437,7 @@ public class RestClient implements IRestClient
         private ScheduledExecutorService scheduledExecutorService;
         private HttpClient httpClient;
         private long timeout = DefaultOptions.TIMEOUT_MS;
+        private long waitTime = DefaultOptions.WAIT_TIME;
 
         public Builder withJsonService(final IJsonService val)
         {
@@ -457,6 +460,12 @@ public class RestClient implements IRestClient
         public Builder withTimeout(final long duration, final TimeUnit unit)
         {
             this.timeout = unit.toMillis(duration);
+            return this;
+        }
+
+        public Builder withWaitTime(final long waitTime)
+        {
+            this.waitTime = waitTime;
             return this;
         }
 
