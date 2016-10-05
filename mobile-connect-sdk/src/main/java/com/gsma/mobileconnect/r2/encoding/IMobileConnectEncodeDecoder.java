@@ -27,14 +27,14 @@ public interface IMobileConnectEncodeDecoder
      * Encodes the provided string to Base64
      *
      * @param value the array of byte to encode
-     * @return
+     * @return Base64 encoded byte array
      */
     String encodeToBase64(byte[] value);
 
     /**
      * Decodes the provided Base64 string
      * @param value The {@link String to} to decode
-     * @return
+     * @return byte array decoded from base64 String
      */
     byte[] decodeFromBase64(String value);
 }

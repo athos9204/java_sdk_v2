@@ -25,6 +25,7 @@ import com.gsma.mobileconnect.r2.utils.TestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentType;
@@ -62,6 +63,7 @@ import static org.testng.Assert.*;
 public class RestClientTest
 {
     private static final URI TEST_URI = URI.create("http://test");
+    private static final URI REDIRECT_URI = URI.create("http://redirect");
     private static final RestAuthentication AUTHENTICATION =
         RestAuthentication.basic("test-key", "test-secret", new DefaultEncodeDecoder());
     private static final String SOURCE_IP = "192.168.0.1";
@@ -327,4 +329,66 @@ public class RestClientTest
         }
         return strings.toArray(new String[] {});
     }
+
+
+    @Test
+    public void testGetFinalRedirectSuccess() throws RequestFailedException, IOException
+    {
+        List<KeyValuePair> headers = new ArrayList<KeyValuePair>();
+        headers.add(new KeyValuePair("Location", "http://redirect"));
+        RestResponse restResponse = new RestResponse.Builder()
+            .withHeaders(headers)
+            .withStatusCode(302)
+            .build();
+        when(httpClient.execute(any(HttpUriRequest.class),
+            any(RestClient.RestResponseHandler.class))).thenReturn(restResponse);
+
+        URI uriResponse = restClient.getFinalRedirect(TEST_URI, REDIRECT_URI, AUTHENTICATION);
+
+        assertEquals(uriResponse, REDIRECT_URI);
+    }
+
+    @Test(expectedExceptions = RequestFailedException.class)
+    public void testGetFinalRedirectTimedOut() throws RequestFailedException, IOException
+    {
+        List<KeyValuePair> headers = new ArrayList<KeyValuePair>();
+        headers.add(new KeyValuePair("Location", "http://1redirect"));
+        RestResponse restResponse = new RestResponse.Builder()
+            .withHeaders(headers)
+            .withStatusCode(302)
+            .build();
+        when(httpClient.execute(any(HttpUriRequest.class),
+            any(RestClient.RestResponseHandler.class))).thenReturn(restResponse);
+
+        restClient.getFinalRedirect(TEST_URI, REDIRECT_URI, AUTHENTICATION);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test(expectedExceptions = RequestFailedException.class)
+    public void testGetFinalRedirectRequestFailed() throws RequestFailedException, IOException
+    {
+        List<KeyValuePair> headers = new ArrayList<KeyValuePair>();
+        headers.add(new KeyValuePair("Location", "http://1redirect"));
+        when(httpClient.execute(any(HttpUriRequest.class),
+            any(RestClient.RestResponseHandler.class))).thenThrow(RequestFailedException.class);
+
+        restClient.getFinalRedirect(TEST_URI, REDIRECT_URI, AUTHENTICATION);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test(expectedExceptions = RequestFailedException.class)
+    public void testGetFinalRedirectURISyntaxException() throws RequestFailedException, IOException
+    {
+        List<KeyValuePair> headers = new ArrayList<KeyValuePair>();
+        headers.add(new KeyValuePair("Location", "%$!$"));
+        RestResponse restResponse = new RestResponse.Builder()
+            .withHeaders(headers)
+            .withStatusCode(302)
+            .build();
+        when(httpClient.execute(any(HttpUriRequest.class),
+            any(RestClient.RestResponseHandler.class))).thenReturn(restResponse);
+
+        restClient.getFinalRedirect(TEST_URI, REDIRECT_URI, AUTHENTICATION);
+    }
+
 }

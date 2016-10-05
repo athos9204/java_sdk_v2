@@ -59,7 +59,7 @@ public class TokenValidation
      *                                    supplied)
      * @param keyset                      Keyset retrieved from the jwks url, used to validate the
      *                                    token signature
-     * @param iMobileConnectEncodeDecoder
+     * @param iMobileConnectEncodeDecoder Class used to encode/decode id_tokens
      * @return TokenValidationResult that specifies if the token is valid, or if not why it is not
      * valid
      */
@@ -71,6 +71,7 @@ public class TokenValidation
     {
         if (StringUtils.isNullOrEmpty(idToken))
         {
+            LOGGER.warn("Idtoken is missing");
             return TokenValidationResult.IdTokenMissing;
         }
 
@@ -105,6 +106,7 @@ public class TokenValidation
     {
         if (keyset == null)
         {
+            LOGGER.warn("Keyset not found");
             return TokenValidationResult.JWKSError;
         }
         JWKey jwKeyDeserialized;
@@ -133,12 +135,14 @@ public class TokenValidation
 
             if (jwKey == null)
             {
+                LOGGER.warn("No key found in keyset matching idtoken header");
                 return TokenValidationResult.NoMatchingKey;
             }
 
             final int lastSplitIndex = idToken.lastIndexOf('.');
             if (lastSplitIndex < 0 || lastSplitIndex == idToken.length() - 1)
             {
+                LOGGER.warn("Error discovering signature");
                 return TokenValidationResult.InvalidSignature;
             }
 
@@ -153,7 +157,6 @@ public class TokenValidation
             LOGGER.warn("Error deserializing idToken");
             throw new JsonDeserializationException(JWKey.class, idToken, e);
         }
-
     }
 
     private static TokenValidationResult verifySignature(final JWKey jwKey, final String dataToSign,
@@ -192,8 +195,8 @@ public class TokenValidation
      * @param expectedNonce               Nonce that is validated against the nonce claim
      * @param maxAge                      MaxAge that is used to validate the auth_time claim (if
      *                                    supplied)
-     * @param jsonService
-     * @param iMobileConnectEncodeDecoder
+     * @param jsonService                 Json service used to serialize/deserialize objects
+     * @param iMobileConnectEncodeDecoder Encoder used to serialize objects
      * @return TokenValidationResult that specifies if the token claims are valid, or if not why
      * they are not valid
      */
@@ -209,26 +212,31 @@ public class TokenValidation
         if (expectedNonce != null && !expectedNonce.equals(
             claims.get(ClaimsConstants.NONCE).getValue().toString()))
         {
+            LOGGER.warn("Invalid Nonce");
             return TokenValidationResult.InvalidNonce;
         }
 
         if (!claims.get(ClaimsConstants.ISSUER).getValue().toString().equals(issuer))
         {
+            LOGGER.warn("Issuer does not match expected");
             return TokenValidationResult.InvalidIssuer;
         }
 
         if (!doesAudOrAzpClaimMatchClientId(claims, clientId))
         {
+            LOGGER.warn("Audience or Authorized party does not match client id");
             return TokenValidationResult.InvalidAudAndAzp;
         }
 
         if (tokenHasExpired(claims))
         {
+            LOGGER.warn("Id token has expired");
             return TokenValidationResult.IdTokenExpired;
         }
 
         if (maxAgeHasPassed(claims, maxAge))
         {
+            LOGGER.warn("Id token has passed max age");
             return TokenValidationResult.MaxAgePassed;
         }
         return TokenValidationResult.Valid;
@@ -265,6 +273,7 @@ public class TokenValidation
     {
         if (StringUtils.isNullOrEmpty(tokenResponse.getAccessToken()))
         {
+            LOGGER.warn("Access token is missing");
             return TokenValidationResult.AccessTokenMissing;
         }
 
@@ -272,6 +281,7 @@ public class TokenValidation
             .getExpiry()
             .before(new Date(Calendar.getInstance().getTimeInMillis())))
         {
+            LOGGER.warn("Access token has expired");
             return TokenValidationResult.AccessTokenExpired;
         }
         return TokenValidationResult.Valid;

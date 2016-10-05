@@ -18,6 +18,7 @@ package com.gsma.mobileconnect.r2.authentication;
 
 import com.gsma.mobileconnect.r2.ErrorResponse;
 import com.gsma.mobileconnect.r2.InvalidResponseException;
+import com.gsma.mobileconnect.r2.discovery.ProviderMetadata;
 import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
 import com.gsma.mobileconnect.r2.rest.RequestFailedException;
 import com.gsma.mobileconnect.r2.rest.HeadlessOperationFailedException;
@@ -42,7 +43,7 @@ public interface IAuthenticationService
      * @param state           Application specified unique scope value
      * @param nonce           Application specified nonce value. (Required)
      * @param encryptedMSISDN Encrypted MSISDN for user if returned from discovery service
-     * @param versions        SupportedVersions from <see cref="ProviderMetadata"/> if null default
+     * @param versions        SupportedVersions from {@link ProviderMetadata} if null default
      *                        supported versions will be used to generate the auth url
      * @param options         Optional parameters
      */

@@ -223,8 +223,8 @@ public class MobileConnectInterface
     }
 
     /**
-     * Synchronous wrapper for <see cref="MobileConnectInterface.requestToken(DiscoveryResponse,
-     * URI, String, String, MobileConnectRequestOptions)"/>
+     * Synchronous wrapper for {@link MobileConnectInterface#requestToken(DiscoveryResponse,
+     * URI, String, String, MobileConnectRequestOptions)}/>
      *
      * @param discoveryResponse The response returned by the discovery process
      * @param redirectedUrl     URI redirected to by the completion of the authorization UI
@@ -324,8 +324,8 @@ public class MobileConnectInterface
     }
 
     /**
-     * Synchronous wrapper for <see cref="MobileConnectInterface.HandleUrlRedirectAsync(URI,
-     * DiscoveryResponse, String, String, MobileConnectRequestOptions)"/>
+     * Synchronous wrapper for {@link MobileConnectInterface#handleUrlRedirectAsync(URI,
+     * DiscoveryResponse, String, String, MobileConnectRequestOptions)}
      *
      * @param redirectedUrl     Url redirected to by the completion of the previous step
      * @param discoveryResponse The response returned by the discovery process
@@ -355,8 +355,9 @@ public class MobileConnectInterface
     }
 
     /**
-     * Request user info using the access token returned by <see cref="requestToken(DiscoveryResponse,
-     * URI, String, String)"/>
+     * Request user info using the access token returned by
+     * {@link MobileConnectInterface#requestToken(DiscoveryResponse, URI, String, String,
+     * MobileConnectRequestOptions)}
      *
      * @param discoveryResponse The response returned by the discovery process
      * @param accessToken       Access token from requestToken stage
@@ -379,8 +380,7 @@ public class MobileConnectInterface
     }
 
     /**
-     * Synchronous wrapper for <see cref="RequestUserInfoAsync(DiscoveryResponse, String,
-     * MobileConnectRequestOptions)"/>
+     * Synchronous wrapper for {@link MobileConnectInterface#requestUserInfoAsync(DiscoveryResponse, String)}
      *
      * @param discoveryResponse The response returned by the discovery process
      * @param accessToken       Access token from requestToken stage
@@ -397,8 +397,8 @@ public class MobileConnectInterface
     }
 
     /**
-     * Request user info using the access token returned by <see cref="requestToken(DiscoveryResponse,
-     * URI, String, String)"/>
+     * Request user info using the access token returned by {@link MobileConnectInterface#requestToken(DiscoveryResponse,
+     * URI, String, String, MobileConnectRequestOptions)}
      *
      * @param discoveryResponse The response returned by the discovery process
      * @param accessToken       Access token from requestToken stage
@@ -421,8 +421,7 @@ public class MobileConnectInterface
     }
 
     /**
-     * Synchronous wrapper for <see cref="RequestIdentityAsync(DiscoveryResponse, String,
-     * MobileConnectRequestOptions)"/>
+     * Synchronous wrapper for {@link MobileConnectInterface#requestIdentityAsync(DiscoveryResponse, String)}
      *
      * @param discoveryResponse The response returned by the discovery process
      * @param accessToken       Access token from requestToken stage
