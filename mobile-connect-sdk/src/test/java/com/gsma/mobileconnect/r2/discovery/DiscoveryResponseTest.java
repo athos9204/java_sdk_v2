@@ -141,7 +141,7 @@ public class DiscoveryResponseTest
     }
 
     @Test
-    public void clientNamePopulationShouldHandleNonExistentShortName()
+    public void clientNamePopulationShouldHandleNonExistentClientName()
         throws JsonDeserializationException
     {
         final String responseJson =
