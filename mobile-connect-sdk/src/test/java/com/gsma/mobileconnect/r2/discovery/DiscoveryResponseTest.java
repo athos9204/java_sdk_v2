@@ -125,7 +125,7 @@ public class DiscoveryResponseTest
     }
 
     @Test
-    public void applicationShortNameShouldBePopulatedIfAvailable()
+    public void clientNameShouldBePopulatedIfAvailable()
         throws JsonDeserializationException
     {
         final String responseJson =
@@ -137,11 +137,11 @@ public class DiscoveryResponseTest
         final DiscoveryResponse discoveryResponse =
             DiscoveryResponse.fromRestResponse(restResponse, this.jsonService);
 
-        assertNotNull(discoveryResponse.getApplicationShortName());
+        assertNotNull(discoveryResponse.getClientName());
     }
 
     @Test
-    public void applicationShortNamePopulationShouldHandleNonExistentShortName()
+    public void clientNamePopulationShouldHandleNonExistentClientName()
         throws JsonDeserializationException
     {
         final String responseJson =
@@ -154,7 +154,7 @@ public class DiscoveryResponseTest
         final DiscoveryResponse discoveryResponse =
             DiscoveryResponse.fromRestResponse(restResponse, this.jsonService);
 
-        assertNull(discoveryResponse.getApplicationShortName());
+        assertNull(discoveryResponse.getClientName());
     }
 
     @DataProvider(name = "mobileConnectServiceSupportedData")
