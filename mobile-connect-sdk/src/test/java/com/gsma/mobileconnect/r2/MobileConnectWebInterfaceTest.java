@@ -17,8 +17,10 @@
 package com.gsma.mobileconnect.r2;
 
 import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
+import com.gsma.mobileconnect.r2.authentication.AuthenticationService;
 import com.gsma.mobileconnect.r2.cache.CacheAccessException;
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;
+import com.gsma.mobileconnect.r2.constants.Parameters;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryService;
@@ -343,4 +345,87 @@ public class MobileConnectWebInterfaceTest
         assertEquals(status.getRequestTokenResponse().getDecodedIdTokenPayload(),
             "{\"iss\":\"https:\\/\\/reference.mobileconnect.io\\/mobileconnect\",\"sub\":\"411421B0-38D6-6568-A53A-DF99691B7EB6\",\"aud\":[\"x-ZWRhNjU3OWI3MGIwYTRh\"],\"exp\":1474626330,\"iat\":1474626030,\"nonce\":\"81991496-48bb-4d13-bd0c-117d994411a6\",\"at_hash\":\"56F1z7F6wyhTaHUcVFcLIA\",\"auth_time\":1474626020,\"acr\":\"2\",\"amr\":[\"SIM_PIN\"],\"azp\":\"x-ZWRhNjU3OWI3MGIwYTRh\"}");
     }
+
+    @Test
+    public void testRefreshToken() throws RequestFailedException, InvalidResponseException
+    {
+        final DiscoveryResponse discoveryResponse = this.completeDiscovery();
+        this.restClient.addResponse(TestUtils.VALIDATED_TOKEN_RESPONSE);
+
+        final MobileConnectStatus status =
+            this.mcWebInterface.refreshToken(this.request, "RefreshToken", discoveryResponse);
+
+        assertNotNull(status);
+
+        assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.COMPLETE);
+
+        assertEquals(status.getRequestTokenResponse().getResponseCode(), 202);
+        assertEquals(status.getRequestTokenResponse().getResponseData().getAccessToken(),
+            "966ad150-16c5-11e6-944f-43079d13e2f3");
+    }
+
+    @Test
+    public void testRefreshTokenWithCachedDiscoveryResponse()
+        throws RequestFailedException, InvalidResponseException
+    {
+        final DiscoveryResponse discoveryResponse = this.completeDiscovery();
+        DiscoveryOptions discoveryOptions = new DiscoveryOptions.Builder()
+            .withIdentifiedMcc("111")
+            .withIdentifiedMnc("11")
+            .build();
+        ((DiscoveryService) this.discoveryService).addCachedDiscoveryResponse(discoveryOptions,
+            discoveryResponse);
+
+        this.restClient.addResponse(TestUtils.VALIDATED_TOKEN_RESPONSE);
+
+        final MobileConnectStatus status =
+            this.mcWebInterface.refreshToken(this.request, "RefreshToken", "111_11");
+
+        assertNotNull(status);
+
+        assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.COMPLETE);
+
+        assertEquals(status.getRequestTokenResponse().getResponseCode(), 202);
+        assertEquals(status.getRequestTokenResponse().getResponseData().getAccessToken(),
+            "966ad150-16c5-11e6-944f-43079d13e2f3");
+    }
+
+    @Test
+    public void testRevokeToken() throws RequestFailedException, InvalidResponseException
+    {
+        final DiscoveryResponse discoveryResponse = this.completeDiscovery();
+        this.restClient.addResponse(TestUtils.REVOKE_TOKEN_SUCCESS_RESPONSE);
+
+        final MobileConnectStatus status =
+            this.mcWebInterface.revokeToken(this.request, "AccessToken",
+                Parameters.ACCESS_TOKEN_HINT, discoveryResponse);
+
+        assertNotNull(status);
+
+        assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.COMPLETE);
+        assertEquals(status.getOutcome(), AuthenticationService.REVOKE_TOKEN_SUCCESS);
+    }
+
+    @Test
+    public void testRevokeTokenWithCachedDiscoveryResponse() throws RequestFailedException, InvalidResponseException
+    {
+        final DiscoveryResponse discoveryResponse = this.completeDiscovery();
+        DiscoveryOptions discoveryOptions = new DiscoveryOptions.Builder()
+            .withIdentifiedMcc("111")
+            .withIdentifiedMnc("11")
+            .build();
+        ((DiscoveryService) this.discoveryService).addCachedDiscoveryResponse(discoveryOptions,
+            discoveryResponse);
+        this.restClient.addResponse(TestUtils.REVOKE_TOKEN_SUCCESS_RESPONSE);
+
+        final MobileConnectStatus status =
+            this.mcWebInterface.revokeToken(this.request, "AccessToken",
+                Parameters.ACCESS_TOKEN_HINT, "111_11");
+
+        assertNotNull(status);
+
+        assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.COMPLETE);
+        assertEquals(status.getOutcome(), AuthenticationService.REVOKE_TOKEN_SUCCESS);
+    }
+
 }

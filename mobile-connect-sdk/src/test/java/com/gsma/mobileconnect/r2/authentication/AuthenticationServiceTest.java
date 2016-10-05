@@ -21,6 +21,7 @@ import com.gsma.mobileconnect.r2.InvalidResponseException;
 import com.gsma.mobileconnect.r2.MobileConnectConfig;
 import com.gsma.mobileconnect.r2.claims.Claims;
 import com.gsma.mobileconnect.r2.claims.ClaimsParameter;
+import com.gsma.mobileconnect.r2.constants.Parameters;
 import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
@@ -422,7 +423,8 @@ public class AuthenticationServiceTest
         // When
         final String outcome =
             this.authentication.revokeToken(this.config.getClientId(),
-                this.config.getClientSecret(), TOKEN_URL, "AccessToken", "access_token");
+                this.config.getClientSecret(), TOKEN_URL, "AccessToken",
+                Parameters.ACCESS_TOKEN_HINT);
 
         // Then
         assertNotNull(outcome);

@@ -20,6 +20,7 @@ import com.gsma.mobileconnect.r2.MobileConnectRequestOptions;
 import com.gsma.mobileconnect.r2.MobileConnectStatus;
 import com.gsma.mobileconnect.r2.MobileConnectWebInterface;
 import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
+import com.gsma.mobileconnect.r2.constants.Parameters;
 import com.gsma.mobileconnect.r2.utils.HttpUtils;
 import com.gsma.mobileconnect.r2.utils.LogUtils;
 import com.gsma.mobileconnect.r2.web.MobileConnectWebResponse;
@@ -177,8 +178,8 @@ public class DemoAppController
             LogUtils.mask(accessToken, LOGGER, Level.INFO));
 
         final MobileConnectStatus status =
-            this.mobileConnectWebInterface.revokeToken(request, accessToken, "access_token",
-                sdkSession);
+            this.mobileConnectWebInterface.revokeToken(request, accessToken,
+                Parameters.ACCESS_TOKEN_HINT, sdkSession);
 
         return new MobileConnectWebResponse(status);
     }

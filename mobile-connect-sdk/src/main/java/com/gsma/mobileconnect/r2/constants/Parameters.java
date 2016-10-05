@@ -75,4 +75,7 @@ public interface Parameters
     String REFRESH_TOKEN = "refresh_token";
     String TOKEN = "token";
     String TOKEN_TYPE_HINT = "token_type_hint";
+
+    String ACCESS_TOKEN_HINT = "access_token";
+    String REFRESH_TOKEN_HINT = "refresh_token";
 }
