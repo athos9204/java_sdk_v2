@@ -381,23 +381,20 @@ public class MobileConnectWebInterface
      * @param request           Originating web request
      * @param refreshToken      Refresh token returned from RequestToken request
      * @param discoveryResponse The response returned by the discovery process
-     * @param redirectedUrl     Uri redirected to by the completion of the authorization UI
-     * @param options           Optional parameters
+
      * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus refreshToken(final HttpServletRequest request,
-        final String refreshToken, final DiscoveryResponse discoveryResponse,
-        final URI redirectedUrl, final MobileConnectRequestOptions options)
+        final String refreshToken, final DiscoveryResponse discoveryResponse)
     {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
-        LOGGER.debug("Running refreshToken for redirectedUrl={}, clientIp={}",
-            LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG),
+        LOGGER.debug("Running refreshToken for clientIp={}",
             HttpUtils.extractClientIp(request));
 
         return MobileConnectInterfaceHelper.refreshToken(this.authnService, refreshToken,
-            discoveryResponse, redirectedUrl, this.config, options);
+            discoveryResponse, this.config);
     }
 
     /**
@@ -407,28 +404,23 @@ public class MobileConnectWebInterface
      * @param refreshToken  Refresh token returned from RequestToken request
      * @param sdkSession    SDKSession id used to fetch the discovery response with additional
      *                      parameters that are required to request a token
-     * @param redirectedUrl Uri redirected to by the completion of the authorization UI
-     * @param options       Optional parameters
      * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus refreshToken(final HttpServletRequest request,
-        final String refreshToken, final String sdkSession, final URI redirectedUrl,
-        final MobileConnectRequestOptions options)
+        final String refreshToken, final String sdkSession)
     {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
-        LOGGER.debug("Running refreshToken for sdkSession={}, redirectedUrl={}, clientIp={}",
-            sdkSession, LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG),
-            HttpUtils.extractClientIp(request));
+        LOGGER.debug("Running refreshToken for sdkSession={}, clientIp={}",
+            sdkSession, HttpUtils.extractClientIp(request));
 
         return this.withCachedValue(sdkSession, true, new CacheCallback()
         {
             @Override
             public MobileConnectStatus apply(final DiscoveryResponse cached)
             {
-                return MobileConnectWebInterface.this.refreshToken(request, refreshToken, cached,
-                    redirectedUrl, options);
+                return MobileConnectWebInterface.this.refreshToken(request, refreshToken, cached);
             }
         });
     }
@@ -440,24 +432,20 @@ public class MobileConnectWebInterface
      * @param token             Access/Refresh token returned from RequestToken request
      * @param tokenTypeHint     Hint to indicate the type of token being passed in
      * @param discoveryResponse The response returned by the discovery process
-     * @param redirectedUrl     Uri redirected to by the completion of the authorization UI
-     * @param options           Optional parameters
      * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus revokeToken(final HttpServletRequest request,
         final String token, final String tokenTypeHint,
-        final DiscoveryResponse discoveryResponse, final URI redirectedUrl,
-        final MobileConnectRequestOptions options)
+        final DiscoveryResponse discoveryResponse)
     {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
-        LOGGER.debug("Running revokeToken for redirectedUrl={}, clientIp={}",
-            LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG),
+        LOGGER.debug("Running revokeToken for clientIp={}",
             HttpUtils.extractClientIp(request));
 
         return MobileConnectInterfaceHelper.revokeToken(this.authnService, token, tokenTypeHint,
-            discoveryResponse, redirectedUrl, this.config, options);
+            discoveryResponse, this.config);
     }
 
     /**
@@ -468,20 +456,16 @@ public class MobileConnectWebInterface
      * @param tokenTypeHint Hint to indicate the type of token being passed in
      * @param sdkSession    SDKSession id used to fetch the discovery response with additional
      *                      parameters that are required to request a token
-     * @param redirectedUrl Uri redirected to by the completion of the authorization UI
-     * @param options       Optional parameters
      * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus revokeToken(final HttpServletRequest request,
-        final String token, final String tokenTypeHint, final String sdkSession,
-        final URI redirectedUrl, final MobileConnectRequestOptions options)
+        final String token, final String tokenTypeHint, final String sdkSession)
     {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
-        LOGGER.debug("Running revokeToken for sdkSession={}, redirectedUrl={}, clientIp={}",
-            sdkSession, LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG),
-            HttpUtils.extractClientIp(request));
+        LOGGER.debug("Running revokeToken for sdkSession={}, clientIp={}",
+            sdkSession, HttpUtils.extractClientIp(request));
 
         return this.withCachedValue(sdkSession, true, new CacheCallback()
         {
@@ -489,7 +473,7 @@ public class MobileConnectWebInterface
             public MobileConnectStatus apply(final DiscoveryResponse cached)
             {
                 return MobileConnectWebInterface.this.revokeToken(request, token, tokenTypeHint,
-                    cached, redirectedUrl, options);
+                    cached);
             }
         });
     }

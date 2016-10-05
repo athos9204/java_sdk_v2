@@ -161,11 +161,8 @@ public class DemoAppController
         LOGGER.info("* Calling refresh token for sdkSession={}, refreshToken={}", sdkSession,
             LogUtils.mask(refreshToken, LOGGER, Level.INFO));
 
-        final URI requestUri = HttpUtils.extractCompleteUrl(request);
-
         final MobileConnectStatus status =
-            this.mobileConnectWebInterface.refreshToken(request, refreshToken, sdkSession,
-                requestUri, null);
+            this.mobileConnectWebInterface.refreshToken(request, refreshToken, sdkSession);
 
         return new MobileConnectWebResponse(status);
     }
@@ -179,11 +176,9 @@ public class DemoAppController
         LOGGER.info("* Calling revoke token for sdkSession={}, accessToken={}", sdkSession,
             LogUtils.mask(accessToken, LOGGER, Level.INFO));
 
-        final URI requestUri = HttpUtils.extractCompleteUrl(request);
-
         final MobileConnectStatus status =
             this.mobileConnectWebInterface.revokeToken(request, accessToken, "access_token",
-                sdkSession, requestUri, null);
+                sdkSession);
 
         return new MobileConnectWebResponse(status);
     }

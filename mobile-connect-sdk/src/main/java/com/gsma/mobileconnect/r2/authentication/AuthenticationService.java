@@ -53,6 +53,8 @@ import java.util.concurrent.Future;
 public class AuthenticationService implements IAuthenticationService
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationService.class);
+    public static final String REVOKE_TOKEN_SUCCESS = "Revoke token successful";
+    public static final String UNSUPPORTED_TOKEN_TYPE_ERROR = "Unsupported token type";
 
     private final IJsonService jsonService;
     private final ExecutorService executorService;
@@ -326,9 +328,11 @@ public class AuthenticationService implements IAuthenticationService
         final RestResponse restResponse =
             this.restClient.postFormData(refreshTokenUrl, authentication, formData, null, null);
 
+        // As per the OAuth2 spec an error (non-200 response code) should only be returned by the
+        // endpoint for the error code unsupported_token_type
         return restResponse.getStatusCode() == 200
-               ? "Revoke token successful"
-               : "Unsupported token type";
+               ? REVOKE_TOKEN_SUCCESS
+               : UNSUPPORTED_TOKEN_TYPE_ERROR;
     }
 
     @Override

@@ -258,20 +258,15 @@ public class MobileConnectInterface
      *
      * @param refreshToken      Refresh token returned from RequestToken request
      * @param discoveryResponse The response returned by the discovery process
-     * @param redirectedUrl     Uri redirected to by the completion of the authorization UI
-     * @param options           Optional parameters
      * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus refreshToken(final String refreshToken,
-        final DiscoveryResponse discoveryResponse, final URI redirectedUrl,
-        final MobileConnectRequestOptions options)
+        final DiscoveryResponse discoveryResponse)
     {
-        LOGGER.debug("Running requestToken for redirectedUrl={}",
-            LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG));
-
+        LOGGER.debug("Running requestToken");
         return MobileConnectInterfaceHelper.refreshToken(this.authnService, refreshToken,
-            discoveryResponse, redirectedUrl, this.config, options);
+            discoveryResponse, this.config);
     }
 
     /**
@@ -280,20 +275,15 @@ public class MobileConnectInterface
      * @param token             Access/Refresh token returned from RequestToken request
      * @param tokenTypeHint     Hint to indicate the type of token being passed in
      * @param discoveryResponse The response returned by the discovery process
-     * @param redirectedUrl     Uri redirected to by the completion of the authorization UI
-     * @param options           Optional parameters
      * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus revokeToken(final String token, final String tokenTypeHint,
-        final DiscoveryResponse discoveryResponse, final URI redirectedUrl,
-        final MobileConnectRequestOptions options)
+        final DiscoveryResponse discoveryResponse)
     {
-        LOGGER.debug("Running revokeToken for redirectedUrl={}",
-            LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG));
-
+        LOGGER.debug("Running requestToken");
         return MobileConnectInterfaceHelper.revokeToken(this.authnService, token, tokenTypeHint,
-            discoveryResponse, redirectedUrl, this.config, options);
+            discoveryResponse, this.config);
     }
 
     /**
