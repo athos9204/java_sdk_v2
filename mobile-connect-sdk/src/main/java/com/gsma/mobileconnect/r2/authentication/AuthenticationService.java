@@ -16,6 +16,7 @@
  */
 package com.gsma.mobileconnect.r2.authentication;
 
+import com.gsma.mobileconnect.r2.ErrorResponse;
 import com.gsma.mobileconnect.r2.InvalidResponseException;
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.constants.Parameters;
@@ -83,7 +84,7 @@ public class AuthenticationService implements IAuthenticationService
             }
             else if (encryptedMSISDN != null)
             {
-                loginHint = String.format("ENCR_MSISDN:%s", encryptedMSISDN);
+                //loginHint = String.format("ENCR_MSISDN:%s", encryptedMSISDN);
             }
         }
 
@@ -306,6 +307,32 @@ public class AuthenticationService implements IAuthenticationService
 
         return RequestTokenResponse.fromRestResponse(restResponse, this.jsonService,
             this.iMobileConnectEncodeDecoder);
+    }
+
+    @Override
+    public ErrorResponse revokeToken(final String clientId, final String clientSecret,
+        final URI refreshTokenUrl, final String token, final String tokenTypeHint, final URI redirectUrl)
+        throws RequestFailedException, InvalidResponseException
+    {
+        final List<KeyValuePair> formData = new KeyValuePair.ListBuilder()
+            .add(Parameters.AUTHENTICATION_REDIRECT_URI,
+                ObjectUtils.requireNonNull(redirectUrl, "redirectUrl").toString())
+            .add(Parameters.TOKEN, StringUtils.requireNonEmpty(token, "token"))
+            .add(Parameters.TOKEN_TYPE_HINT, tokenTypeHint)
+            .build();
+
+        final RestAuthentication authentication =
+            RestAuthentication.basic(clientId, clientSecret, this.iMobileConnectEncodeDecoder);
+        final RestResponse restResponse =
+            this.restClient.postFormData(refreshTokenUrl, authentication, formData, null, null);
+
+        RequestTokenResponse requestTokenResponse =
+            RequestTokenResponse.fromRestResponse(restResponse, this.jsonService,
+            this.iMobileConnectEncodeDecoder);
+
+        return requestTokenResponse.getResponseCode() == 200? null :
+               requestTokenResponse.getErrorResponse();
+
     }
 
     @Override

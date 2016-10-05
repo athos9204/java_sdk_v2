@@ -24,7 +24,6 @@ import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.json.IJsonService;
-import com.gsma.mobileconnect.r2.utils.HttpUtils;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
 import com.gsma.mobileconnect.r2.utils.LogUtils;
 import com.gsma.mobileconnect.r2.utils.ObjectUtils;
@@ -32,7 +31,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -273,8 +271,29 @@ public class MobileConnectInterface
             LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG));
 
         return MobileConnectInterfaceHelper.refreshToken(this.authnService, refreshToken,
-            discoveryResponse, redirectedUrl, this.config, options,
-            this.iMobileConnectEncodeDecoder);
+            discoveryResponse, redirectedUrl, this.config, options);
+    }
+
+    /**
+     * Revoke token using using the access / refresh token provided in the RequestToken response
+     *
+     * @param token             Access/Refresh token returned from RequestToken request
+     * @param tokenTypeHint     Hint to indicate the type of token being passed in
+     * @param discoveryResponse The response returned by the discovery process
+     * @param redirectedUrl     Uri redirected to by the completion of the authorization UI
+     * @param options           Optional parameters
+     * @return MobileConnectStatus Object with required information for continuing the mobile
+     * connect process
+     */
+    public MobileConnectStatus revokeToken(final String token, final String tokenTypeHint,
+        final DiscoveryResponse discoveryResponse, final URI redirectedUrl,
+        final MobileConnectRequestOptions options)
+    {
+        LOGGER.debug("Running revokeToken for redirectedUrl={}",
+            LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG));
+
+        return MobileConnectInterfaceHelper.revokeToken(this.authnService, token, tokenTypeHint,
+            discoveryResponse, redirectedUrl, this.config, options);
     }
 
     /**

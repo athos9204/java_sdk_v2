@@ -16,6 +16,7 @@
  */
 package com.gsma.mobileconnect.r2.authentication;
 
+import com.gsma.mobileconnect.r2.ErrorResponse;
 import com.gsma.mobileconnect.r2.InvalidResponseException;
 import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
 import com.gsma.mobileconnect.r2.rest.RequestFailedException;
@@ -113,9 +114,9 @@ public interface IAuthenticationService
         throws RequestFailedException, HeadlessOperationFailedException;
 
     /**
-     * Allows an application to use the access token or the refresh token obtained from
-     * request token response and request for a token refresh.
-     * <p>This function requires either a valid access token or a refresh to be provided
+     * Allows an application to use the refresh token obtained from request token response and
+     * request for a token refresh. <p> This function requires either a valid refresh token to be
+     * provided
      *
      * @param clientId        The application ClientId returned by the discovery process (Required)
      * @param clientSecret    The ClientSecret returned by the discovery response (Required)
@@ -128,5 +129,26 @@ public interface IAuthenticationService
      */
     RequestTokenResponse refreshToken(final String clientId, final String clientSecret,
         final URI refreshTokenUrl, final String refreshToken, final URI redirectUrl)
+        throws RequestFailedException, InvalidResponseException;
+
+    /**
+     * Allows an application to use the access token or the refresh token obtained from
+     * request token response and request for a token revocation.
+     * <p>This function requires either a valid access token or a refresh token to be provided
+     *
+     * @param clientId        The application ClientId returned by the discovery process (Required)
+     * @param clientSecret    The ClientSecret returned by the discovery response (Required)
+     * @param refreshTokenUrl The url for token refresh received from the discovery process
+     *                        (Required)
+     * @param token           Access/Refresh token returned from RequestToken request
+     * @param tokenTypeHint   Hint to indicate the type of token being passed in
+     * @param redirectUrl     On completion or error where the result information is sent using a
+     *                        HTTP 302 redirect (Required)  @return A Refresh token or an Access
+     *                        token with its expiry time  @return An ErrorResponse object is
+     *                        returned if the endpoint returned an unsupported_token_type error else
+     *                        it returns a null error response
+     */
+    ErrorResponse revokeToken(final String clientId, final String clientSecret,
+        final URI refreshTokenUrl, final String token, final String tokenTypeHint, final URI redirectUrl)
         throws RequestFailedException, InvalidResponseException;
 }

@@ -214,6 +214,19 @@ public class MobileConnectStatus
     }
 
     /**
+     * Creates a status with ResponseType#COMPLETE and Indicates that a revoke token request has
+     * been successful.
+     *
+     * @return MobileConnectStatus with {@link ResponseType#COMPLETE}
+     */
+    public static MobileConnectStatus complete()
+    {
+        return new Builder()
+            .withResponseType(ResponseType.COMPLETE)
+            .build();
+    }
+
+    /**
      * Create a MobileConnectStatus instance describing an exception.
      *
      * @param task the task that was being run when the exception was being thrown.  This should be

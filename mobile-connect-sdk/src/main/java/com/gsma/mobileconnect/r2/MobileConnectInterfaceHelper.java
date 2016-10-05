@@ -579,8 +579,7 @@ class MobileConnectInterfaceHelper
 
     static MobileConnectStatus refreshToken(final IAuthenticationService authnService,
         final String refreshToken, final DiscoveryResponse discoveryResponse, final URI redirectedUrl,
-        final MobileConnectConfig config, final MobileConnectRequestOptions options,
-        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+        final MobileConnectConfig config, final MobileConnectRequestOptions options)
     {
         ObjectUtils.requireNonNull(discoveryResponse, "discoveryResponse");
         ObjectUtils.requireNonNull(refreshToken, "refreshToken");
@@ -612,7 +611,7 @@ class MobileConnectInterfaceHelper
             if (errorResponse != null)
             {
                 LOGGER.warn(
-                    "Responding with responseType={} for requestToken for redirectedUrl={}, "
+                    "Responding with responseType={} for refreshToken for redirectedUrl={}, "
                         + "authentication service responded with error={}",
                     MobileConnectStatus.ResponseType.ERROR, redirectedUrl, errorResponse);
 
@@ -628,10 +627,57 @@ class MobileConnectInterfaceHelper
         catch (final Exception e)
         {
             LOGGER.warn(
-                "requestToken failed for redirectedUrl={} ",
+                "refreshToken failed for redirectedUrl={} ",
                 LogUtils.maskUri(redirectedUrl, LOGGER, Level.WARN), e);
 
-            return MobileConnectStatus.error("request token", e);
+            return MobileConnectStatus.error("Refresh token error", e);
+        }
+    }
+
+    static MobileConnectStatus revokeToken(final IAuthenticationService authnService,
+        final String token, String tokenTypeHint, final DiscoveryResponse discoveryResponse,
+        final URI redirectedUrl, final MobileConnectConfig config,
+        final MobileConnectRequestOptions options)
+    {
+        ObjectUtils.requireNonNull(discoveryResponse, "discoveryResponse");
+        ObjectUtils.requireNonNull(token, "token");
+
+        final String revokeTokenUrl = discoveryResponse.getOperatorUrls().getRevokeTokenUrl();
+
+        final String clientId = ObjectUtils.defaultIfNull(
+            discoveryResponse.getResponseData().getResponse().getClientId(), config.getClientId());
+
+        final String clientSecret = ObjectUtils.defaultIfNull(
+            discoveryResponse.getResponseData().getResponse().getClientSecret(),
+            config.getClientSecret());
+
+        try
+        {
+            final ErrorResponse errorResponse =
+                authnService.revokeToken(clientId, clientSecret, URI.create(revokeTokenUrl), token,
+                    tokenTypeHint, config.getRedirectUrl());
+
+            if (errorResponse != null)
+            {
+                LOGGER.warn("Responding with responseType={} for revokeToken for redirectedUrl={}, "
+                    + "authentication service responded with error={}",
+                MobileConnectStatus.ResponseType.ERROR, redirectedUrl, errorResponse);
+
+                return MobileConnectStatus.error(errorResponse.getError(),
+                    errorResponse.getErrorDescription(), null);
+            }
+            else
+            {
+                LOGGER.info("Revoke token success");
+                return MobileConnectStatus.complete();
+            }
+        }
+        catch (final Exception e)
+        {
+            LOGGER.warn("revokeToken failed for redirectedUrl={} ",
+                LogUtils.maskUri(redirectedUrl, LOGGER, Level.WARN), e);
+
+            return MobileConnectStatus.error("Revoke token", e);
         }
     }
 }
