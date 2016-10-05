@@ -3,3 +3,5 @@
 target/
 doc/
 mobile-connect-demo/src/main/resources/config/mobile-connect-config.properties
+mobile-connect-example-authorization/src/main/resources/config/mobile-connect-config.properties
+mobile-connect-example-authentication/src/main/resources/config/mobile-connect-config.properties
