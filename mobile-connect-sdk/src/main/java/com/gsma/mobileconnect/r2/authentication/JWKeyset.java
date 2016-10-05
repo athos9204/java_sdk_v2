@@ -55,7 +55,7 @@ public class JWKeyset extends AbstractCacheable
     @JsonIgnore
     public Iterable<JWKey> getMatching(Predicate<JWKey> predicate)
     {
-        if (predicate == null || keys == null || keys.size() == 0)
+        if (predicate == null || keys == null || keys.isEmpty())
         {
             return keys;
         }
