@@ -604,7 +604,7 @@ class MobileConnectInterfaceHelper
         {
             final RequestTokenResponse requestTokenResponse =
                 authnService.refreshToken(clientId, clientSecret, URI.create(refreshTokenUrl),
-                    refreshToken, config.getRedirectUrl());
+                    refreshToken);
 
             final ErrorResponse errorResponse = requestTokenResponse.getErrorResponse();
             if (errorResponse != null)
@@ -651,7 +651,7 @@ class MobileConnectInterfaceHelper
 
             return MobileConnectStatus.complete(
                 authnService.revokeToken(clientId, clientSecret, URI.create(revokeTokenUrl), token,
-                    tokenTypeHint, config.getRedirectUrl()));
+                    tokenTypeHint));
         }
         catch (final Exception e)
         {

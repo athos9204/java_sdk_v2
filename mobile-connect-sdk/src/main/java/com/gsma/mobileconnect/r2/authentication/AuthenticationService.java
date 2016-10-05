@@ -291,12 +291,10 @@ public class AuthenticationService implements IAuthenticationService
 
     @Override
     public RequestTokenResponse refreshToken(final String clientId, final String clientSecret,
-        final URI refreshTokenUrl, final String refreshToken, final URI redirectUrl)
-        throws RequestFailedException, InvalidResponseException
+        final URI refreshTokenUrl, final String refreshToken) throws RequestFailedException,
+        InvalidResponseException
     {
         final List<KeyValuePair> formData = new KeyValuePair.ListBuilder()
-            .add(Parameters.AUTHENTICATION_REDIRECT_URI,
-                ObjectUtils.requireNonNull(redirectUrl, "redirectUrl").toString())
             .add(Parameters.REFRESH_TOKEN,
                 StringUtils.requireNonEmpty(refreshToken, "refreshToken"))
             .add(Parameters.GRANT_TYPE, DefaultOptions.GRANT_TYPE_REFRESH_TOKEN)
@@ -313,15 +311,20 @@ public class AuthenticationService implements IAuthenticationService
 
     @Override
     public String revokeToken(final String clientId, final String clientSecret,
-        final URI refreshTokenUrl, final String token, final String tokenTypeHint,
-        final URI redirectUrl) throws RequestFailedException, InvalidResponseException
+        final URI refreshTokenUrl, final String token, final String tokenTypeHint)
+        throws RequestFailedException, InvalidResponseException
     {
-        final List<KeyValuePair> formData = new KeyValuePair.ListBuilder()
-            .add(Parameters.AUTHENTICATION_REDIRECT_URI,
-                ObjectUtils.requireNonNull(redirectUrl, "redirectUrl").toString())
-            .add(Parameters.TOKEN, StringUtils.requireNonEmpty(token, "token"))
-            .add(Parameters.TOKEN_TYPE_HINT, tokenTypeHint)
-            .build();
+
+        final KeyValuePair.ListBuilder formDataBuilder =
+            new KeyValuePair.ListBuilder().add(Parameters.TOKEN,
+                StringUtils.requireNonEmpty(token, "token"));
+
+        if (tokenTypeHint != null)
+        {
+            formDataBuilder.add(Parameters.TOKEN_TYPE_HINT, tokenTypeHint);
+        }
+
+        final List<KeyValuePair> formData = formDataBuilder.build();
 
         final RestAuthentication authentication =
             RestAuthentication.basic(clientId, clientSecret, this.iMobileConnectEncodeDecoder);

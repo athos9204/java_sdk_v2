@@ -108,6 +108,18 @@ public final class TestUtils
         .withUri(URI.create("http://error"))
         .build();
 
+    public static final RestResponse REVOKE_TOKEN_SUCCESS_RESPONSE = new RestResponse.Builder()
+        .withStatusCode(HttpStatus.SC_OK)
+        .withMethod(HttpUtils.HttpMethod.POST.name())
+        .withContent("{\"result\": \"Token revoked\"}")
+        .build();
+
+    public static final RestResponse REVOKE_TOKEN_ERROR_RESPONSE = new RestResponse.Builder()
+        .withStatusCode(HttpStatus.SC_BAD_REQUEST)
+        .withMethod(HttpUtils.HttpMethod.POST.name())
+        .withContent("{\"error\": \"unsupported_token_type\"}")
+        .build();
+
     private TestUtils()
     {
     }

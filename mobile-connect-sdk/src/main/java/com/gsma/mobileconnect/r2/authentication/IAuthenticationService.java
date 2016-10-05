@@ -124,12 +124,9 @@ public interface IAuthenticationService
      * @param refreshTokenUrl The url for token refresh received from the discovery process
      *                        (Required)
      * @param refreshToken    Refresh token returned from RequestToken request
-     * @param redirectUrl     On completion or error where the result information is sent using a
-     *                        HTTP 302 redirect (Required)  @return A Refresh token or an Access
-     *                        token with its expiry time
      */
     RequestTokenResponse refreshToken(final String clientId, final String clientSecret,
-        final URI refreshTokenUrl, final String refreshToken, final URI redirectUrl)
+        final URI refreshTokenUrl, final String refreshToken)
         throws RequestFailedException, InvalidResponseException;
 
     /**
@@ -143,13 +140,8 @@ public interface IAuthenticationService
      *                        (Required)
      * @param token           Access/Refresh token returned from RequestToken request
      * @param tokenTypeHint   Hint to indicate the type of token being passed in
-     * @param redirectUrl     On completion or error where the result information is sent using a
-     *                        HTTP 302 redirect (Required)  @return A Refresh token or an Access
-     *                        token with its expiry time  @return An ErrorResponse object is
-     *                        returned if the endpoint returned an unsupported_token_type error else
-     *                        it returns a null error response
      */
     String revokeToken(final String clientId, final String clientSecret,
-        final URI refreshTokenUrl, final String token, final String tokenTypeHint, final URI redirectUrl)
+        final URI refreshTokenUrl, final String token, final String tokenTypeHint)
         throws RequestFailedException, InvalidResponseException;
 }
