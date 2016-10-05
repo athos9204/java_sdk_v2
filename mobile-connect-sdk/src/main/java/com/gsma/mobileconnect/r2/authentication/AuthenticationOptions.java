@@ -37,7 +37,7 @@ public class AuthenticationOptions
     private final String scope;
     private final String nonce;
     private final String state;
-    private final int maxAge;
+    private final long maxAge;
     private final String display;
     private final String prompt;
     private final String uiLocales;
@@ -55,12 +55,12 @@ public class AuthenticationOptions
     {
         this.clientId = builder.clientId;
         this.redirectUrl = builder.redirectUrl;
-        this.acrValues = builder.acrValues != null ? builder.acrValues : DefaultOptions.AUTHENTICATION_ACR_VALUES;
-        this.scope = builder.scope != null ? builder.scope : DefaultOptions.AUTHENTICATION_SCOPE;
+        this.acrValues = builder.acrValues;
+        this.scope = builder.scope;
         this.nonce = builder.nonce;
         this.state = builder.state;
         this.maxAge = builder.maxAge;
-        this.display = builder.display != null ? builder.display : DefaultOptions.DISPLAY;
+        this.display = builder.display;
         this.prompt = builder.prompt;
         this.uiLocales = builder.uiLocales;
         this.claimsLocales = builder.claimsLocales;
@@ -104,7 +104,7 @@ public class AuthenticationOptions
         return this.state;
     }
 
-    public int getMaxAge()
+    public long getMaxAge()
     {
         return this.maxAge;
     }
@@ -173,12 +173,12 @@ public class AuthenticationOptions
     {
         private String clientId;
         private URI redirectUrl;
-        private String acrValues;
-        private String scope = "";
+        private String acrValues = DefaultOptions.AUTHENTICATION_ACR_VALUES;
+        private String scope = DefaultOptions.AUTHENTICATION_SCOPE;
         private String nonce;
         private String state;
-        private int maxAge;
-        private String display;
+        private long maxAge = DefaultOptions.AUTHENTICATION_MAX_AGE;
+        private String display = DefaultOptions.DISPLAY;
         private String prompt;
         private String uiLocales;
         private String claimsLocales;

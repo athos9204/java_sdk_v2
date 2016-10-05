@@ -71,7 +71,7 @@ public class MobileConnectWebResponseTest
                                                                      discoveryResponse);
         final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
 
-        assertEquals(mobileConnectWebResponse.getApplicationShortName(), "href");
+        assertEquals(mobileConnectWebResponse.getClientName(), "href");
         assertEquals(mobileConnectWebResponse.getSubscriberId(), "subscriberId");
         assertEquals(mobileConnectWebResponse.getStatus(), "failure");
         assertEquals(mobileConnectWebResponse.getAction(), "error");
@@ -128,7 +128,7 @@ public class MobileConnectWebResponseTest
         final MobileConnectStatus status = MobileConnectStatus.startAuthentication(discoveryResponse);
         final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
 
-        assertEquals(mobileConnectWebResponse.getApplicationShortName(), "href");
+        assertEquals(mobileConnectWebResponse.getClientName(), "href");
         assertEquals(mobileConnectWebResponse.getSubscriberId(), "subscriberId");
         assertEquals(mobileConnectWebResponse.getStatus(), "success");
         assertEquals(mobileConnectWebResponse.getAction(), "start_authentication");

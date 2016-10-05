@@ -87,7 +87,7 @@ public class MobileConnectWebInterface
      * @param shouldProxyCookies If cookies from the original request should be sent onto the
      *                           discovery service
      * @param options            Optional parameters
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus attemptDiscovery(final HttpServletRequest request,
@@ -124,7 +124,7 @@ public class MobileConnectWebInterface
      *
      * @param request       Originating web request.
      * @param redirectedUrl Uri redirected to by the completion of the operator selection UI.
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus attemptDiscoveryAfterOperatorSelection(
@@ -157,7 +157,7 @@ public class MobileConnectWebInterface
      *                          token process (defaults to guid if not supplied, value will be
      *                          returned in MobileConnectStatus object)
      * @param options           Optional parameters
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus startAuthentication(final HttpServletRequest request,
@@ -199,7 +199,7 @@ public class MobileConnectWebInterface
      *                   process (defaults to guid if not supplied, value will be returned in
      *                   MobileConnectStatus object)
      * @param options    Optional parameters
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus startAuthentication(final HttpServletRequest request,
@@ -225,6 +225,86 @@ public class MobileConnectWebInterface
     }
 
     /**
+     * Performs headless authentication followed by request token if successful.
+     * Tokens will be validated before being returned. This may be a long running method
+     * as it waits for the authenticating user to respond using their authenticating device.
+     *
+     * @param request           Originating web request
+     * @param discoveryResponse The response returned by the discovery process
+     * @param encryptedMsisdn   Encrypted MSISDN/Subscriber Id returned from the Discovery process
+     * @param state             Unique string to be used to prevent Cross Site Forgery Request
+     *                          attacks during request token process (defaults to guid if not
+     *                          supplied, value will be returned in MobileConnectStatus object)
+     * @param nonce             Unique string to be used to prevent replay attacks during request
+     *                          token process (defaults to guid if not supplied, value will be
+     *                          returned in MobileConnectStatus object)
+     * @param options           Optional parameters
+     * @return MobileConnectStatus Object with required information for continuing the mobile
+     * connect process
+     */
+    public MobileConnectStatus requestHeadlessAuthentication(final HttpServletRequest request,
+        final DiscoveryResponse discoveryResponse, final String encryptedMsisdn, final String state,
+        final String nonce, final MobileConnectRequestOptions options)
+    {
+        ObjectUtils.requireNonNull(request, ARG_REQUEST);
+
+        final String rState =
+            StringUtils.isNullOrEmpty(state) ? UUID.randomUUID().toString() : state;
+        final String rNonce =
+            StringUtils.isNullOrEmpty(nonce) ? UUID.randomUUID().toString() : nonce;
+
+        LOGGER.debug(
+            "Running requestHeadlessAuthentication for encryptedMsisdn={}, state={}, nonce={}, clientIp={}",
+            LogUtils.mask(encryptedMsisdn, LOGGER, Level.DEBUG), rState,
+            LogUtils.mask(rNonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
+
+        return MobileConnectInterfaceHelper.requestHeadlessAuthentication(this.authnService,
+            this.identityService, discoveryResponse, encryptedMsisdn, rState, rNonce, this.config,
+            options, iMobileConnectEncodeDecoder, this.jwKeysetService, this.jsonService);
+    }
+
+    /**
+     * Performs headless authentication followed by request token if successful.
+     * Tokens will be validated before being returned. This may be a long running method
+     * as it waits for the authenticating user to respond using their authenticating device.
+     *
+     * @param request         Originating web request
+     * @param sdkSession      SDKSession id used to fetch the discovery response with additional
+     *                        parameters that are required to request a token
+     * @param encryptedMsisdn Encrypted MSISDN/Subscriber Id returned from the Discovery process
+     * @param state           Unique string to be used to prevent Cross Site Forgery Request attacks
+     *                        during request token process (defaults to guid if not supplied, value
+     *                        will be returned in MobileConnectStatus object)
+     * @param nonce           Unique string to be used to prevent replay attacks during request
+     *                        token process (defaults to guid if not supplied, value will be
+     *                        returned in MobileConnectStatus object)
+     * @param options         Optional parameters
+     * @return MobileConnectStatus Object with required information for continuing the mobile
+     * connect process
+     */
+    public MobileConnectStatus requestHeadlessAuthentication(final HttpServletRequest request,
+        final String sdkSession, final String encryptedMsisdn, final String state,
+        final String nonce, final MobileConnectRequestOptions options)
+    {
+        ObjectUtils.requireNonNull(request, ARG_REQUEST);
+
+        LOGGER.debug(
+            "Running requestHeadlessAuthentication for skdSession={}, encryptedMsisdn={}, state={}, nonce={}, clientIp={}",
+            sdkSession, LogUtils.mask(encryptedMsisdn, LOGGER, Level.DEBUG), state,
+            LogUtils.mask(nonce, LOGGER, Level.DEBUG), HttpUtils.extractClientIp(request));
+
+        return this.withCachedValue(sdkSession, true, new CacheCallback()
+        {
+            @Override
+            public MobileConnectStatus apply(final DiscoveryResponse cached)
+            {
+                return MobileConnectWebInterface.this.requestHeadlessAuthentication(request,
+                    cached, encryptedMsisdn, state, nonce, options);
+            }
+        });
+    }
+
+    /**
      * Request token using the values returned from the authorization redirect.
      *
      * @param request           Originating web request
@@ -237,7 +317,7 @@ public class MobileConnectWebInterface
      *                          passed here, it will be used to ensure the token was not requested
      *                          using a replay attack
      * @param options           Optional parameters
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      */
     public MobileConnectStatus requestToken(final HttpServletRequest request,
         final DiscoveryResponse discoveryResponse, final URI redirectedUrl,
@@ -270,7 +350,7 @@ public class MobileConnectWebInterface
      *                      passed here, it will be used to ensure the token was not requested using
      *                      a replay attack
      * @param options       Optional parameters
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      */
     public MobileConnectStatus requestToken(final HttpServletRequest request,
         final String sdkSession, final URI redirectedUrl, final String expectedState,
@@ -310,7 +390,7 @@ public class MobileConnectWebInterface
      *                          passed here, it will be used to ensure the token was not requested
      *                          using a replay attack
      * @param options           Optional parameters
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus handleUrlRedirect(final HttpServletRequest request,
@@ -352,7 +432,7 @@ public class MobileConnectWebInterface
      *                      passed here, it will be used to ensure the token was not requested using
      *                      a replay attack
      * @param options       Optional parameters
-     * @return MobileConnectStatus object with required information for continuing the mobile
+     * @return MobileConnectStatus Object with required information for continuing the mobile
      * connect process
      */
     public MobileConnectStatus handleUrlRedirect(final HttpServletRequest request,

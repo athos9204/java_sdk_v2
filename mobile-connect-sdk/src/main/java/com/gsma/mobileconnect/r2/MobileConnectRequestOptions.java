@@ -32,10 +32,13 @@ public class MobileConnectRequestOptions
     private final AuthenticationOptions authenticationOptions;
     private final TokenValidationOptions validationOptions;
 
+    private final boolean autoRetrieveIdentitySet;
+
     private MobileConnectRequestOptions(final Builder builder)
     {
         this.discoveryOptions = builder.discoveryOptions;
         this.authenticationOptions = builder.authenticationOptions;
+        this.autoRetrieveIdentitySet = builder.autoRetrieveIdentitySet;
         this.validationOptions = builder.validationOptions;
     }
 
@@ -47,6 +50,11 @@ public class MobileConnectRequestOptions
     DiscoveryOptions.Builder getDiscoveryOptionsBuilder()
     {
         return new DiscoveryOptions.Builder(this.discoveryOptions);
+    }
+
+    public boolean isAutoRetrieveIdentitySet()
+    {
+        return autoRetrieveIdentitySet;
     }
 
     public AuthenticationOptions getAuthenticationOptions()
@@ -73,6 +81,7 @@ public class MobileConnectRequestOptions
     {
         private DiscoveryOptions discoveryOptions;
         private AuthenticationOptions authenticationOptions;
+        private boolean autoRetrieveIdentitySet = false;
         private TokenValidationOptions validationOptions;
 
         public Builder withDiscoveryOptions(final DiscoveryOptions val)
@@ -84,6 +93,12 @@ public class MobileConnectRequestOptions
         public Builder withAuthenticationOptions(final AuthenticationOptions val)
         {
             this.authenticationOptions = val;
+            return this;
+        }
+
+        public Builder witAutoRetrieveIdentitySet(final boolean val)
+        {
+            this.autoRetrieveIdentitySet = val;
             return this;
         }
 

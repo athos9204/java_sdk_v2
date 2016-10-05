@@ -20,6 +20,7 @@ import com.gsma.mobileconnect.r2.InvalidResponseException;
 import com.gsma.mobileconnect.r2.discovery.ProviderMetadata;
 import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
 import com.gsma.mobileconnect.r2.rest.RequestFailedException;
+import com.gsma.mobileconnect.r2.rest.HeadlessOperationFailedException;
 
 import java.net.URI;
 import java.util.concurrent.Future;
@@ -84,4 +85,29 @@ public interface IAuthenticationService
      */
     Future<RequestTokenResponse> requestTokenAsync(String clientId, String clientSecret,
         URI requestTokenUrl, URI redirectUrl, String code);
+
+    /**
+     * Initiates headless authentication, if authentication is successful a token will be returned.
+     * This may be a long running operation as response from the user on their authentication device
+     * is required.
+     *
+     * @param clientId         The application ClientId returned by the discovery process
+     *                         (Required)
+     * @param clientSecret     The ClientSecret returned by the discovery response (Required)
+     * @param authorizationUrl The authorization url returned by the discovery process (Required)
+     * @param requestTokenUrl  The token url returned by the discovery process (Required)
+     * @param redirectUrl      On completion or error where the result information is sent using a
+     *                         HTTP 302 redirect (Required)
+     * @param state            Application specified unique state value (Required)
+     * @param nonce            Application specified nonce value. (Required)
+     * @param encryptedMsisdn  Encrypted MSISDN for user if returned from discovery service
+     * @param versions         SupportedVersions from <see cref="ProviderMetadata"/> if null default
+     *                         supported versions will be used to generate the auth url
+     * @param options          Optional parameters
+     * @return Token if headless authentication is successful
+     */
+    Future<RequestTokenResponse> requestHeadlessAuthentication(String clientId, String clientSecret,
+        URI authorizationUrl, URI requestTokenUrl, URI redirectUrl, String state, String nonce,
+        String encryptedMsisdn, SupportedVersions versions, AuthenticationOptions options)
+        throws RequestFailedException, HeadlessOperationFailedException;
 }

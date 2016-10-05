@@ -75,6 +75,7 @@ public class RestClient implements IRestClient
             .setConnectionRequestTimeout(timeoutAsInt)
             .setConnectTimeout(timeoutAsInt)
             .setSocketTimeout(timeoutAsInt)
+            .setRedirectsEnabled(false)
             .build();
 
         LOGGER.info("New instance of RestClient created with timeout={} ms", timeoutAsInt);
@@ -101,7 +102,7 @@ public class RestClient implements IRestClient
                     sourceIp, cookies)
                 .build();
 
-            return this.submitRequest(request);
+            return this.submitRequest(request, true);
         }
         catch (final URISyntaxException use)
         {
@@ -125,7 +126,7 @@ public class RestClient implements IRestClient
                 ObjectUtils.requireNonNull(formData, "formData").toArray(new NameValuePair[] {}))
             .build();
 
-        return this.submitRequest(request);
+        return this.submitRequest(request, true);
     }
 
     @Override
@@ -177,7 +178,94 @@ public class RestClient implements IRestClient
             .setEntity(ObjectUtils.requireNonNull(content, "content"))
             .build();
 
-        return this.submitRequest(request);
+        return this.submitRequest(request, true);
+    }
+
+    @Override
+    public URI getFinalRedirect(final URI authUrl, final URI targetUrl,
+        final RestAuthentication authentication) throws RequestFailedException
+    {
+        RestResponse response = null;
+        URI nextUrl = authUrl;
+        int numRedirects = 0;
+        URI locationUri = null;
+
+        try
+        {
+            do
+            {
+                if (numRedirects > DefaultOptions.MAX_REDIRECTS)
+                {
+                    throw new HeadlessOperationFailedException(
+                        "Headless operation failed either due to too many redirects or it timed out");
+                }
+                if (response != null)
+                {
+                    nextUrl = locationUri == null ? nextUrl : locationUri;
+                    numRedirects++;
+                }
+                RequestBuilder requestBuilder =
+                    this.createRequest(HttpUtils.HttpMethod.GET, nextUrl, authentication, null,
+                        null);
+                response = this.submitRequest(requestBuilder.build(), false);
+
+                locationUri = this.retrieveLocation(response);
+
+                if (locationUri != null && locationUri.toString().startsWith(targetUrl.toString()))
+                {
+                    break;
+                }
+                waitForSometime();
+            } while (true);
+            return locationUri;
+        }
+        catch (RequestFailedException e)
+        {
+            //If the final redirect is a non-working url then it may cause a request exception,
+            // if we verify it is the redirect url then just return it.
+            //Otherwise it was a request failure at some other point in the redirect chain
+            if (nextUrl.toString().startsWith(targetUrl.toString()))
+            {
+                return nextUrl;
+            }
+            throw e;
+        }
+        catch (URISyntaxException e)
+        {
+            LOGGER.error("Invalid redirect URL", e);
+            throw new RequestFailedException(HttpUtils.HttpMethod.GET, authUrl, e);
+        }
+        catch (HeadlessOperationFailedException e)
+        {
+            LOGGER.error("Too many redirects", e);
+            throw new RequestFailedException(HttpUtils.HttpMethod.GET, authUrl, e);
+        }
+    }
+
+    private void waitForSometime()
+    {
+        try
+        {
+            Thread.sleep(DefaultOptions.WAIT_TIME);
+        }
+        catch (InterruptedException e)
+        {
+            LOGGER.info("Waking up and trying again");
+        }
+    }
+
+    private URI retrieveLocation(RestResponse response) throws URISyntaxException
+    {
+        URI uri = null;
+        for (KeyValuePair keyValuePair : response.getHeaders())
+        {
+            if ("Location".equalsIgnoreCase(keyValuePair.getKey()))
+            {
+                uri = new URI(keyValuePair.getValue());
+                break;
+            }
+        }
+        return uri;
     }
 
     /**
@@ -235,11 +323,13 @@ public class RestClient implements IRestClient
      * Submits a request to the executor.  When the request runs, an additional task is scheduled in
      * the future which will abort the request after the configured timeout period.
      *
-     * @param request to be run.
+     * @param request   to be run.
+     * @param addHeader boolean flag to specify if headers should be added
      * @return the RestResponse.
      * @throws RequestFailedException if there is a failure issuing the request.
      */
-    private RestResponse submitRequest(final HttpUriRequest request) throws RequestFailedException
+    private RestResponse submitRequest(final HttpUriRequest request, final boolean addHeader)
+        throws RequestFailedException
     {
         ObjectUtils.requireNonNull(request, "request");
 
@@ -259,7 +349,10 @@ public class RestClient implements IRestClient
 
         try
         {
-            request.addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
+            if (addHeader)
+            {
+                request.addHeader(HttpHeaders.ACCEPT, ContentType.APPLICATION_JSON.getMimeType());
+            }
 
             LOGGER.debug("Issuing httpMethod={} request to uri={}", request.getMethod(),
                 LogUtils.maskUri(request.getURI(), LOGGER, Level.DEBUG));
