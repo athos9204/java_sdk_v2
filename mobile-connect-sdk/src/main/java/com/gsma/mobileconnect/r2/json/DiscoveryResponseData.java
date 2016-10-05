@@ -36,7 +36,7 @@ public class DiscoveryResponseData
     private final List<Link> links;
     private final Response response;
     private String subscriberId;
-    private String applicationShortName;
+    private String clientName;
 
     private DiscoveryResponseData(final Builder builder)
     {
@@ -46,7 +46,7 @@ public class DiscoveryResponseData
         this.description = builder.description;
         this.links = builder.links;
         this.response = builder.response;
-        this.applicationShortName = builder.applicationShortName;
+        this.clientName = builder.clientName;
     }
 
     public long getTtl()
@@ -84,9 +84,9 @@ public class DiscoveryResponseData
         return this.response;
     }
 
-    public String getApplicationShortName()
+    public String getClientName()
     {
-        return applicationShortName;
+        return clientName;
     }
 
     public static final class Builder implements IBuilder<DiscoveryResponseData>
@@ -97,7 +97,7 @@ public class DiscoveryResponseData
         private String description = null;
         private List<Link> links = null;
         private Response response = null;
-        private String applicationShortName = null;
+        private String clientName = null;
 
         public Builder()
         {
@@ -114,7 +114,7 @@ public class DiscoveryResponseData
                 this.description = responseData.description;
                 this.links = responseData.links;
                 this.response = responseData.response;
-                this.applicationShortName = responseData.applicationShortName;
+                this.clientName = responseData.clientName;
             }
         }
 
@@ -154,9 +154,9 @@ public class DiscoveryResponseData
             return this;
         }
 
-        public Builder withApplicationShortName(final String val)
+        public Builder withClientName(final String val)
         {
-            this.applicationShortName = val;
+            this.clientName = val;
             return this;
         }
 
@@ -176,9 +176,9 @@ public class DiscoveryResponseData
                 }
             }
 
-            if (this.applicationShortName == null && this.response != null)
+            if (this.clientName == null && this.response != null)
             {
-                this.applicationShortName = this.response.getApplicationShortName();
+                this.clientName = this.response.getClientName();
             }
 
             return new DiscoveryResponseData(this);

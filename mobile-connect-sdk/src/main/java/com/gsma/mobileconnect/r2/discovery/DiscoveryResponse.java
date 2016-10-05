@@ -47,7 +47,7 @@ public class DiscoveryResponse extends AbstractCacheable
     private final ErrorResponse errorResponse;
     private final DiscoveryResponseData responseData;
     private final OperatorUrls operatorUrls;
-    private final String applicationShortName;
+    private final String clientName;
     private ProviderMetadata providerMetadata;
 
     private DiscoveryResponse(Builder builder)
@@ -59,7 +59,7 @@ public class DiscoveryResponse extends AbstractCacheable
         this.responseData = builder.responseData;
         this.providerMetadata = builder.providerMetadata;
         this.operatorUrls = builder.operatorUrls;
-        this.applicationShortName = builder.applicationShortName;
+        this.clientName = builder.clientName;
 
         if (this.operatorUrls != null && this.providerMetadata != null)
         {
@@ -158,9 +158,9 @@ public class DiscoveryResponse extends AbstractCacheable
         this.operatorUrls.override(providerMetadata);
     }
 
-    public String getApplicationShortName()
+    public String getClientName()
     {
-        return this.applicationShortName;
+        return this.clientName;
     }
 
     /**
@@ -238,7 +238,7 @@ public class DiscoveryResponse extends AbstractCacheable
         private DiscoveryResponseData responseData = null;
         private ProviderMetadata providerMetadata = null;
         private OperatorUrls operatorUrls = null;
-        private String applicationShortName = null;
+        private String clientName = null;
 
         public Builder()
         {
@@ -256,7 +256,7 @@ public class DiscoveryResponse extends AbstractCacheable
                 this.responseData = response.responseData;
                 this.providerMetadata = response.providerMetadata;
                 this.operatorUrls = response.operatorUrls;
-                this.applicationShortName = response.applicationShortName;
+                this.clientName = response.clientName;
                 this.operatorUrls = response.operatorUrls;
             }
         }
@@ -308,13 +308,13 @@ public class DiscoveryResponse extends AbstractCacheable
                 this.ttl = calculateTtl(this.ttl.getTime());
             }
 
-            this.applicationShortName = this.responseData.getApplicationShortName();
+            this.clientName = this.responseData.getClientName();
             this.operatorUrls = OperatorUrls.fromDiscoveryResponse(this.responseData);
 
             if (this.responseData.getResponse() != null)
             {
                 final List<Link> links = this.responseData.getLinks();
-                if (this.applicationShortName == null && links != null)
+                if (this.clientName == null && links != null)
                 {
                     final Link appShortName = ListUtils.firstMatch(links, new Predicate<Link>()
                     {
@@ -327,7 +327,7 @@ public class DiscoveryResponse extends AbstractCacheable
 
                     if (appShortName != null)
                     {
-                        this.applicationShortName = appShortName.getHref();
+                        this.clientName = appShortName.getHref();
                     }
                 }
             }
