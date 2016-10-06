@@ -347,7 +347,8 @@ public class MobileConnectWebInterfaceTest
     }
 
     @Test
-    public void testRefreshToken() throws RequestFailedException, InvalidResponseException
+    public void testRefreshTokenShouldReturnCompleteStatus()
+        throws RequestFailedException, InvalidResponseException
     {
         final DiscoveryResponse discoveryResponse = this.completeDiscovery();
         this.restClient.addResponse(TestUtils.VALIDATED_TOKEN_RESPONSE);

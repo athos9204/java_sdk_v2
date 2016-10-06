@@ -387,7 +387,7 @@ public class AuthenticationServiceTest
 
     @SuppressWarnings("unchecked")
     @Test
-    public void refreshTokenTest()
+    public void refreshTokenTestForSuccessfulRefresh()
         throws RequestFailedException, HeadlessOperationFailedException, ExecutionException,
         InterruptedException, URISyntaxException, InvalidResponseException
     {
