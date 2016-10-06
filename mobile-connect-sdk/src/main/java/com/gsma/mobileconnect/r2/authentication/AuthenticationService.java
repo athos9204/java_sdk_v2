@@ -16,6 +16,7 @@
  */
 package com.gsma.mobileconnect.r2.authentication;
 
+import com.gsma.mobileconnect.r2.ErrorResponse;
 import com.gsma.mobileconnect.r2.InvalidResponseException;
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.constants.Parameters;
@@ -52,6 +53,8 @@ import java.util.concurrent.Future;
 public class AuthenticationService implements IAuthenticationService
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationService.class);
+    public static final String REVOKE_TOKEN_SUCCESS = "Revoke token successful";
+    public static final String UNSUPPORTED_TOKEN_TYPE_ERROR = "Unsupported token type";
 
     private final IJsonService jsonService;
     private final ExecutorService executorService;
@@ -287,6 +290,55 @@ public class AuthenticationService implements IAuthenticationService
     }
 
     @Override
+    public RequestTokenResponse refreshToken(final String clientId, final String clientSecret,
+        final URI refreshTokenUrl, final String refreshToken) throws RequestFailedException,
+        InvalidResponseException
+    {
+        final List<KeyValuePair> formData = new KeyValuePair.ListBuilder()
+            .add(Parameters.REFRESH_TOKEN,
+                StringUtils.requireNonEmpty(refreshToken, "refreshToken"))
+            .add(Parameters.GRANT_TYPE, DefaultOptions.GRANT_TYPE_REFRESH_TOKEN)
+            .build();
+
+        final RestAuthentication authentication =
+            RestAuthentication.basic(clientId, clientSecret, this.iMobileConnectEncodeDecoder);
+        final RestResponse restResponse =
+            this.restClient.postFormData(refreshTokenUrl, authentication, formData, null, null);
+
+        return RequestTokenResponse.fromRestResponse(restResponse, this.jsonService,
+            this.iMobileConnectEncodeDecoder);
+    }
+
+    @Override
+    public String revokeToken(final String clientId, final String clientSecret,
+        final URI refreshTokenUrl, final String token, final String tokenTypeHint)
+        throws RequestFailedException, InvalidResponseException
+    {
+
+        final KeyValuePair.ListBuilder formDataBuilder =
+            new KeyValuePair.ListBuilder().add(Parameters.TOKEN,
+                StringUtils.requireNonEmpty(token, "token"));
+
+        if (tokenTypeHint != null)
+        {
+            formDataBuilder.add(Parameters.TOKEN_TYPE_HINT, tokenTypeHint);
+        }
+
+        final List<KeyValuePair> formData = formDataBuilder.build();
+
+        final RestAuthentication authentication =
+            RestAuthentication.basic(clientId, clientSecret, this.iMobileConnectEncodeDecoder);
+        final RestResponse restResponse =
+            this.restClient.postFormData(refreshTokenUrl, authentication, formData, null, null);
+
+        // As per the OAuth2 spec an error (non-200 response code) should only be returned by the
+        // endpoint for the error code unsupported_token_type
+        return restResponse.getStatusCode() == 200
+               ? REVOKE_TOKEN_SUCCESS
+               : UNSUPPORTED_TOKEN_TYPE_ERROR;
+    }
+
+    @Override
     public RequestTokenResponse requestToken(final String clientId, final String clientSecret,
         final URI requestTokenUrl, final URI redirectUrl, final String code)
         throws RequestFailedException, InvalidResponseException
@@ -295,7 +347,7 @@ public class AuthenticationService implements IAuthenticationService
             .add(Parameters.AUTHENTICATION_REDIRECT_URI,
                 ObjectUtils.requireNonNull(redirectUrl, "redirectUrl").toString())
             .add(Parameters.CODE, StringUtils.requireNonEmpty(code, "code"))
-            .add(Parameters.GRANT_TYPE, DefaultOptions.GRANT_TYPE)
+            .add(Parameters.GRANT_TYPE, DefaultOptions.GRANT_TYPE_AUTH_CODE)
             .build();
 
         final RestAuthentication authentication =

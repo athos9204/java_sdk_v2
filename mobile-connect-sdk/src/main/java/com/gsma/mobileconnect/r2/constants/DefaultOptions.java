@@ -38,7 +38,8 @@ public interface DefaultOptions
     long AUTHENTICATION_MAX_AGE = TimeUnit.HOURS.toSeconds(1L);
     String AUTHENTICATION_RESPONSE_TYPE = "code";
     String AUTHENTICATION_DEFAULT_VERSION = MC_V1_1;
-    String GRANT_TYPE = "authorization_code";
+    String GRANT_TYPE_AUTH_CODE = "authorization_code";
+    String GRANT_TYPE_REFRESH_TOKEN = "refresh_token";
     long PROVIDER_METADATA_TTL_MS = TimeUnit.SECONDS.toMillis(9L);
     String VERSION_MOBILECONNECT = MC_V1_1;
     String VERSION_MOBILECONNECTAUTHN = MC_V1_1;

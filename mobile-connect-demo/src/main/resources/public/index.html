@@ -71,6 +71,10 @@
             margin: 6px 0;
         }
 
+        .outcome {
+            color: blue;
+        }
+
         .permissions-check {
             display: block;
         }
@@ -145,11 +149,18 @@
         <div id="value-id-token" class="display-value"></div>
         <div id="value-time-received" class="display-value"></div>
         <div id="value-identity-prefetched" class="display-value pre-whitespace"></div>
+        <div id="refresh-revoke-outcome" class="display-value outcome"></div>
         <div class="error"></div>
         <input class="feature-button" type="button" id="user-info-button" name="user-info-button"
                value="Request UserInfo"/>
         <input class="feature-button" type="button" id="identity-button" name="identity-button"
                value="Request Identity"/>
+        <br/>
+        <br/>
+        <input class="feature-button" type="button" id="refresh-token-button" name="refresh-token-button"
+               value="Refresh Token"/>
+        <input class="feature-button" type="button" id="revoke-token-button" name="revoke-token-button"
+               value="Revoke Token"/>
     </div>
     <div id="user-info" class="responsive user-info hidden">
         <div id="value-user" class="display-value pre-whitespace"></div>
@@ -166,6 +177,8 @@
         var headlessUrl = '/api/mobileconnect/headless_authentication';
         var userInfoUrl = '/api/mobileconnect/user_info';
         var identityUrl = '/api/mobileconnect/identity';
+        var refreshTokenUrl = '/api/mobileconnect/refresh_token';
+        var revokeTokenUrl = '/api/mobileconnect/revoke_token';
 
         var openWindow = function openWindow(url) {
             var width = 400,
@@ -316,6 +329,8 @@
                     api.currentAttempt.token = response.token;
                     hideLogin();
                     printInfo(response);
+                } else  if (response.outcome) {
+                    api.operation_outcome({ description: response.outcome });
                 } else {
                     api.error({ description: 'Authentication not returned, user not logged in' });
                 }
@@ -346,10 +361,30 @@
                 show('#identity');
                 hide('#logged-in');
             },
+            refresh_token: function refresh_token() {
+                var queryString = '?' + generateParams({
+                    sdkSession: api.currentAttempt.session,
+                    refreshToken: api.currentAttempt.token.refresh_token,
+                });
+
+                $.get(refreshTokenUrl + queryString, api.httpCallback);
+            },
+            revoke_token: function revoke_token() {
+                var queryString = '?' + generateParams({
+                    sdkSession: api.currentAttempt.session,
+                    accessToken: api.currentAttempt.token.access_token,
+                });
+
+                $.get(revokeTokenUrl + queryString, api.httpCallback);
+            },
             error: function error(response) {
                 clearAttempt();
 
                 $('.error').html(response.description);
+            },
+            operation_outcome: function operation_outcome(response) {
+                clearAttempt();
+                $('#refresh-revoke-outcome').html(response.description);
             }
         }
 
@@ -376,6 +411,14 @@
 
         $('#identity-button').click(function (e) {
             api.request_identity();
+        });
+
+        $('#refresh-token-button').click(function (e) {
+            api.refresh_token();
+        });
+
+        $('#revoke-token-button').click(function (e) {
+            api.revoke_token();
         });
 
         $('.return-button').click(function (e) {

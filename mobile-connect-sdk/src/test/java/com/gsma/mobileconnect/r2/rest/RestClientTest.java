@@ -98,6 +98,7 @@ public class RestClientTest
             .withJsonService(jsonService)
             .withScheduledExecutorService(scheduledExecutorService)
             .withTimeout(10L, TimeUnit.MILLISECONDS)
+            .withWaitTime(1L)
             .build();
     }
 

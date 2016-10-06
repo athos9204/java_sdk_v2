@@ -42,6 +42,7 @@ public class MobileConnectStatus
     private final ResponseType responseType;
     private final String errorCode;
     private final String errorMessage;
+    private final String outcome;
     private final String url;
     private final String state;
     private final String nonce;
@@ -57,6 +58,7 @@ public class MobileConnectStatus
         this.responseType = builder.responseType;
         this.errorCode = builder.errorCode;
         this.errorMessage = builder.errorMessage;
+        this.outcome = builder.outcome;
         this.url = builder.url;
         this.state = builder.state;
         this.nonce = builder.nonce;
@@ -214,6 +216,22 @@ public class MobileConnectStatus
     }
 
     /**
+     * Creates a status with ResponseType#COMPLETE and Indicates that a revoke token request has
+     * been successful.
+     *
+     * @param operationOutcome The outcome of the operation if no RequestTokenResponse is to be
+     *                         returned
+     * @return MobileConnectStatus with {@link ResponseType#COMPLETE}
+     */
+    public static MobileConnectStatus complete(final String operationOutcome)
+    {
+        return new Builder()
+            .withResponseType(ResponseType.COMPLETE)
+            .withOutcome(operationOutcome)
+            .build();
+    }
+
+    /**
      * Create a MobileConnectStatus instance describing an exception.
      *
      * @param task the task that was being run when the exception was being thrown.  This should be
@@ -326,6 +344,14 @@ public class MobileConnectStatus
     }
 
     /**
+     * @return Returns the outcome of the operation if no token is to be sent back
+     */
+    public String getOutcome()
+    {
+        return outcome;
+    }
+
+    /**
      * Create a copy of this status with the session set to the provided value.
      *
      * @param sdkSession to set.
@@ -388,6 +414,7 @@ public class MobileConnectStatus
         private ResponseType responseType;
         private String errorCode;
         private String errorMessage;
+        private String outcome;
         private String url;
         private String state;
         private String nonce;
@@ -437,6 +464,12 @@ public class MobileConnectStatus
         public Builder withErrorMessage(String val)
         {
             this.errorMessage = val;
+            return this;
+        }
+
+        public Builder withOutcome(String val)
+        {
+            this.outcome = val;
             return this;
         }
 
