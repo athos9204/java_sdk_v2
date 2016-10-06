@@ -474,8 +474,8 @@ public class MobileConnectWebInterface
     }
 
     /**
-     * Request user info using the access token returned by <see cref="RequestTokenAsync(HttpRequestMessage,
-     * DiscoveryResponse, Uri, string, string, MobileConnectRequestOptions)"/>
+     * Request user info using the access token returned by {@link MobileConnectInterface#requestTokenAsync(
+     * DiscoveryResponse, URI, String, String, MobileConnectRequestOptions)}
      *
      * @param request           Originating web request
      * @param discoveryResponse The response returned by the discovery process
@@ -498,8 +498,8 @@ public class MobileConnectWebInterface
     }
 
     /**
-     * Request user info using the access token returned by <see cref="RequestTokenAsync(HttpRequestMessage,
-     * DiscoveryResponse, Uri, string, string, MobileConnectRequestOptions)"/>
+     * Request user info using the access token returned by {@link MobileConnectInterface#requestTokenAsync(
+     * DiscoveryResponse, URI, String, String, MobileConnectRequestOptions)}
      *
      * @param request     Originating web request
      * @param sdkSession  SDKSession id used to fetch the discovery response with additional

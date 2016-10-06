@@ -89,4 +89,19 @@ public class JWKeysetTest
         assertNull(jwKeysetEmpty);
     }
 
+    @Test
+    public void testGetMatchingWithNullPredicateShouldReturnAllKeys() throws Exception
+    {
+        Predicate<JWKey> predicate = null;
+
+        final String jwksJson =
+            "{\"keys\":[{\"alg\":\"RS256\",\"e\":\"AQAB\",\"n\":\"hzr2li5ABVbbQ4BvdDskl6hejaVw0tIDYO\",\"kty\":\"OCT\",\"use\":\"sig\"}]}";
+        final JWKeyset jwKeyset = jacksonJsonService.deserialize(jwksJson, JWKeyset.class);
+
+        Iterator<JWKey> jwKeysetMatching = jwKeyset.getMatching(predicate).iterator();
+        assertTrue(jwKeysetMatching.hasNext());
+        // should assert what next is actually going to be
+        jwKeysetMatching.next();
+        assertFalse(jwKeysetMatching.hasNext());
+    }
 }

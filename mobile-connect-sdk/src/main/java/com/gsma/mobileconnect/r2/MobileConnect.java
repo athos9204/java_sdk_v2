@@ -107,6 +107,7 @@ public final class MobileConnect
             .withDiscoveryService(this.discoveryService)
             .withIdentityService(this.identityService)
             .withJwKeysetService(this.jwKeysetService)
+            .withJsonService(builder.jsonService)
             .withiMobileConnectEncodeDecoder(this.iMobileConnectEncoderDecoder)
             .withConfig(builder.config)
             .build();

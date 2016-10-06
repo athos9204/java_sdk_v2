@@ -255,7 +255,7 @@
         }
 
         var printInfo = function printInfo(response) {
-            $('#value-application-name').html(api.currentAttempt.applicationShortName);
+            $('#value-application-name').html(api.currentAttempt.clientName);
             printTokenInfo(response.token);
             if (response.identity) {
                 setContent('#value-identity-prefetched', JSON.stringify(response.identity, null, 2));
@@ -285,7 +285,7 @@
                 });
 
                 api.currentAttempt.session = response.sdkSession;
-                api.currentAttempt.applicationShortName = response.applicationShortName;
+                api.currentAttempt.clientName = response.clientName;
 
                 var url = authorizationUrl;
                 if ($('#headless-toggle').prop('checked')) {

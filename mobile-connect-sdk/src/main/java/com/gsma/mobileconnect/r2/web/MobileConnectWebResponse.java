@@ -34,7 +34,7 @@ public final class MobileConnectWebResponse
 {
     private final String status;
     private final String action;
-    private final String applicationShortName;
+    private final String clientName;
     private final String url;
     private final String sdkSession;
     private final String state;
@@ -76,14 +76,14 @@ public final class MobileConnectWebResponse
         final DiscoveryResponse discoveryResponse = status.getDiscoveryResponse();
         if (discoveryResponse != null)
         {
-            this.applicationShortName = discoveryResponse.getApplicationShortName();
+            this.clientName = discoveryResponse.getClientName();
             this.subscriberId = discoveryResponse.getResponseData() == null
                                 ? null
                                 : discoveryResponse.getResponseData().getSubscriberId();
         }
         else
         {
-            this.applicationShortName = null;
+            this.clientName = null;
             this.subscriberId = null;
         }
 
@@ -106,9 +106,9 @@ public final class MobileConnectWebResponse
         return this.action;
     }
 
-    public String getApplicationShortName()
+    public String getClientName()
     {
-        return this.applicationShortName;
+        return this.clientName;
     }
 
     public String getUrl()

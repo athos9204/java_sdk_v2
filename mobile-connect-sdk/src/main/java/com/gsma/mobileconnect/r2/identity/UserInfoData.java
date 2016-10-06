@@ -132,9 +132,9 @@ public class UserInfoData
     }
 
     /**
-     * @return Casual name of the End-User that may or may not be the same as the <see
-     * cref="GivenName"/>. For instance a Nickname value of Mike may return alongside a {@link
-     * #getGivenName()} of Michael
+     * @return Casual name of the End-User that may or may not be the same as the
+     * {@link UserInfoData#givenName}. For instance a Nickname value of Mike may return alongside a
+     * {@link #getGivenName()} of Michael
      */
     public String getNickname()
     {
