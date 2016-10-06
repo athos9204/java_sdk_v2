@@ -20,6 +20,7 @@ import com.gsma.mobileconnect.r2.MobileConnectRequestOptions;
 import com.gsma.mobileconnect.r2.MobileConnectStatus;
 import com.gsma.mobileconnect.r2.MobileConnectWebInterface;
 import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
+import com.gsma.mobileconnect.r2.constants.Parameters;
 import com.gsma.mobileconnect.r2.utils.HttpUtils;
 import com.gsma.mobileconnect.r2.utils.LogUtils;
 import com.gsma.mobileconnect.r2.web.MobileConnectWebResponse;
@@ -148,6 +149,37 @@ public class DemoAppController
 
         final MobileConnectStatus status =
             this.mobileConnectWebInterface.requestIdentity(request, sdkSession, accessToken, null);
+
+        return new MobileConnectWebResponse(status);
+    }
+
+    @GetMapping("refresh_token")
+    @ResponseBody
+    public MobileConnectWebResponse refreshToken(
+        @RequestParam(required = false) final String sdkSession,
+        @RequestParam(required = false) final String refreshToken, final HttpServletRequest request)
+    {
+        LOGGER.info("* Calling refresh token for sdkSession={}, refreshToken={}", sdkSession,
+            LogUtils.mask(refreshToken, LOGGER, Level.INFO));
+
+        final MobileConnectStatus status =
+            this.mobileConnectWebInterface.refreshToken(request, refreshToken, sdkSession);
+
+        return new MobileConnectWebResponse(status);
+    }
+
+    @GetMapping("revoke_token")
+    @ResponseBody
+    public MobileConnectWebResponse revokeToken(
+        @RequestParam(required = false) final String sdkSession,
+        @RequestParam(required = false) final String accessToken, final HttpServletRequest request)
+    {
+        LOGGER.info("* Calling revoke token for sdkSession={}, accessToken={}", sdkSession,
+            LogUtils.mask(accessToken, LOGGER, Level.INFO));
+
+        final MobileConnectStatus status =
+            this.mobileConnectWebInterface.revokeToken(request, accessToken,
+                Parameters.ACCESS_TOKEN_HINT, sdkSession);
 
         return new MobileConnectWebResponse(status);
     }

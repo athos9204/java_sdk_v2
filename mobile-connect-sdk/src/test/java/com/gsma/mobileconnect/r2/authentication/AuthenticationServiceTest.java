@@ -21,6 +21,7 @@ import com.gsma.mobileconnect.r2.InvalidResponseException;
 import com.gsma.mobileconnect.r2.MobileConnectConfig;
 import com.gsma.mobileconnect.r2.claims.Claims;
 import com.gsma.mobileconnect.r2.claims.ClaimsParameter;
+import com.gsma.mobileconnect.r2.constants.Parameters;
 import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
@@ -30,18 +31,25 @@ import com.gsma.mobileconnect.r2.utils.HttpUtils;
 import com.gsma.mobileconnect.r2.utils.KeyValuePair;
 import com.gsma.mobileconnect.r2.utils.TestUtils;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.HttpUriRequest;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
 
@@ -368,9 +376,8 @@ public class AuthenticationServiceTest
 
         // Then
         assertNotNull(response);
-        RequestTokenResponse requestTokenResponse = response.get();
-        assertNotNull(response.get());
 
+        RequestTokenResponse requestTokenResponse = response.get();
         assertNotNull(requestTokenResponse);
         assertEquals(requestTokenResponse.getResponseCode(), HttpStatus.SC_ACCEPTED);
         assertNotNull(requestTokenResponse.getResponseData());
@@ -378,4 +385,91 @@ public class AuthenticationServiceTest
             "966ad150-16c5-11e6-944f-43079d13e2f3");
     }
 
+    @SuppressWarnings("unchecked")
+    @Test
+    public void refreshTokenTest()
+        throws RequestFailedException, HeadlessOperationFailedException, ExecutionException,
+        InterruptedException, URISyntaxException, InvalidResponseException
+    {
+        // Given
+        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
+            anyListOf(KeyValuePair.class), isNull(String.class),
+            isNull(Iterable.class))).thenReturn(TestUtils.TOKEN_RESPONSE);
+
+        // When
+        final RequestTokenResponse requestTokenResponse =
+            this.authentication.refreshToken(this.config.getClientId(),
+                this.config.getClientSecret(), TOKEN_URL, "RefreshToken");
+
+        // Then
+        assertNotNull(requestTokenResponse);
+        assertEquals(requestTokenResponse.getResponseCode(), HttpStatus.SC_ACCEPTED);
+        assertNotNull(requestTokenResponse.getResponseData());
+        assertEquals(requestTokenResponse.getResponseData().getAccessToken(),
+            "966ad150-16c5-11e6-944f-43079d13e2f3");
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void revokeTokenSuccessTest()
+        throws RequestFailedException, HeadlessOperationFailedException, ExecutionException,
+        InterruptedException, URISyntaxException, InvalidResponseException
+    {
+        // Given
+        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
+            anyListOf(KeyValuePair.class), isNull(String.class),
+            isNull(Iterable.class))).thenReturn(TestUtils.REVOKE_TOKEN_SUCCESS_RESPONSE);
+
+        // When
+        final String outcome =
+            this.authentication.revokeToken(this.config.getClientId(),
+                this.config.getClientSecret(), TOKEN_URL, "AccessToken",
+                Parameters.ACCESS_TOKEN_HINT);
+
+        // Then
+        assertNotNull(outcome);
+        assertEquals(outcome, AuthenticationService.REVOKE_TOKEN_SUCCESS);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void revokeTokenFailureTest()
+        throws RequestFailedException, HeadlessOperationFailedException, ExecutionException,
+        InterruptedException, URISyntaxException, InvalidResponseException
+    {
+        // Given
+        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
+            anyListOf(KeyValuePair.class), isNull(String.class),
+            isNull(Iterable.class))).thenReturn(TestUtils.REVOKE_TOKEN_ERROR_RESPONSE);
+
+        // When
+        final String outcome =
+            this.authentication.revokeToken(this.config.getClientId(),
+                this.config.getClientSecret(), TOKEN_URL, "AccessToken", "xyz");
+
+        // Then
+        assertNotNull(outcome);
+        assertEquals(outcome, AuthenticationService.UNSUPPORTED_TOKEN_TYPE_ERROR);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void revokeTokenWithNoHintTest()
+        throws RequestFailedException, HeadlessOperationFailedException, ExecutionException,
+        InterruptedException, URISyntaxException, InvalidResponseException
+    {
+        // Given
+        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
+            anyListOf(KeyValuePair.class), isNull(String.class),
+            isNull(Iterable.class))).thenReturn(TestUtils.REVOKE_TOKEN_SUCCESS_RESPONSE);
+
+        // When
+        final String outcome =
+            this.authentication.revokeToken(this.config.getClientId(),
+                this.config.getClientSecret(), TOKEN_URL, "AccessToken", null);
+
+        // Then
+        assertNotNull(outcome);
+        assertEquals(outcome, AuthenticationService.REVOKE_TOKEN_SUCCESS);
+    }
 }

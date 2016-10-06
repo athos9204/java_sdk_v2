@@ -16,13 +16,19 @@
  */
 package com.gsma.mobileconnect.r2;
 
+import com.gsma.mobileconnect.r2.authentication.AuthenticationService;
+import com.gsma.mobileconnect.r2.constants.Parameters;
+import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
+import com.gsma.mobileconnect.r2.discovery.DiscoveryService;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.rest.MockRestClient;
+import com.gsma.mobileconnect.r2.rest.RequestFailedException;
 import com.gsma.mobileconnect.r2.utils.TestUtils;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.net.URI;
@@ -50,7 +56,7 @@ public class MobileConnectInterfaceTest
     private final IJsonService jsonService = new JacksonJsonService();
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5);
 
-    private final MobileConnectInterface mobileConnect = MobileConnect
+    private final MobileConnectInterface mobileConnectInterface = MobileConnect
         .builder(this.config, new DefaultEncodeDecoder())
         .withRestClient(this.restClient)
         .build()
@@ -65,7 +71,8 @@ public class MobileConnectInterfaceTest
         this.restClient.addResponse(TestUtils.USERINFO_RESPONSE);
 
         final MobileConnectStatus response =
-            this.mobileConnect.requestUserInfo(discoveryResponse, "zaqwsxcderfvbgtyhnmjukilop");
+            this.mobileConnectInterface.requestUserInfo(discoveryResponse,
+                "zaqwsxcderfvbgtyhnmjukilop");
 
         assertNotNull(response);
         assertEquals(response.getResponseType(), MobileConnectStatus.ResponseType.USER_INFO);
@@ -79,12 +86,49 @@ public class MobileConnectInterfaceTest
                 this.jsonService);
 
         final MobileConnectStatus response =
-            this.mobileConnect.requestUserInfo(discoveryResponse, "zaqwsxcderfvbgtyhnmjukilop");
+            this.mobileConnectInterface.requestUserInfo(discoveryResponse,
+                "zaqwsxcderfvbgtyhnmjukilop");
 
         assertNotNull(response);
         assertEquals(response.getResponseType(), MobileConnectStatus.ResponseType.ERROR);
         assertNull(response.getIdentityResponse());
         assertNotNull(response.getErrorCode());
         assertNotNull(response.getErrorMessage());
+    }
+
+    @Test
+    public void testRefreshToken() throws JsonDeserializationException
+    {
+        final DiscoveryResponse discoveryResponse =
+            DiscoveryResponse.fromRestResponse(TestUtils.AUTHENTICATION_RESPONSE, this.jsonService);
+        this.restClient.addResponse(TestUtils.VALIDATED_TOKEN_RESPONSE);
+
+        final MobileConnectStatus status =
+            this.mobileConnectInterface.refreshToken("RefreshToken", discoveryResponse);
+
+        Assert.assertNotNull(status);
+
+        assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.COMPLETE);
+
+        assertEquals(status.getRequestTokenResponse().getResponseCode(), 202);
+        assertEquals(status.getRequestTokenResponse().getResponseData().getAccessToken(),
+            "966ad150-16c5-11e6-944f-43079d13e2f3");
+    }
+
+    @Test
+    public void testRevokeToken() throws JsonDeserializationException
+    {
+        final DiscoveryResponse discoveryResponse =
+            DiscoveryResponse.fromRestResponse(TestUtils.AUTHENTICATION_RESPONSE, this.jsonService);
+        this.restClient.addResponse(TestUtils.REVOKE_TOKEN_SUCCESS_RESPONSE);
+
+        final MobileConnectStatus status =
+            this.mobileConnectInterface.revokeToken("AccessToken", Parameters.ACCESS_TOKEN_HINT,
+                discoveryResponse);
+
+        Assert.assertNotNull(status);
+
+        assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.COMPLETE);
+        assertEquals(status.getOutcome(), AuthenticationService.REVOKE_TOKEN_SUCCESS);
     }
 }

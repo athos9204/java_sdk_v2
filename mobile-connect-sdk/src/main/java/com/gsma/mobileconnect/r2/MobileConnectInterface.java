@@ -252,6 +252,40 @@ public class MobileConnectInterface
             this.jsonService, this.iMobileConnectEncodeDecoder);
     }
 
+
+    /**
+     * Refresh token using using the refresh token provided in the RequestToken response
+     *
+     * @param refreshToken      Refresh token returned from RequestToken request
+     * @param discoveryResponse The response returned by the discovery process
+     * @return MobileConnectStatus Object with required information for continuing the mobile
+     * connect process
+     */
+    public MobileConnectStatus refreshToken(final String refreshToken,
+        final DiscoveryResponse discoveryResponse)
+    {
+        LOGGER.debug("Running requestToken");
+        return MobileConnectInterfaceHelper.refreshToken(this.authnService, refreshToken,
+            discoveryResponse, this.config);
+    }
+
+    /**
+     * Revoke token using using the access / refresh token provided in the RequestToken response
+     *
+     * @param token             Access/Refresh token returned from RequestToken request
+     * @param tokenTypeHint     Hint to indicate the type of token being passed in
+     * @param discoveryResponse The response returned by the discovery process
+     * @return MobileConnectStatus Object with required information for continuing the mobile
+     * connect process
+     */
+    public MobileConnectStatus revokeToken(final String token, final String tokenTypeHint,
+        final DiscoveryResponse discoveryResponse)
+    {
+        LOGGER.debug("Running requestToken");
+        return MobileConnectInterfaceHelper.revokeToken(this.authnService, token, tokenTypeHint,
+            discoveryResponse, this.config);
+    }
+
     /**
      * Handles continuation of the process following a completed redirect. Only the redirectedUrl is
      * required, however if the redirect being handled is the result of calling the Authorization
