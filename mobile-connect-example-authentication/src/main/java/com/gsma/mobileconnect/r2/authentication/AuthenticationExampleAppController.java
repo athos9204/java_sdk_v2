@@ -97,21 +97,6 @@ public class AuthenticationExampleAppController
         return new MobileConnectWebResponse(status);
     }
 
-    @GetMapping("user_info")
-    @ResponseBody
-    public MobileConnectWebResponse requestUserInfo(
-        @RequestParam(required = false) final String sdkSession,
-        @RequestParam(required = false) final String accessToken, final HttpServletRequest request)
-    {
-        LOGGER.info("* Requesting user info for sdkSession={}, accessToken={}", sdkSession,
-            LogUtils.mask(accessToken, LOGGER, Level.INFO));
-
-        final MobileConnectStatus status =
-            this.mobileConnectWebInterface.requestUserInfo(request, sdkSession, accessToken, null);
-
-        return new MobileConnectWebResponse(status);
-    }
-
     @GetMapping("")
     @ResponseBody
     public MobileConnectWebResponse handleRedirect(

@@ -14,7 +14,7 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. YOU AGREE TO
  * INDEMNIFY AND HOLD HARMLESS THE AUTHORS AND COPYRIGHT HOLDERS FROM AND AGAINST ANY SUCH LIABILITY.
  */
-package com.gsma.mobileconnect.r2.authorization;
+package com.gsma.mobileconnect.r2.nationalid;
 
 import com.gsma.mobileconnect.r2.MobileConnectRequestOptions;
 import com.gsma.mobileconnect.r2.MobileConnectStatus;
@@ -44,13 +44,13 @@ import java.net.URI;
 @Controller
 @EnableAutoConfiguration
 @RequestMapping(path = "api/mobileconnect", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-public class AuthorizationExampleAppController
+public class NationalidExampleAppController
 {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AuthorizationExampleAppController.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(NationalidExampleAppController.class);
 
     private final MobileConnectWebInterface mobileConnectWebInterface;
 
-    public AuthorizationExampleAppController(@Autowired final MobileConnectWebInterface mobileConnectWebInterface)
+    public NationalidExampleAppController(@Autowired final MobileConnectWebInterface mobileConnectWebInterface)
     {
         this.mobileConnectWebInterface = mobileConnectWebInterface;
     }
@@ -78,7 +78,7 @@ public class AuthorizationExampleAppController
         @RequestParam(required = false) final String subscriberId,
         final HttpServletRequest request)
     {
-        final String scope = "mc_authz";
+        final String scope = "mc_authz mc_identity_nationalid";
 
         LOGGER.info("* Starting authentication for sdkSession={}, subscriberId={}, scope={}",
             sdkSession, LogUtils.mask(subscriberId, LOGGER, Level.INFO), scope);
@@ -94,6 +94,21 @@ public class AuthorizationExampleAppController
         final MobileConnectStatus status =
             this.mobileConnectWebInterface.startAuthentication(request, sdkSession, subscriberId,
                 null, null, options);
+
+        return new MobileConnectWebResponse(status);
+    }
+
+    @GetMapping("identity")
+    @ResponseBody
+    public MobileConnectWebResponse requestIdentity(
+        @RequestParam(required = false) final String sdkSession,
+        @RequestParam(required = false) final String accessToken, final HttpServletRequest request)
+    {
+        LOGGER.info("* Requesting identity info for sdkSession={}, accessToken={}", sdkSession,
+            LogUtils.mask(accessToken, LOGGER, Level.INFO));
+
+        final MobileConnectStatus status =
+            this.mobileConnectWebInterface.requestIdentity(request, sdkSession, accessToken, null);
 
         return new MobileConnectWebResponse(status);
     }
