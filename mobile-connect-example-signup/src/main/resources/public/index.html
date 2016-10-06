@@ -120,14 +120,18 @@
         <div id="value-id-token" class="display-value"></div>
         <div id="value-time-received" class="display-value"></div>
         <div id="value-identity-prefetched" class="display-value pre-whitespace"></div>
+        <input class="feature-button" type="button" id="identity-button" name="identity-button"
+               value="Request Identity"/>
         <div class="error"></div>
+    </div>
+    <div id="identity" class="responsive identity hidden">
+        <div id="value-identity" class="display-value pre-whitespace"></div>
+        <input class="feature-button return-button" type="button" value="Back"/>
     </div>
 </div>
 <script>
         var discoveryUrl = '/api/mobileconnect/start_discovery';
         var authorizationUrl = '/api/mobileconnect/start_authentication';
-        var headlessUrl = '/api/mobileconnect/headless_authentication';
-        var userInfoUrl = '/api/mobileconnect/user_info';
         var identityUrl = '/api/mobileconnect/identity';
 
         var openWindow = function openWindow(url) {
@@ -273,19 +277,6 @@
                     api.error({ description: 'Authentication not returned, user not logged in' });
                 }
             },
-            request_user_info: function request_user_info() {
-                var queryString = '?' + generateParams({
-                    sdkSession: api.currentAttempt.session,
-                    accessToken: api.currentAttempt.token.access_token,
-                });
-
-                $.get(userInfoUrl + queryString, api.httpCallback);
-            },
-            user_info: function user_info(response) {
-                setContent('#value-user', JSON.stringify(response.identity, null, 2));
-                show('#user-info');
-                hide('#logged-in');
-            },
             request_identity: function request_identity() {
                 var queryString = '?' + generateParams({
                     sdkSession: api.currentAttempt.session,
@@ -321,10 +312,6 @@
                 msisdn = input.val();
             }
             api.discovery(msisdn);
-        });
-
-        $('#user-info-button').click(function (e) {
-            api.request_user_info();
         });
 
         $('#identity-button').click(function (e) {
