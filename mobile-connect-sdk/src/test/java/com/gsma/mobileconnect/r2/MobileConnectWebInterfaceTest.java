@@ -392,7 +392,8 @@ public class MobileConnectWebInterfaceTest
     }
 
     @Test
-    public void testRevokeToken() throws RequestFailedException, InvalidResponseException
+    public void testRevokeTokenShouldReturnCompleteStatus()
+        throws RequestFailedException, InvalidResponseException
     {
         final DiscoveryResponse discoveryResponse = this.completeDiscovery();
         this.restClient.addResponse(TestUtils.REVOKE_TOKEN_SUCCESS_RESPONSE);
@@ -408,7 +409,8 @@ public class MobileConnectWebInterfaceTest
     }
 
     @Test
-    public void testRevokeTokenWithCachedDiscoveryResponse() throws RequestFailedException, InvalidResponseException
+    public void testRevokeTokenWithCachedDiscoveryResponse()
+        throws RequestFailedException, InvalidResponseException
     {
         final DiscoveryResponse discoveryResponse = this.completeDiscovery();
         DiscoveryOptions discoveryOptions = new DiscoveryOptions.Builder()
