@@ -101,12 +101,16 @@ public class DiscoveryResponseTest
         final String tokenEndpoint = "test token";
         final String userInfoEndpoint = "test userinfo";
         final String jwksEndpoint = "test jwks";
+        final String refreshTokenEndpoint = "test refresh token";
+        final String revokeTokenEndpoint = "test revoke token";
 
         final ProviderMetadata providerMetadata = new ProviderMetadata.Builder()
             .withAuthorizationEndpoint(authzEndpoint)
             .withTokenEndpoint(tokenEndpoint)
             .withUserinfoEndpoint(userInfoEndpoint)
             .withJwksUri(jwksEndpoint)
+            .withRefreshEndpoint(refreshTokenEndpoint)
+            .withRevocationEndpoint(revokeTokenEndpoint)
             .build();
 
         final DiscoveryResponse discoveryResponse =
@@ -122,6 +126,8 @@ public class DiscoveryResponseTest
         assertEquals(actual.getOperatorUrls().getRequestTokenUrl(), tokenEndpoint);
         assertEquals(actual.getOperatorUrls().getUserInfoUrl(), userInfoEndpoint);
         assertEquals(actual.getOperatorUrls().getJwksUri(), jwksEndpoint);
+        assertEquals(actual.getOperatorUrls().getRefreshTokenUrl(), refreshTokenEndpoint);
+        assertEquals(actual.getOperatorUrls().getRevokeTokenUrl(), revokeTokenEndpoint);
     }
 
     @Test

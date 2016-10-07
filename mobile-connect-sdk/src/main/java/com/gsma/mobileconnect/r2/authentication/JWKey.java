@@ -23,10 +23,8 @@ import com.gsma.mobileconnect.r2.exceptions.MobileConnectInvalidJWKException;
 import com.gsma.mobileconnect.r2.utils.ByteUtils;
 import com.gsma.mobileconnect.r2.utils.StringUtils;
 import io.jsonwebtoken.SignatureAlgorithm;
-import io.jsonwebtoken.impl.crypto.MacValidator;
 import io.jsonwebtoken.impl.crypto.RsaSignatureValidator;
 
-import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -194,28 +192,15 @@ class JWKey
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.forName(algorithm);
 
         boolean isValid = false;
-        try
+        if (isRsa())
         {
 
-            if (isRsa())
-            {
-                isValid =
-                    verifyRsa(input, expected, signatureAlgorithm, mobileConnectEncodeDecoder);
-            }
-            else if (isSymmetric())
-            {
-                isValid = verifyMac(input, expected, algorithm, signatureAlgorithm,
-                    mobileConnectEncodeDecoder);
-            }
+            isValid = verifyRsa(input, expected, signatureAlgorithm, mobileConnectEncodeDecoder);
         }
-        catch (NoSuchAlgorithmException e)
-        {
-            throw e;
-        }
-        catch (InvalidKeySpecException e)
-        {
-            throw e;
-        }
+//        else if (isSymmetric())
+//        {
+//            isValid = verifyMac(input, expected, algorithm, signatureAlgorithm);
+//        }
         return isValid;
     }
 
@@ -235,27 +220,28 @@ class JWKey
         byte[] exp =
             ByteUtils.addZeroPrefix(mobileConnectEncodeDecoder.decodeFromBase64(this.getRsaE()));
 
-        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
-        Key rsaKey = keyFactory.generatePublic(
+        final KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        final Key rsaKey = keyFactory.generatePublic(
             new RSAPublicKeySpec(new BigInteger(mod), new BigInteger(exp)));
 
         return new RsaSignatureValidator(signatureAlgorithm, rsaKey).isValid(input.getBytes(),
             mobileConnectEncodeDecoder.decodeFromBase64(expected));
     }
 
-    private boolean verifyMac(final String input, final String expected, final String algorithm,
-        final SignatureAlgorithm signatureAlgorithm,
-        final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
-        throws NoSuchAlgorithmException, InvalidKeySpecException, MobileConnectInvalidJWKException
-    {
-        if (StringUtils.isNullOrEmpty(this.getKey()))
-        {
-            throw new MobileConnectInvalidJWKException("HMAC key does not have secret");
-        }
-        KeyFactory keyFactory = KeyFactory.getInstance("HMAC");
-        Key hmacKey =
-            keyFactory.generatePublic(new SecretKeySpec(this.getKey().getBytes(), algorithm));
-        return new MacValidator(signatureAlgorithm, hmacKey).isValid(input.getBytes(),
-            mobileConnectEncodeDecoder.decodeFromBase64(expected));
-    }
+    // TODO: 03/10/16 Mac verification codeblock does not work, can't create a Mac key
+//    private boolean verifyMac(final String input, final String expected, final String algorithm,
+//        final SignatureAlgorithm signatureAlgorithm,
+//    final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
+//        throws NoSuchAlgorithmException, InvalidKeySpecException, MobileConnectInvalidJWKException
+//    {
+//        if (StringUtils.isNullOrEmpty(this.getKey()))
+//        {
+//            throw new MobileConnectInvalidJWKException("HMAC key does not have secret");
+//        }
+//        final KeyFactory keyFactory = KeyFactory.getInstance("MAC");
+//        final Key hmacKey =
+//            keyFactory.generatePublic(new SecretKeySpec(this.getKey().getBytes(), algorithm));
+//        return new MacValidator(signatureAlgorithm, hmacKey).isValid(input.getBytes(),
+//            mobileConnectEncodeDecoder.decodeFromBase64(expected));
+//    }
 }

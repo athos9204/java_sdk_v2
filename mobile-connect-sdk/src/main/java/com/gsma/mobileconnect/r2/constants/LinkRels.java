@@ -44,10 +44,19 @@ public interface LinkRels
     String PREMIUMINFO = "premiuminfo";
 
     /**
+     * Key for token revoke url
+     */
+    String TOKENREVOKE = "tokenrevoke";
+
+    /**
+     * Key for token refresh url
+     */
+    String TOKENREFRESH = "tokenrefresh";
+
+    /**
      * Key for jwks url
      */
     String JWKS = "jwks";
-
     /**
      * Key for applicationShortName
      */

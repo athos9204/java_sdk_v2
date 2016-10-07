@@ -5,6 +5,12 @@ package com.gsma.mobileconnect.r2.utils;
  */
 public final class ByteUtils
 {
+    /**
+     * Helper method to assure 0x00 byte at start of byte array
+     *
+     * @param bytes     byte array to prepend zero prefix
+     * @return          byte array with zero prepended
+     */
     public static byte[] addZeroPrefix(byte[] bytes)
     {
         byte[] updated = new byte[bytes.length + 1];

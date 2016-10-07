@@ -162,7 +162,7 @@ public class MobileConnectWebResponseTest
     }
 
     @Test
-    public void webResponseWithCompleteStatus()
+    public void webResponseWithCompleteStatusWithToken()
     {
         final RequestTokenResponse requestTokenResponse = new RequestTokenResponse.Builder().build();
         final MobileConnectStatus status = MobileConnectStatus.complete(requestTokenResponse);
@@ -170,6 +170,16 @@ public class MobileConnectWebResponseTest
 
         assertEquals(mobileConnectWebResponse.getToken(), null);
         assertEquals(mobileConnectWebResponse.getStatus(), "success");
+        assertEquals(mobileConnectWebResponse.getAction(), "complete");
+    }
+
+    @Test
+    public void webResponseWithCompleteStatusWithOutcome()
+    {
+        final MobileConnectStatus status = MobileConnectStatus.complete("Operation outcome");
+        final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
+
+        assertEquals(mobileConnectWebResponse.getOutcome(), "Operation outcome");
         assertEquals(mobileConnectWebResponse.getAction(), "complete");
     }
 

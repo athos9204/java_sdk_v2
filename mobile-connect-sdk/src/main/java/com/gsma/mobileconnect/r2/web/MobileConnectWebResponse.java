@@ -44,6 +44,7 @@ public final class MobileConnectWebResponse
     private final String identity;
     private final String error;
     private final String description;
+    private final String outcome;
 
     /**
      * Create instance of {@link MobileConnectWebResponse} copying all attributes from provided
@@ -94,6 +95,8 @@ public final class MobileConnectWebResponse
         this.identity = status.getIdentityResponse() == null
                         ? null
                         : status.getIdentityResponse().getResponseJson();
+
+        this.outcome = status.getOutcome();
     }
 
     public String getStatus()
@@ -139,6 +142,11 @@ public final class MobileConnectWebResponse
     public RequestTokenResponseData getToken()
     {
         return this.token;
+    }
+
+    public String getOutcome()
+    {
+        return outcome;
     }
 
     @JsonRawValue

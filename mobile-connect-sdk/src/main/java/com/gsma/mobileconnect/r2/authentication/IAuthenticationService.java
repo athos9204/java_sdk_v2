@@ -16,7 +16,9 @@
  */
 package com.gsma.mobileconnect.r2.authentication;
 
+import com.gsma.mobileconnect.r2.ErrorResponse;
 import com.gsma.mobileconnect.r2.InvalidResponseException;
+import com.gsma.mobileconnect.r2.discovery.ProviderMetadata;
 import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
 import com.gsma.mobileconnect.r2.rest.RequestFailedException;
 import com.gsma.mobileconnect.r2.rest.HeadlessOperationFailedException;
@@ -41,13 +43,13 @@ public interface IAuthenticationService
      * @param state           Application specified unique scope value
      * @param nonce           Application specified nonce value. (Required)
      * @param encryptedMSISDN Encrypted MSISDN for user if returned from discovery service
-     * @param versions        SupportedVersions from <see cref="ProviderMetadata"/> if null default
+     * @param versions        SupportedVersions from {@link ProviderMetadata} if null default
      *                        supported versions will be used to generate the auth url
      * @param options         Optional parameters
      */
-    StartAuthenticationResponse startAuthentication(String clientId, URI authorizeUrl,
-        URI redirectUrl, String state, String nonce, String encryptedMSISDN,
-        SupportedVersions versions, AuthenticationOptions options);
+    StartAuthenticationResponse startAuthentication(final String clientId, final URI authorizeUrl,
+        final URI redirectUrl, final String state, final String nonce, final String encryptedMSISDN,
+        final SupportedVersions versions, final AuthenticationOptions options);
 
     /**
      * Synchronous wrapper for
@@ -64,8 +66,9 @@ public interface IAuthenticationService
      * @throws RequestFailedException   on failure to access endpoint.
      * @throws InvalidResponseException on failure to process response from endpoint.
      */
-    RequestTokenResponse requestToken(String clientId, String clientSecret, URI requestTokenUrl,
-        URI redirectUrl, String code) throws RequestFailedException, InvalidResponseException;
+    RequestTokenResponse requestToken(final String clientId, final String clientSecret,
+        final URI requestTokenUrl, final URI redirectUrl, final String code)
+        throws RequestFailedException, InvalidResponseException;
 
     /**
      * Allows an application to use the authorization code obtained from
@@ -82,8 +85,8 @@ public interface IAuthenticationService
      * @param code            The authorization code provided to the application via the call to the
      *                        authentication/authorization API (Required)
      */
-    Future<RequestTokenResponse> requestTokenAsync(String clientId, String clientSecret,
-        URI requestTokenUrl, URI redirectUrl, String code);
+    Future<RequestTokenResponse> requestTokenAsync(final String clientId, final String clientSecret,
+        final URI requestTokenUrl, final URI redirectUrl, final String code);
 
     /**
      * Initiates headless authentication, if authentication is successful a token will be returned.
@@ -105,8 +108,40 @@ public interface IAuthenticationService
      * @param options          Optional parameters
      * @return Token if headless authentication is successful
      */
-    Future<RequestTokenResponse> requestHeadlessAuthentication(String clientId, String clientSecret,
-        URI authorizationUrl, URI requestTokenUrl, URI redirectUrl, String state, String nonce,
-        String encryptedMsisdn, SupportedVersions versions, AuthenticationOptions options)
+    Future<RequestTokenResponse> requestHeadlessAuthentication(final String clientId,
+        final String clientSecret, final URI authorizationUrl, final URI requestTokenUrl,
+        final URI redirectUrl, final String state, final String nonce, final String encryptedMsisdn,
+        final SupportedVersions versions, final AuthenticationOptions options)
         throws RequestFailedException, HeadlessOperationFailedException;
+
+    /**
+     * Allows an application to use the refresh token obtained from request token response and
+     * request for a token refresh. <p> This function requires either a valid refresh token to be
+     * provided
+     *
+     * @param clientId        The application ClientId returned by the discovery process (Required)
+     * @param clientSecret    The ClientSecret returned by the discovery response (Required)
+     * @param refreshTokenUrl The url for token refresh received from the discovery process
+     *                        (Required)
+     * @param refreshToken    Refresh token returned from RequestToken request
+     */
+    RequestTokenResponse refreshToken(final String clientId, final String clientSecret,
+        final URI refreshTokenUrl, final String refreshToken)
+        throws RequestFailedException, InvalidResponseException;
+
+    /**
+     * Allows an application to use the access token or the refresh token obtained from
+     * request token response and request for a token revocation.
+     * <p>This function requires either a valid access token or a refresh token to be provided
+     *
+     * @param clientId        The application ClientId returned by the discovery process (Required)
+     * @param clientSecret    The ClientSecret returned by the discovery response (Required)
+     * @param refreshTokenUrl The url for token refresh received from the discovery process
+     *                        (Required)
+     * @param token           Access/Refresh token returned from RequestToken request
+     * @param tokenTypeHint   Hint to indicate the type of token being passed in
+     */
+    String revokeToken(final String clientId, final String clientSecret,
+        final URI refreshTokenUrl, final String token, final String tokenTypeHint)
+        throws RequestFailedException, InvalidResponseException;
 }
