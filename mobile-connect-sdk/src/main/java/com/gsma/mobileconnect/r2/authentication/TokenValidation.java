@@ -59,14 +59,14 @@ public class TokenValidation
      *                                    supplied)
      * @param keyset                      Keyset retrieved from the jwks url, used to validate the
      *                                    token signature
-     * @param iMobileConnectEncodeDecoder Class used to encode/decode id_tokens
+     * @param mobileConnectEncodeDecoder  Class used to encode/decode
      * @return TokenValidationResult that specifies if the token is valid, or if not why it is not
      * valid
      */
     public static TokenValidationResult validateIdToken(final String idToken, final String clientId,
         final String issuer, final String nonce, final long maxAge, final JWKeyset keyset,
         final IJsonService jsonService,
-        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+        final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
         throws JsonDeserializationException
     {
         if (StringUtils.isNullOrEmpty(idToken))
@@ -77,13 +77,13 @@ public class TokenValidation
 
         TokenValidationResult result =
             validateIdTokenClaims(idToken, clientId, issuer, nonce, maxAge, jsonService,
-                iMobileConnectEncodeDecoder);
+                mobileConnectEncodeDecoder);
         if (result != TokenValidationResult.Valid)
         {
             return result;
         }
 
-        return validateIdTokenSignature(idToken, keyset, jsonService, iMobileConnectEncodeDecoder);
+        return validateIdTokenSignature(idToken, keyset, jsonService, mobileConnectEncodeDecoder);
     }
 
     /**
@@ -95,13 +95,13 @@ public class TokenValidation
      *                                    token signature. If null the token will not be validated
      *                                    and {@link TokenValidationResult#JWKSError}
      * @param jsonService                 Json service to be used deserialising strings to objects
-     * @param iMobileConnectEncodeDecoder
+     * @param mobileConnectEncodeDecoder  Class used to encode/decode
      * @return TokenValidationResult that specifies if the token signature is valid, or if not why
      * it is not valid
      */
     public static TokenValidationResult validateIdTokenSignature(final String idToken,
         final JWKeyset keyset, final IJsonService jsonService,
-        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+        final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
         throws JsonDeserializationException
     {
         if (keyset == null)
@@ -113,7 +113,7 @@ public class TokenValidation
         try
         {
             jwKeyDeserialized = jsonService.deserialize(
-                JsonWebTokens.Part.HEADER.decode(idToken, iMobileConnectEncodeDecoder),
+                JsonWebTokens.Part.HEADER.decode(idToken, mobileConnectEncodeDecoder),
                 JWKey.class);
             final String alg = jwKeyDeserialized.getAlgorithm();
             final String keyId = jwKeyDeserialized.getKeyId();
@@ -150,7 +150,7 @@ public class TokenValidation
             final String signature = idToken.substring(lastSplitIndex + 1);
 
 
-            return verifySignature(jwKey, dataToSign, signature, alg);
+            return verifySignature(jwKey, dataToSign, signature, alg, mobileConnectEncodeDecoder);
         }
         catch (JsonDeserializationException e)
         {
@@ -160,12 +160,13 @@ public class TokenValidation
     }
 
     private static TokenValidationResult verifySignature(final JWKey jwKey, final String dataToSign,
-        final String signature, final String alg)
+        final String signature, final String alg,
+        final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
     {
         boolean isValid;
         try
         {
-            isValid = jwKey.verify(dataToSign, signature, alg);
+            isValid = jwKey.verify(dataToSign, signature, alg, mobileConnectEncodeDecoder);
             return isValid ? TokenValidationResult.Valid : TokenValidationResult.InvalidSignature;
         }
         catch (MobileConnectInvalidJWKException e)
@@ -196,17 +197,17 @@ public class TokenValidation
      * @param maxAge                      MaxAge that is used to validate the auth_time claim (if
      *                                    supplied)
      * @param jsonService                 Json service used to serialize/deserialize objects
-     * @param iMobileConnectEncodeDecoder Encoder used to serialize objects
+     * @param mobileConnectEncodeDecoder  Encoder used to serialize objects
      * @return TokenValidationResult that specifies if the token claims are valid, or if not why
      * they are not valid
      */
     public static TokenValidationResult validateIdTokenClaims(final String idToken,
         final String clientId, final String issuer, final String expectedNonce, final long maxAge,
         final IJsonService jsonService,
-        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+        final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
         throws JsonDeserializationException
     {
-        String claimsJson = JsonWebTokens.Part.CLAIMS.decode(idToken, iMobileConnectEncodeDecoder);
+        String claimsJson = JsonWebTokens.Part.CLAIMS.decode(idToken, mobileConnectEncodeDecoder);
         Claims claims = jsonService.deserialize(claimsJson, Claims.class);
 
         if (expectedNonce != null && !expectedNonce.equals(

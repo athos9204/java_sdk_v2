@@ -11,6 +11,8 @@
     <modules>
         <module>mobile-connect-sdk</module>
         <module>mobile-connect-demo</module>
+        <module>mobile-connect-example-authorization</module>
+        <module>mobile-connect-example-authentication</module>
     </modules>
 
     <name>mobile-connect</name>

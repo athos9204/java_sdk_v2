@@ -1,0 +1,8 @@
+# Create an account at https://developer.mobileconnect.io and obtain the details missing below.
+
+# RedirectURL should be specified as follows:
+redirectUrl=http://localhost:8001/mobileconnect.html
+
+clientId=<provide client id here>
+clientSecret=<provide client secret here>
+discoveryUrl=<provide discovery URL here>

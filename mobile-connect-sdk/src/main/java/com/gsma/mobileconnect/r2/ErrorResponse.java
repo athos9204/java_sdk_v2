@@ -30,12 +30,14 @@ public class ErrorResponse
 {
     private final String error;
     private final String errorDescription;
+    private final String description;
     private final String errorUri;
 
     private ErrorResponse(Builder builder)
     {
         this.error = StringUtils.requireNonEmpty(builder.error, "error");
         this.errorDescription = builder.errorDescription;
+        this.description = builder.description;
         this.errorUri = builder.errorUri;
     }
 
@@ -52,7 +54,7 @@ public class ErrorResponse
      */
     public String getErrorDescription()
     {
-        return this.errorDescription;
+        return this.errorDescription == null ? this.description : this.errorDescription;
     }
 
     /**
@@ -79,6 +81,7 @@ public class ErrorResponse
     {
         private String error;
         private String errorDescription;
+        private String description;
         private String errorUri;
 
         public Builder withError(final String val)
@@ -90,6 +93,12 @@ public class ErrorResponse
         public Builder withErrorDescription(final String val)
         {
             this.errorDescription = val;
+            return this;
+        }
+
+        public Builder withDescription(final String val)
+        {
+            this.description = val;
             return this;
         }
 
