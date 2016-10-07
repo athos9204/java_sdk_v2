@@ -38,7 +38,7 @@ import java.net.URI;
  * @since 2.0
  */
 @SpringBootConfiguration
-@PropertySource("file:./mobile-connect-demo/src/main/resources/config/mobile-connect-config.properties")
+@PropertySource("file:./mobile-connect-example-authorization/src/main/resources/config/mobile-connect-config.properties")
 public class AuthorizationExampleAppConfiguration
 {
     @Bean

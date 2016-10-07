@@ -20,7 +20,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Bootstraps the demo application.
+ * Bootstraps the identity - national id example application.
  *
  * @since 2.0
  */
