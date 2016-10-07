@@ -18,13 +18,13 @@ package com.gsma.mobileconnect.r2.authentication;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.exceptions.MobileConnectInvalidJWKException;
 import com.gsma.mobileconnect.r2.utils.ByteUtils;
 import com.gsma.mobileconnect.r2.utils.StringUtils;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.impl.crypto.MacValidator;
 import io.jsonwebtoken.impl.crypto.RsaSignatureValidator;
-import org.apache.commons.codec.binary.Base64;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
@@ -187,7 +187,8 @@ class JWKey
         return rsaE;
     }
 
-    public boolean verify(final String input, final String expected, final String algorithm)
+    public boolean verify(final String input, final String expected, final String algorithm,
+        final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
         throws MobileConnectInvalidJWKException, NoSuchAlgorithmException, InvalidKeySpecException
     {
         SignatureAlgorithm signatureAlgorithm = SignatureAlgorithm.forName(algorithm);
@@ -198,11 +199,13 @@ class JWKey
 
             if (isRsa())
             {
-                isValid = verifyRsa(input, expected, signatureAlgorithm, isValid);
+                isValid =
+                    verifyRsa(input, expected, signatureAlgorithm, mobileConnectEncodeDecoder);
             }
             else if (isSymmetric())
             {
-                isValid = verifyMac(input, expected, algorithm, signatureAlgorithm);
+                isValid = verifyMac(input, expected, algorithm, signatureAlgorithm,
+                    mobileConnectEncodeDecoder);
             }
         }
         catch (NoSuchAlgorithmException e)
@@ -217,7 +220,8 @@ class JWKey
     }
 
     private boolean verifyRsa(final String input, final String expected,
-        final SignatureAlgorithm signatureAlgorithm, boolean isValid)
+        final SignatureAlgorithm signatureAlgorithm,
+        final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
         throws NoSuchAlgorithmException, InvalidKeySpecException, MobileConnectInvalidJWKException
     {
         if (StringUtils.isNullOrEmpty(this.getRsaN()) || StringUtils.isNullOrEmpty(this.getRsaE()))
@@ -226,19 +230,22 @@ class JWKey
                 "RSA key does not have required Modulus and Exponent components");
         }
 
-        byte[] mod = ByteUtils.addZeroPrefix(Base64.decodeBase64(this.getRsaN()));
-        byte[] exp = ByteUtils.addZeroPrefix(Base64.decodeBase64(this.getRsaE()));
+        byte[] mod =
+            ByteUtils.addZeroPrefix(mobileConnectEncodeDecoder.decodeFromBase64(this.getRsaN()));
+        byte[] exp =
+            ByteUtils.addZeroPrefix(mobileConnectEncodeDecoder.decodeFromBase64(this.getRsaE()));
 
         KeyFactory keyFactory = KeyFactory.getInstance("RSA");
         Key rsaKey = keyFactory.generatePublic(
             new RSAPublicKeySpec(new BigInteger(mod), new BigInteger(exp)));
 
         return new RsaSignatureValidator(signatureAlgorithm, rsaKey).isValid(input.getBytes(),
-            Base64.decodeBase64(expected));
+            mobileConnectEncodeDecoder.decodeFromBase64(expected));
     }
 
     private boolean verifyMac(final String input, final String expected, final String algorithm,
-        final SignatureAlgorithm signatureAlgorithm)
+        final SignatureAlgorithm signatureAlgorithm,
+        final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
         throws NoSuchAlgorithmException, InvalidKeySpecException, MobileConnectInvalidJWKException
     {
         if (StringUtils.isNullOrEmpty(this.getKey()))
@@ -249,6 +256,6 @@ class JWKey
         Key hmacKey =
             keyFactory.generatePublic(new SecretKeySpec(this.getKey().getBytes(), algorithm));
         return new MacValidator(signatureAlgorithm, hmacKey).isValid(input.getBytes(),
-            Base64.decodeBase64(expected));
+            mobileConnectEncodeDecoder.decodeFromBase64(expected));
     }
 }
