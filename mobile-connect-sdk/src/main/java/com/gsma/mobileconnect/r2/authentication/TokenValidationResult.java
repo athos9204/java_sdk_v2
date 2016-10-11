@@ -26,93 +26,93 @@ public enum TokenValidationResult
     /**
      * No validation has occurred
      */
-    None,
+    NONE,
 
     /**
      * Token when signed does not match signature
      */
-    InvalidSignature,
+    INVALID_SIGNATURE,
 
     /**
      * Token passed all validation steps
      */
-    Valid,
+    VALID,
 
     /**
      * Key was not retrieved from the jwks url or a jwks url was not present
      */
-    JWKSError,
+    JWKS_ERROR,
 
     /**
      * The alg claim in the id token header does not match the alg requested or the default alg of
      * RS256
      */
-    IncorrectAlgorithm,
+    INCORRECT_ALGORITHM,
 
     /**
      * Neither the azp nor the aud claim in the id token match the client id used to make the auth
      * request
      */
-    InvalidAudAndAzp,
+    INVALID_AUD_AND_AZP,
 
     /**
      * The iss claim in the id token does not match the expected issuer
      */
-    InvalidIssuer,
+    INVALID_ISSUER,
 
     /**
      * The IdToken has expired
      */
-    IdTokenExpired,
+    ID_TOKEN_EXPIRED,
 
     /**
      * No key matching the requested key id was found
      */
-    NoMatchingKey,
+    NO_MATCHING_KEY,
 
     /**
      * Key does not contain the required information to validate against the requested algorithm
      */
-    KeyMisformed,
+    KEY_MISFORMED,
 
     /**
      * Algorithm is unsupported for validation
      */
-    UnsupportedAlgorithm,
+    UNSUPPORTED_ALGORITHM,
 
     /**
      * The access token has expired
      */
-    AccessTokenExpired,
+    ACCESS_TOKEN_EXPIRED,
 
 
     /**
      * The access token is null or empty in the token response
      */
-    AccessTokenMissing,
+    ACCESS_TOKEN_MISSING,
 
     /**
      * The id token is null or empty in the token response
      */
-    IdTokenMissing,
+    ID_TOKEN_MISSING,
 
     /**
      * The id token is older than the max age specified in the auth stage
      */
-    MaxAgePassed,
+    MAX_AGE_PASSED,
 
     /**
      * A longer time than the configured limit has passed since the token was issued
      */
-    TokenIssueTimeLimitPassed,
+    TOKEN_ISSUE_TIME_LIMIT_PASSED,
 
     /**
      * The nonce in the id token claims does not match the nonce specified in the auth stage
      */
-    InvalidNonce,
+    INVALID_NONCE,
 
     /**
      * The token response is null or missing required data
      */
-    IncompleteTokenResponse
+    INCOMPLETE_TOKEN_RESPONSE
 }

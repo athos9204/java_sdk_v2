@@ -16,7 +16,6 @@
  */
 package com.gsma.mobileconnect.r2.authentication;
 
-import com.gsma.mobileconnect.r2.ErrorResponse;
 import com.gsma.mobileconnect.r2.InvalidResponseException;
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.constants.Parameters;
@@ -54,7 +53,7 @@ public class AuthenticationService implements IAuthenticationService
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationService.class);
     public static final String REVOKE_TOKEN_SUCCESS = "Revoke token successful";
-    public static final String UNSUPPORTED_TOKEN_TYPE_ERROR = "Unsupported token type";
+    static final String UNSUPPORTED_TOKEN_TYPE_ERROR = "Unsupported token type";
 
     private final IJsonService jsonService;
     private final ExecutorService executorService;
@@ -77,18 +76,7 @@ public class AuthenticationService implements IAuthenticationService
         final String encryptedMSISDN, final SupportedVersions versions,
         final AuthenticationOptions options)
     {
-        String loginHint = null;
-        if (options != null)
-        {
-            if (options.getLoginHint() != null)
-            {
-                loginHint = options.getLoginHint();
-            }
-            else if (encryptedMSISDN != null)
-            {
-                loginHint = String.format("ENCR_MSISDN:%s", encryptedMSISDN);
-            }
-        }
+        String loginHint = extractLoginHint(options, encryptedMSISDN);
 
         final AuthenticationOptions.Builder optionsBuilder =
             new AuthenticationOptions.Builder(options)
@@ -139,6 +127,24 @@ public class AuthenticationService implements IAuthenticationService
             throw new IllegalArgumentException("Failed to construct uri for startAuthentication",
                 use);
         }
+    }
+
+    private String extractLoginHint(final AuthenticationOptions options,
+                                    final String encryptedMSISDN)
+    {
+        String loginHint = null;
+        if (options != null)
+        {
+            if (options.getLoginHint() != null)
+            {
+                loginHint = options.getLoginHint();
+            }
+            else if (encryptedMSISDN != null)
+            {
+                loginHint = String.format("ENCR_MSISDN:%s", encryptedMSISDN);
+            }
+        }
+        return loginHint;
     }
 
     private boolean shouldUseAuthorize(final String scope, final String context)

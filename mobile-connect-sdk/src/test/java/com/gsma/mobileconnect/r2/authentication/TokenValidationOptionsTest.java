@@ -13,11 +13,11 @@ public class TokenValidationOptionsTest
     public void testGetAcceptedValidationResults() throws Exception
     {
         TokenValidationOptions tokenValidationOptions = new TokenValidationOptions.Builder()
-            .withAcceptedValidationResults(TokenValidationResult.Valid)
+            .withAcceptedValidationResults(TokenValidationResult.VALID)
             .build();
 
         assertEquals(tokenValidationOptions.getAcceptedValidationResults(),
-            TokenValidationResult.Valid);
+            TokenValidationResult.VALID);
     }
 
 }

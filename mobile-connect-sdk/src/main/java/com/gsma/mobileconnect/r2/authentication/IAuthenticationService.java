@@ -16,12 +16,11 @@
  */
 package com.gsma.mobileconnect.r2.authentication;
 
-import com.gsma.mobileconnect.r2.ErrorResponse;
 import com.gsma.mobileconnect.r2.InvalidResponseException;
 import com.gsma.mobileconnect.r2.discovery.ProviderMetadata;
 import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
-import com.gsma.mobileconnect.r2.rest.RequestFailedException;
 import com.gsma.mobileconnect.r2.rest.HeadlessOperationFailedException;
+import com.gsma.mobileconnect.r2.rest.RequestFailedException;
 
 import java.net.URI;
 import java.util.concurrent.Future;
