@@ -18,9 +18,6 @@ package com.gsma.mobileconnect.r2.rest;
 
 import com.gsma.mobileconnect.r2.IHasMobileConnectStatus;
 import com.gsma.mobileconnect.r2.MobileConnectStatus;
-import com.gsma.mobileconnect.r2.utils.HttpUtils;
-
-import java.net.URI;
 
 /**
  * Exception thrown when the headless operation fails due to too many redirects or when it times out

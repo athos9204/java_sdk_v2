@@ -6,6 +6,15 @@ package com.gsma.mobileconnect.r2.utils;
 public final class ByteUtils
 {
     /**
+     * Private Constructor
+     */
+    ByteUtils()
+    {
+        /*
+        Empty default constructor
+        */
+    }
+    /**
      * Helper method to assure 0x00 byte at start of byte array
      *
      * @param bytes     byte array to prepend zero prefix

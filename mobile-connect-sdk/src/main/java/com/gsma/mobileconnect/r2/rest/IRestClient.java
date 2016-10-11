@@ -21,7 +21,6 @@ import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 
 /**

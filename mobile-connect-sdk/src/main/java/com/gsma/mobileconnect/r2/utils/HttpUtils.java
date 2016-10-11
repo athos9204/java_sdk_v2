@@ -203,19 +203,26 @@ public final class HttpUtils
 
                 if (eqIndex >= 0)
                 {
-                    if (scIndex > eqIndex)
-                    {
-                        cookies.add(value.substring(0, scIndex));
-                    }
-                    else
-                    {
-                        cookies.add(value);
-                    }
+                    extractCookie(cookies, value, scIndex, eqIndex);
+
                 }
             }
         }
 
         return cookies;
+    }
+
+    private static void extractCookie(final List<String> cookies, final String value,
+        final int scIndex, final int eqIndex)
+    {
+        if (scIndex > eqIndex)
+        {
+            cookies.add(value.substring(0, scIndex));
+        }
+        else
+        {
+            cookies.add(value);
+        }
     }
 
 
@@ -230,10 +237,7 @@ public final class HttpUtils
     {
         ObjectUtils.requireNonNull(request, "request");
 
-        return URI.create(new StringBuilder(request.getRequestURL())
-            .append('?')
-            .append(request.getQueryString())
-            .toString());
+        return URI.create(request.getRequestURL() + "?" + request.getQueryString());
     }
 
     /**
