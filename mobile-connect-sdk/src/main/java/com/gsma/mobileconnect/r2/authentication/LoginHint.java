@@ -35,13 +35,13 @@ import java.util.List;
 public class LoginHint
 {
     private static final SupportedVersions DEFAULT_VERSIONS = new SupportedVersions.Builder().build();
-    private static final ArrayList<String> RECOGNISED_HINTS = new ArrayList<String>();
+    private static final List<String> RECOGNISED_HINTS = new ArrayList<String>();
 
     static
     {
-        RECOGNISED_HINTS.add(LoginHintPrefixes.MSISDN);
-        RECOGNISED_HINTS.add(LoginHintPrefixes.ENCRYPTED_MSISDN);
-        RECOGNISED_HINTS.add(LoginHintPrefixes.PCR);
+        RECOGNISED_HINTS.add(LoginHintPrefixes.MSISDN.getName());
+        RECOGNISED_HINTS.add(LoginHintPrefixes.ENCRYPTED_MSISDN.getName());
+        RECOGNISED_HINTS.add(LoginHintPrefixes.PCR.getName());
     }
 
     private LoginHint() {
@@ -57,7 +57,7 @@ public class LoginHint
      */
     public static boolean isSupportedForMsisdn(final ProviderMetadata providerMetadata)
     {
-        return isSupportedFor(providerMetadata, LoginHintPrefixes.MSISDN);
+        return isSupportedFor(providerMetadata, LoginHintPrefixes.MSISDN.getName());
     }
 
     /**
@@ -67,7 +67,7 @@ public class LoginHint
      */
     public static boolean isSupportedForEncryptedMsisdn(final ProviderMetadata providerMetadata)
     {
-        return isSupportedFor(providerMetadata, LoginHintPrefixes.ENCRYPTED_MSISDN);
+        return isSupportedFor(providerMetadata, LoginHintPrefixes.ENCRYPTED_MSISDN.getName());
     }
 
     /**
@@ -77,7 +77,7 @@ public class LoginHint
      */
     public static boolean isSupportedForPcr(final ProviderMetadata providerMetadata)
     {
-        return isSupportedFor(providerMetadata, LoginHintPrefixes.PCR);
+        return isSupportedFor(providerMetadata, LoginHintPrefixes.PCR.getName());
     }
 
     /**
@@ -107,8 +107,8 @@ public class LoginHint
             }
 
             // If we aren't at 1.2 or greater then we must be on 1.1 and therefore only MSISDN and encrypted are supported
-            return !(!LoginHintPrefixes.ENCRYPTED_MSISDN.equalsIgnoreCase(prefix)
-                && !LoginHintPrefixes.MSISDN.equalsIgnoreCase(prefix));
+            return !(!LoginHintPrefixes.ENCRYPTED_MSISDN.getName().equalsIgnoreCase(prefix)
+                && !LoginHintPrefixes.MSISDN.getName().equalsIgnoreCase(prefix));
 
         }
         return getFirstMatch(providerMetadata.getLoginHintMethodsSupported(), prefix) != null;
@@ -140,7 +140,7 @@ public class LoginHint
      */
     public static String generateForMsisdn(final String msisdn)
     {
-        return generateFor(LoginHintPrefixes.MSISDN, msisdn.replaceAll("\\+",""));
+        return generateFor(LoginHintPrefixes.MSISDN.getName(), msisdn.replaceAll("\\+",""));
     }
 
     /**
@@ -150,7 +150,7 @@ public class LoginHint
      */
     public static String generateForEncryptedMsisdn(final String encryptedMsisdn)
     {
-        return generateFor(LoginHintPrefixes.ENCRYPTED_MSISDN, encryptedMsisdn);
+        return generateFor(LoginHintPrefixes.ENCRYPTED_MSISDN.getName(), encryptedMsisdn);
     }
 
     /**
@@ -160,7 +160,7 @@ public class LoginHint
      */
     public static String generateForPcr(final String pcr)
     {
-        return generateFor(LoginHintPrefixes.PCR, pcr);
+        return generateFor(LoginHintPrefixes.PCR.getName(), pcr);
     }
 
     /**

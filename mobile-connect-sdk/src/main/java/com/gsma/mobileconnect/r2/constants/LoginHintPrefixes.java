@@ -17,15 +17,23 @@
 package com.gsma.mobileconnect.r2.constants;
 
 /**
- * Constants for login hint prefixes
+ * Possible values for login hint prefixes
  *
  * @since 2.0
  */
-public class LoginHintPrefixes
+public enum LoginHintPrefixes
 {
-    public static final String MSISDN = "MSISDN";
+    MSISDN("MSISDN"), ENCRYPTED_MSISDN("ENCR_MSISDN"), PCR("PCR");
 
-    public static final String ENCRYPTED_MSISDN = "ENCR_MSISDN";
+    private String name;
 
-    public static final String PCR = "PCR";
+    LoginHintPrefixes(final String name)
+    {
+        this.name = name;
+    }
+
+    public String getName()
+    {
+        return name;
+    }
 }

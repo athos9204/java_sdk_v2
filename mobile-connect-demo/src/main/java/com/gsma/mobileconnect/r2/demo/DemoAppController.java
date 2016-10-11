@@ -133,7 +133,7 @@ public class DemoAppController
             LogUtils.mask(accessToken, LOGGER, Level.INFO));
 
         final MobileConnectStatus status =
-            this.mobileConnectWebInterface.requestUserInfo(request, sdkSession, accessToken, null);
+            this.mobileConnectWebInterface.requestUserInfo(request, sdkSession, accessToken);
 
         return new MobileConnectWebResponse(status);
     }
