@@ -588,6 +588,7 @@ public class MobileConnectWebInterface
      * @param options           Optional parameters
      * @return MobileConnectStatus object with requested UserInfo information
      */
+    @SuppressWarnings("UnusedParameters")
     public MobileConnectStatus requestUserInfo(final HttpServletRequest request,
         final DiscoveryResponse discoveryResponse, final String accessToken,
         final MobileConnectRequestOptions options)
@@ -613,6 +614,7 @@ public class MobileConnectWebInterface
      * @param options     Optional parameters
      * @return MobileConnectStatus object with requested UserInfo information
      */
+    @SuppressWarnings("UnusedParameters")
     public MobileConnectStatus requestUserInfo(final HttpServletRequest request,
         final String sdkSession, final String accessToken,
         final MobileConnectRequestOptions options)
