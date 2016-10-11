@@ -252,6 +252,7 @@ public class RestClient implements IRestClient
         }
         catch (InterruptedException e)
         {
+            Thread.currentThread().interrupt();
             LOGGER.info("Waking up and trying again");
         }
     }
