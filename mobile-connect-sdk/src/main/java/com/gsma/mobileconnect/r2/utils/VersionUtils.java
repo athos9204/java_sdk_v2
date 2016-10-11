@@ -26,6 +26,15 @@ public class VersionUtils
 {
 
     /**
+     * Default Constructor
+     */
+    private VersionUtils()
+    {
+        /*
+        Private Default Constructor
+         */
+    }
+    /**
      * Compares two version numbers in format "n.m" (may be up to four degrees)
      * @param ver1 version 1
      * @param ver2 version 2
@@ -42,7 +51,6 @@ public class VersionUtils
         }
         // compare first non-equal ordinal number
         if (i < vals1.size() && i < vals2.size()) {
-            // TODO: 09/09/16 Should this handle NumberFormatException
             int diff = Integer.valueOf(vals1.get(i).replaceAll("[\\D]", "")).compareTo(Integer.valueOf(vals2.get(i).replaceAll("[\\D]", "")));
             return Integer.signum(diff);
         }

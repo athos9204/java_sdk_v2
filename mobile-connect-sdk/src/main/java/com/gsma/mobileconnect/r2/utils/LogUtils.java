@@ -50,6 +50,13 @@ public class LogUtils
         ASTERISK_MASK = sb.toString();
     }
 
+    private LogUtils()
+    {
+        /*
+        Private default constructor since all methods are static
+         */
+    }
+
     /**
      * Mask centre of a String with asterisks.  Will cap out at the length of ASTERISK_MASK for
      * number of asterisks included (i.e. a 300 character String).
@@ -204,22 +211,31 @@ public class LogUtils
      * @param level  to query.
      * @return true if level will be logged by logger.
      */
+    @SuppressWarnings("WeakerAccess")
     public static boolean isLevelEnabled(final Logger logger, final Level level)
     {
+        boolean returnValue;
+
         switch (level)
         {
             case TRACE:
-                return logger.isTraceEnabled();
+                returnValue = logger.isTraceEnabled();
+                break;
             case DEBUG:
-                return logger.isDebugEnabled();
+                returnValue = logger.isDebugEnabled();
+                break;
             case INFO:
-                return logger.isInfoEnabled();
+                returnValue = logger.isInfoEnabled();
+                break;
             case WARN:
-                return logger.isWarnEnabled();
+                returnValue = logger.isWarnEnabled();
+                break;
             case ERROR:
-                return logger.isErrorEnabled();
+                returnValue = logger.isErrorEnabled();
+                break;
             default:
-                return false;
+                returnValue = false;
         }
+        return returnValue;
     }
 }
