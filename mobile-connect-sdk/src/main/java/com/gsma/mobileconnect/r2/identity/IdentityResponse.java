@@ -25,6 +25,8 @@ import com.gsma.mobileconnect.r2.utils.HttpUtils;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
 import com.gsma.mobileconnect.r2.utils.JsonWebTokens;
 import com.gsma.mobileconnect.r2.utils.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.regex.Pattern;
 
@@ -33,8 +35,11 @@ import java.util.regex.Pattern;
  *
  * @since 2.0
  */
+@SuppressWarnings("WeakerAccess")
 public class IdentityResponse
 {
+    private static final Logger LOGGER = LoggerFactory.getLogger(IdentityResponse.class);
+
     private static final Pattern ERROR_REGEX = Pattern.compile("\\\"error\\\":");
     private final int responseCode;
     private final ErrorResponse errorResponse;
@@ -74,7 +79,7 @@ public class IdentityResponse
                 }
                 catch (final JsonDeserializationException jde)
                 {
-                    // not in error, ignore false positive
+                    LOGGER.warn("Error parsing error identity response", jde);
                 }
             }
         }
