@@ -25,6 +25,7 @@ import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryService;
 import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
+import com.gsma.mobileconnect.r2.exceptions.InvalidResponseException;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
@@ -49,6 +50,7 @@ import static org.testng.Assert.*;
  *
  * @since 2.0
  */
+@SuppressWarnings("UnusedParameters")
 public class MobileConnectWebInterfaceTest
 {
     private final MobileConnectConfig config = new MobileConnectConfig.Builder()
@@ -138,6 +140,7 @@ public class MobileConnectWebInterfaceTest
 
         final String scope = HttpUtils.extractQueryValue(URI.create(status.getUrl()), "scope");
 
+        assertNotNull(scope);
         for (final String include : includes)
         {
             assertTrue(scope.contains(include));

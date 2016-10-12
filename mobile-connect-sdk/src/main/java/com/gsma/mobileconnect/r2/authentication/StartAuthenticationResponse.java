@@ -23,6 +23,7 @@ import java.net.URI;
  *
  * @since 2.0
  */
+@SuppressWarnings("WeakerAccess")
 public class StartAuthenticationResponse
 {
     private final URI url;

@@ -1,4 +1,4 @@
-package com.gsma.mobileconnect.r2.authentication;
+package com.gsma.mobileconnect.r2.validation;
 
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.utils.Predicate;
@@ -14,7 +14,7 @@ import static org.testng.Assert.*;
  */
 public class JWKeysetTest
 {
-    JacksonJsonService jacksonJsonService;
+    private JacksonJsonService jacksonJsonService;
 
     @BeforeClass
     public void setUp()
@@ -92,13 +92,11 @@ public class JWKeysetTest
     @Test
     public void testGetMatchingWithNullPredicateShouldReturnAllKeys() throws Exception
     {
-        Predicate<JWKey> predicate = null;
-
         final String jwksJson =
             "{\"keys\":[{\"alg\":\"RS256\",\"e\":\"AQAB\",\"n\":\"hzr2li5ABVbbQ4BvdDskl6hejaVw0tIDYO\",\"kty\":\"OCT\",\"use\":\"sig\"}]}";
         final JWKeyset jwKeyset = jacksonJsonService.deserialize(jwksJson, JWKeyset.class);
 
-        Iterator<JWKey> jwKeysetMatching = jwKeyset.getMatching(predicate).iterator();
+        Iterator<JWKey> jwKeysetMatching = jwKeyset.getMatching(null).iterator();
         assertTrue(jwKeysetMatching.hasNext());
         // should assert what next is actually going to be
         jwKeysetMatching.next();

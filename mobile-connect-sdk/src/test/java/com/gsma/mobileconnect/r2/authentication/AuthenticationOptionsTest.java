@@ -32,7 +32,7 @@ public class AuthenticationOptionsTest
     private String context = "context";
     private String bindingMessage = "bindingMessage";
     private String claimsJson = "claimsJson";
-    private ClaimsParameter claims;
+    private ClaimsParameter claims = null;
 
     @BeforeMethod
     public void setUp() throws Exception

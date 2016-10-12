@@ -29,6 +29,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 2.0
  */
+@SuppressWarnings("unused")
 @JsonDeserialize(builder = RequestTokenResponseData.Builder.class)
 public class RequestTokenResponseData
 {
@@ -110,6 +111,7 @@ public class RequestTokenResponseData
         return this.expiresIn;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static final class Builder
     {
         private Date timeReceived;

@@ -53,6 +53,7 @@ public class ClaimsTest
         assertEqualsNoOrder(TestUtils.splitArray(actual), TestUtils.splitArray(expected));
     }
 
+    @SuppressWarnings("AssertEqualsBetweenInconvertibleTypesTestNG")
     @Test
     public void claimsShouldDeserialize() throws JsonDeserializationException
     {

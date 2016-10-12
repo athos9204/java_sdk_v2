@@ -14,8 +14,9 @@
 * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. YOU AGREE TO
 * INDEMNIFY AND HOLD HARMLESS THE AUTHORS AND COPYRIGHT HOLDERS FROM AND AGAINST ANY SUCH LIABILITY.
 */
-package com.gsma.mobileconnect.r2.authentication;
+package com.gsma.mobileconnect.r2.validation;
 
+import com.gsma.mobileconnect.r2.authentication.RequestTokenResponseData;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
@@ -308,7 +309,7 @@ public class TokenValidationTest
     {
         RequestTokenResponseData requestTokenResponseData = new RequestTokenResponseData.Builder()
             .withAccessToken("accessToken")
-            .withExpiresIn(10000l)
+            .withExpiresIn(10000L)
             .build();
 
         final TokenValidationResult tokenValidationResultNull =

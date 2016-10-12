@@ -28,8 +28,6 @@ import com.gsma.mobileconnect.r2.utils.TestUtils;
 import org.testng.annotations.Test;
 
 import java.net.URI;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
@@ -50,7 +48,6 @@ public class MobileConnectInterfaceTest
         .build();
     private final MockRestClient restClient = new MockRestClient();
     private final IJsonService jsonService = new JacksonJsonService();
-    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5);
 
     private final MobileConnectInterface mobileConnectInterface = MobileConnect
         .builder(this.config, new DefaultEncodeDecoder())

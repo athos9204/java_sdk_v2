@@ -1,4 +1,4 @@
-package com.gsma.mobileconnect.r2.authentication;
+package com.gsma.mobileconnect.r2.validation;
 
 import org.testng.annotations.Test;
 

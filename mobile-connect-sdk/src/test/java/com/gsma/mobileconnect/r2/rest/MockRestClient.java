@@ -87,7 +87,7 @@ public class MockRestClient implements IRestClient
      */
     public List<Object> reset()
     {
-        final List<Object> remaining = new ArrayList();
+        final List<Object> remaining = new ArrayList<Object>();
         while (!this.queue.isEmpty())
         {
             remaining.add(this.queue.poll());

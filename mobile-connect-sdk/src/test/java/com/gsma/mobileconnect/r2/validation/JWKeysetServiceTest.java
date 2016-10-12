@@ -14,12 +14,15 @@
 * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. YOU AGREE TO
 * INDEMNIFY AND HOLD HARMLESS THE AUTHORS AND COPYRIGHT HOLDERS FROM AND AGAINST ANY SUCH LIABILITY.
 */
-package com.gsma.mobileconnect.r2.authentication;
+package com.gsma.mobileconnect.r2.validation;
 
 import com.google.common.collect.ImmutableMap;
 import com.gsma.mobileconnect.r2.cache.ConcurrentCache;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
-import com.gsma.mobileconnect.r2.rest.*;
+import com.gsma.mobileconnect.r2.rest.RequestFailedException;
+import com.gsma.mobileconnect.r2.rest.RestAuthentication;
+import com.gsma.mobileconnect.r2.rest.RestClient;
+import com.gsma.mobileconnect.r2.rest.RestResponse;
 import com.gsma.mobileconnect.r2.utils.KeyValuePair;
 import org.mockito.Mockito;
 import org.testng.annotations.BeforeMethod;
@@ -67,6 +70,7 @@ public class JWKeysetServiceTest
             .build();
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void retrieveJWKSAsyncReturnsJWKS()
         throws RequestFailedException, ExecutionException, InterruptedException
@@ -91,6 +95,7 @@ public class JWKeysetServiceTest
     }
 
 
+    @SuppressWarnings("unchecked")
     @Test
     public void retrieveJWKSAsyncUsesCache()
         throws RequestFailedException, ExecutionException, InterruptedException
@@ -101,7 +106,7 @@ public class JWKeysetServiceTest
 
         String jwksUrl = "http://jwks.com/jwks";
         final Future<JWKeyset> jwKeysetFuture = jwKeysetService.retrieveJwksAsync(jwksUrl);
-        final JWKeyset jwKeyset = jwKeysetFuture.get();
+        jwKeysetFuture.get();
 
         final Future<JWKeyset> cachedFuture = jwKeysetService.retrieveJwksAsync(jwksUrl);
         final JWKeyset cachedJwKeyset = cachedFuture.get();
