@@ -204,7 +204,6 @@ public final class HttpUtils
                 if (eqIndex >= 0)
                 {
                     extractCookie(cookies, value, scIndex, eqIndex);
-
                 }
             }
         }
