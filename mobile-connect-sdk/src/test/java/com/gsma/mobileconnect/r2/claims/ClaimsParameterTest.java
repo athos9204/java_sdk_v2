@@ -19,6 +19,7 @@ package com.gsma.mobileconnect.r2.claims;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -56,5 +57,51 @@ public class ClaimsParameterTest
     public void emptyClaimsParameterShouldBeEmpty()
     {
         assertTrue(new ClaimsParameter.Builder().build().isEmpty());
+    }
+
+    @Test
+    public void testIsEmptyWithEmptyUserInfo()
+    {
+        assertTrue(new ClaimsParameter.Builder()
+            .withUserinfo(new Claims.Builder().build())
+            .build()
+            .isEmpty());
+    }
+
+    @Test
+    public void testIsEmptyWithEmptyIdentityInfo()
+    {
+        assertTrue(new ClaimsParameter.Builder()
+            .withIdToken(new Claims.Builder().build())
+            .build()
+            .isEmpty());
+    }
+
+    @Test
+    public void testIsEmptyOnlyUserInfo()
+    {
+        assertFalse(new ClaimsParameter.Builder()
+            .withUserinfo(new Claims.Builder().addEssential("key").build())
+            .build()
+            .isEmpty());
+    }
+
+    @Test
+    public void testIsEmptyOnlyIdentity()
+    {
+        assertFalse(new ClaimsParameter.Builder()
+            .withIdToken(new Claims.Builder().addEssential("key").build())
+            .build()
+            .isEmpty());
+    }
+
+    @Test
+    public void testIsEmptyFalse()
+    {
+        assertFalse(new ClaimsParameter.Builder()
+            .withIdToken(new Claims.Builder().addEssential("key").build())
+            .withUserinfo(new Claims.Builder().addEssential("key").build())
+            .build()
+            .isEmpty());
     }
 }

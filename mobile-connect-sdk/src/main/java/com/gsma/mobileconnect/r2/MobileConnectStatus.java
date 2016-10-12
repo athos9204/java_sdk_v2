@@ -32,6 +32,7 @@ import java.util.List;
  *
  * @since 2.0
  */
+@SuppressWarnings("WeakerAccess")
 @JsonDeserialize(builder = MobileConnectStatus.Builder.class)
 public class MobileConnectStatus
 {
