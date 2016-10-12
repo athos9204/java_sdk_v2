@@ -18,7 +18,6 @@ package com.gsma.mobileconnect.r2;
 
 import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
 import com.gsma.mobileconnect.r2.authentication.IAuthenticationService;
-import com.gsma.mobileconnect.r2.validation.IJWKeysetService;
 import com.gsma.mobileconnect.r2.cache.CacheAccessException;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
@@ -28,6 +27,7 @@ import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.utils.*;
+import com.gsma.mobileconnect.r2.validation.IJWKeysetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -552,12 +552,9 @@ public class MobileConnectWebInterface
 
         return this.withCachedValue(sdkSession, false, new CacheCallback()
         {
-            @Override
-            public MobileConnectStatus apply(final DiscoveryResponse cached)
+            @Override public MobileConnectStatus apply(final DiscoveryResponse cached)
             {
-                if (cached == null && (!StringUtils.isNullOrEmpty(expectedNonce)
-                    || !StringUtils.isNullOrEmpty(expectedState)
-                    || !StringUtils.isNullOrEmpty(sdkSession)))
+                if (cached == null && validateParameters(sdkSession, expectedState, expectedNonce))
                 {
                     return MobileConnectWebInterface.this.cacheError(null);
                 }
@@ -571,10 +568,16 @@ public class MobileConnectWebInterface
                             expectedState, expectedNonce, MobileConnectWebInterface.this.config,
                             options, MobileConnectWebInterface.this.jsonService,
                             MobileConnectWebInterface.this.iMobileConnectEncodeDecoder));
-
                 }
             }
         });
+    }
+
+    private boolean validateParameters(final String sdkSession, final String expectedState,
+        final String expectedNonce)
+    {
+        return !StringUtils.isNullOrEmpty(expectedNonce) || !StringUtils.isNullOrEmpty(
+            expectedState) || !StringUtils.isNullOrEmpty(sdkSession);
     }
 
     /**
