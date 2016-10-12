@@ -638,12 +638,10 @@ public class MobileConnectWebInterface
      *                          parameters that are required to request a identity info
      * @param accessToken       Access token returned from RequestToken required to authenticate the
      *                          request
-     * @param options           Optional parameters
      * @return MobileConnectStatus object with requested identity information
      */
     public MobileConnectStatus requestIdentity(final HttpServletRequest request,
-        final DiscoveryResponse discoveryResponse, final String accessToken,
-        final MobileConnectRequestOptions options)
+        final DiscoveryResponse discoveryResponse, final String accessToken)
     {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
@@ -663,12 +661,10 @@ public class MobileConnectWebInterface
      *                    parameters that are required to request identity info
      * @param accessToken Access token returned from RequestToken required to authenticate the
      *                    request
-     * @param options     Optional parameters
      * @return MobileConnectStatus object with requested identity information
      */
     public MobileConnectStatus requestIdentity(final HttpServletRequest request,
-        final String sdkSession, final String accessToken,
-        final MobileConnectRequestOptions options)
+        final String sdkSession, final String accessToken)
     {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
@@ -681,8 +677,7 @@ public class MobileConnectWebInterface
             @Override
             public MobileConnectStatus apply(final DiscoveryResponse cached)
             {
-                return MobileConnectWebInterface.this.requestIdentity(request, cached, accessToken,
-                    options);
+                return MobileConnectWebInterface.this.requestIdentity(request, cached, accessToken);
             }
         });
     }

@@ -108,7 +108,7 @@ public class PhonenumberExampleAppController
             LogUtils.mask(accessToken, LOGGER, Level.INFO));
 
         final MobileConnectStatus status =
-            this.mobileConnectWebInterface.requestIdentity(request, sdkSession, accessToken, null);
+            this.mobileConnectWebInterface.requestIdentity(request, sdkSession, accessToken);
 
         return new MobileConnectWebResponse(status);
     }
