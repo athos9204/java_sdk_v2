@@ -37,6 +37,7 @@ import java.util.concurrent.Future;
 import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -58,16 +59,21 @@ public class JWKeysetServiceTest
         .build();
 
     private RestClient mockRestClient = Mockito.mock(RestClient.class);
-    private IJWKeysetService jwKeysetService;
+    private IJWKeysetService jwKeysetServiceWithCache;
+    private IJWKeysetService jwKeysetServiceWithoutCache;
 
     @BeforeMethod
     public void beforeMethod()
     {
-        this.jwKeysetService = new JWKeysetService.Builder()
+        this.jwKeysetServiceWithCache = new JWKeysetService.Builder()
             .withRestClient(this.mockRestClient)
             .withICache(
                 new ConcurrentCache.Builder().withJsonService(new JacksonJsonService()).build())
             .build();
+
+        this.jwKeysetServiceWithoutCache = new JWKeysetService.Builder()
+        .withRestClient(this.mockRestClient)
+        .build();
     }
 
     @SuppressWarnings("unchecked")
@@ -80,7 +86,7 @@ public class JWKeysetServiceTest
             responses.get("single"));
 
         final Future<JWKeyset> jwKeysetFuture =
-            jwKeysetService.retrieveJwksAsync("http://jwks.com/jwks");
+            jwKeysetServiceWithCache.retrieveJwksAsync("http://jwks.com/jwks");
         final JWKeyset jwKeyset = jwKeysetFuture.get();
 
         final List<JWKey> jwKeyList = jwKeyset.getKeys();
@@ -105,10 +111,10 @@ public class JWKeysetServiceTest
             responses.get("single"));
 
         String jwksUrl = "http://jwks.com/jwks";
-        final Future<JWKeyset> jwKeysetFuture = jwKeysetService.retrieveJwksAsync(jwksUrl);
+        final Future<JWKeyset> jwKeysetFuture = jwKeysetServiceWithCache.retrieveJwksAsync(jwksUrl);
         jwKeysetFuture.get();
 
-        final Future<JWKeyset> cachedFuture = jwKeysetService.retrieveJwksAsync(jwksUrl);
+        final Future<JWKeyset> cachedFuture = jwKeysetServiceWithCache.retrieveJwksAsync(jwksUrl);
         final JWKeyset cachedJwKeyset = cachedFuture.get();
 
         assertTrue(cachedJwKeyset.isCached());
@@ -121,5 +127,49 @@ public class JWKeysetServiceTest
             "ALyIC8vj1tqEIvAvpDMQfgosw13LpBS9Z2lsMmuaLDNJjN_FKIb-HVR2qtMj7AYC0-wYJhGxJpTXJTVRRDz-zLN7uredNxuhVj76vmU1tfvEN0Xq2INYoWeJ3d9fZtkBgKl7Enfkgz858DLAfZuJzDycOzuZXR5r29zXMDstT5F5");
         assertEquals(jwKey.getRsaE(), "AQAB");
         assertEquals(jwKey.getKeyId(), "PHPOP-00");
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void retrieveJWKSAsyncReturnsJWKSWithoutCache()
+        throws RequestFailedException, ExecutionException, InterruptedException
+    {
+        when(mockRestClient.get(any(URI.class), any(RestAuthentication.class), anyString(),
+            anyListOf(KeyValuePair.class), any(Iterable.class))).thenReturn(
+            responses.get("single"));
+
+        final Future<JWKeyset> jwKeysetFuture =
+            jwKeysetServiceWithoutCache.retrieveJwksAsync("http://jwks.com/jwks");
+        final JWKeyset jwKeyset = jwKeysetFuture.get();
+
+        final List<JWKey> jwKeyList = jwKeyset.getKeys();
+        assertEquals(jwKeyList.size(), 1);
+        final JWKey jwKey = jwKeyList.get(0);
+        assertEquals(jwKey.getKeyType(), "RSA");
+        assertEquals(jwKey.getUse(), "sig");
+        assertEquals(jwKey.getRsaN(),
+            "ALyIC8vj1tqEIvAvpDMQfgosw13LpBS9Z2lsMmuaLDNJjN_FKIb-HVR2qtMj7AYC0-wYJhGxJpTXJTVRRDz-zLN7uredNxuhVj76vmU1tfvEN0Xq2INYoWeJ3d9fZtkBgKl7Enfkgz858DLAfZuJzDycOzuZXR5r29zXMDstT5F5");
+        assertEquals(jwKey.getRsaE(), "AQAB");
+        assertEquals(jwKey.getKeyId(), "PHPOP-00");
+    }
+
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void retrieveJWKSAsyncWithoutCachee()
+        throws RequestFailedException, ExecutionException, InterruptedException
+    {
+        when(mockRestClient.get(any(URI.class), any(RestAuthentication.class), anyString(),
+            anyListOf(KeyValuePair.class), any(Iterable.class))).thenReturn(
+            responses.get("single"));
+
+        String jwksUrl = "http://jwks.com/jwks";
+        final Future<JWKeyset> jwKeysetFuture = jwKeysetServiceWithoutCache.retrieveJwksAsync(jwksUrl);
+        jwKeysetFuture.get();
+
+        final Future<JWKeyset> cachedFuture = jwKeysetServiceWithoutCache.retrieveJwksAsync(jwksUrl);
+        final JWKeyset cachedJwKeyset = cachedFuture.get();
+
+        assertFalse(cachedJwKeyset.isCached());
     }
 }
