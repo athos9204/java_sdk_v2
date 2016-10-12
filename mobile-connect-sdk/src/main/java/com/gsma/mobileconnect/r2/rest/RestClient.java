@@ -187,50 +187,9 @@ public class RestClient implements IRestClient
     public URI getFinalRedirect(final URI authUrl, final URI targetUrl,
         final RestAuthentication authentication) throws RequestFailedException
     {
-        RestResponse response = null;
-        URI nextUrl = authUrl;
-        int numRedirects = 0;
-        URI locationUri = null;
-
         try
         {
-            do
-            {
-                if (numRedirects > DefaultOptions.MAX_REDIRECTS)
-                {
-                    throw new HeadlessOperationFailedException(
-                        "Headless operation failed either due to too many redirects or it timed out");
-                }
-                if (response != null)
-                {
-                    nextUrl = locationUri == null ? nextUrl : locationUri;
-                    numRedirects++;
-                }
-                RequestBuilder requestBuilder =
-                    this.createRequest(HttpUtils.HttpMethod.GET, nextUrl, authentication, null,
-                        null);
-                response = this.submitRequest(requestBuilder.build(), false);
-
-                locationUri = this.retrieveLocation(response);
-
-                if (locationUri != null && locationUri.toString().startsWith(targetUrl.toString()))
-                {
-                    break;
-                }
-                waitForSometime();
-            } while (true);
-            return locationUri;
-        }
-        catch (RequestFailedException e)
-        {
-            //If the final redirect is a non-working url then it may cause a request exception,
-            // if we verify it is the redirect url then just return it.
-            //Otherwise it was a request failure at some other point in the redirect chain
-            if (nextUrl.toString().startsWith(targetUrl.toString()))
-            {
-                return nextUrl;
-            }
-            throw e;
+            return followUrls(authUrl, targetUrl, authentication);
         }
         catch (URISyntaxException e)
         {
@@ -242,6 +201,42 @@ public class RestClient implements IRestClient
             LOGGER.error("Too many redirects", e);
             throw new RequestFailedException(HttpUtils.HttpMethod.GET, authUrl, e);
         }
+    }
+
+    private URI followUrls(final URI authUrl, final URI targetUrl,
+        final RestAuthentication authentication)
+        throws HeadlessOperationFailedException, RequestFailedException, URISyntaxException
+    {
+        int numRedirects = 0;
+        RestResponse response = null;
+        URI nextUrl = authUrl;
+        URI locationUri = null;
+
+        do
+        {
+            if (numRedirects > DefaultOptions.MAX_REDIRECTS)
+            {
+                throw new HeadlessOperationFailedException(
+                    "Headless operation failed either due to too many redirects or it timed out");
+            }
+            if (response != null)
+            {
+                nextUrl = locationUri == null ? nextUrl : locationUri;
+                numRedirects++;
+            }
+            RequestBuilder requestBuilder =
+                this.createRequest(HttpUtils.HttpMethod.GET, nextUrl, authentication, null, null);
+            response = this.submitRequest(requestBuilder.build(), false);
+
+            locationUri = this.retrieveLocation(response);
+
+            if (locationUri != null && locationUri.toString().startsWith(targetUrl.toString()))
+            {
+                break;
+            }
+            waitForSometime();
+        } while (true);
+        return locationUri;
     }
 
     private void waitForSometime()
