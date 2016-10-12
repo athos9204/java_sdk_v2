@@ -16,6 +16,7 @@ import static org.testng.Assert.*;
 public class MobileConnectStatusTest
 {
     private MobileConnectStatus mobileConnectStatus;
+    private MobileConnectStatus mobileConnectStatusCopy;
     private DiscoveryResponse discoveryResponse;
     private IdentityResponse identityResponse;
     private RequestTokenResponse requestTokenResponse;
@@ -50,6 +51,9 @@ public class MobileConnectStatusTest
             .withResponseType(MobileConnectStatus.ResponseType.COMPLETE)
             .withSetCookie(cookies)
             .build();
+
+        mobileConnectStatusCopy = new MobileConnectStatus.Builder(mobileConnectStatus)
+            .withResponseType(MobileConnectStatus.ResponseType.ERROR).build();
     }
 
     @AfterMethod
@@ -64,147 +68,95 @@ public class MobileConnectStatusTest
     }
 
     @Test
-    public void testError() throws Exception
-    {
-
-    }
-
-    @Test
-    public void testError1() throws Exception
-    {
-
-    }
-
-    @Test
-    public void testError2() throws Exception
-    {
-
-    }
-
-    @Test
-    public void testOperatorSelection() throws Exception
-    {
-
-    }
-
-    @Test
-    public void testStartAuthentication() throws Exception
-    {
-
-    }
-
-    @Test
-    public void testStartDiscovery() throws Exception
-    {
-
-    }
-
-    @Test
-    public void testAuthentication() throws Exception
-    {
-
-    }
-
-    @Test
-    public void testComplete() throws Exception
-    {
-
-    }
-
-    @Test
-    public void testComplete1() throws Exception
-    {
-
-    }
-
-    @Test
-    public void testError3() throws Exception
-    {
-
-    }
-
-    @Test
-    public void testWithSdkSession() throws Exception
-    {
-
-    }
-
-    @Test
     public void testGetResponseType() throws Exception
     {
         assertEquals(mobileConnectStatus.getResponseType(),
             MobileConnectStatus.ResponseType.COMPLETE);
+        assertEquals(mobileConnectStatusCopy.getResponseType(),
+            MobileConnectStatus.ResponseType.ERROR);
     }
 
     @Test
     public void testGetErrorCode() throws Exception
     {
         assertEquals(mobileConnectStatus.getErrorCode(), "errorCode");
+        assertEquals(mobileConnectStatusCopy.getErrorCode(), "errorCode");
     }
 
     @Test
     public void testGetErrorMessage() throws Exception
     {
         assertEquals(mobileConnectStatus.getErrorMessage(), "errorMsg");
+        assertEquals(mobileConnectStatusCopy.getErrorMessage(), "errorMsg");
     }
 
     @Test
     public void testGetUrl() throws Exception
     {
         assertEquals(mobileConnectStatus.getUrl(), "url");
+        assertEquals(mobileConnectStatusCopy.getUrl(), "url");
     }
 
     @Test
     public void testGetState() throws Exception
     {
         assertEquals(mobileConnectStatus.getState(), "state");
+        assertEquals(mobileConnectStatusCopy.getState(), "state");
     }
 
     @Test
     public void testGetNonce() throws Exception
     {
         assertEquals(mobileConnectStatus.getNonce(), "nonce");
+        assertEquals(mobileConnectStatusCopy.getNonce(), "nonce");
     }
 
     @Test
     public void testGetSetCookie() throws Exception
     {
         assertEquals(mobileConnectStatus.getSetCookie(), cookies);
+        assertEquals(mobileConnectStatusCopy.getSetCookie(), cookies);
     }
 
     @Test
     public void testGetSdkSession() throws Exception
     {
         assertEquals(mobileConnectStatus.getSdkSession(), "sdkSession");
+        assertEquals(mobileConnectStatusCopy.getSdkSession(), "sdkSession");
     }
 
     @Test
     public void testGetDiscoveryResponse() throws Exception
     {
         assertEquals(mobileConnectStatus.getDiscoveryResponse(), discoveryResponse);
+        assertEquals(mobileConnectStatusCopy.getDiscoveryResponse(), discoveryResponse);
     }
 
     @Test
     public void testGetRequestTokenResponse() throws Exception
     {
         assertEquals(mobileConnectStatus.getRequestTokenResponse(), requestTokenResponse);
+        assertEquals(mobileConnectStatusCopy.getRequestTokenResponse(), requestTokenResponse);
     }
 
     @Test
     public void testGetIdentityResponse() throws Exception
     {
         assertEquals(mobileConnectStatus.getIdentityResponse(), identityResponse);
+        assertEquals(mobileConnectStatusCopy.getIdentityResponse(), identityResponse);
     }
 
     @Test
     public void testGetException() throws Exception
     {
         assertEquals(mobileConnectStatus.getException(), exception);
+        assertEquals(mobileConnectStatusCopy.getException(), exception);
     }
 
     @Test
     public void testGetOutcome() throws Exception
     {
         assertEquals(mobileConnectStatus.getOutcome(), "outcome");
+        assertEquals(mobileConnectStatusCopy.getOutcome(), "outcome");
     }
 }

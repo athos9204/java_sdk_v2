@@ -447,6 +447,7 @@ public class MobileConnectStatus
                 this.requestTokenResponse = status.requestTokenResponse;
                 this.identityResponse = status.identityResponse;
                 this.exception = status.exception;
+                this.outcome = status.outcome;
             }
         }
 
