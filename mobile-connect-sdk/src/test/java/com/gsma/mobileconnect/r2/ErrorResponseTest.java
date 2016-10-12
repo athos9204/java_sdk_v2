@@ -21,7 +21,6 @@ public class ErrorResponseTest
             .withError(error)
             .withErrorDescription(errorDesc)
             .withErrorUri(errorUri)
-            .withDescription(desc)
             .build();
     }
 
@@ -46,7 +45,12 @@ public class ErrorResponseTest
     @Test
     public void testDescription() throws Exception
     {
-        assertEquals(errorResponse.getDescription(), desc);
+        ErrorResponse response = new ErrorResponse.Builder()
+            .withError(error)
+            .withDescription(desc)
+            .withErrorDescription(null)
+            .build();
+        assertEquals(response.getDescription(), desc);
     }
 
     @Test
