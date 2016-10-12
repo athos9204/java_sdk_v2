@@ -23,12 +23,6 @@ package com.gsma.mobileconnect.r2.constants;
  */
 public final class Cookies
 {
-    private Cookies()
-    {
-        /*
-        Private default constructor
-         */
-    }
     /**
      * Key for Most Recent Selected Operator cookie
      */
@@ -44,4 +38,11 @@ public final class Cookies
      * Key for Enum-Nonce cookie
      */
     public static final String ENUM_NONCE = "Enum-Nonce";
+
+    private Cookies()
+    {
+        /*
+        Private default constructor
+         */
+    }
 }

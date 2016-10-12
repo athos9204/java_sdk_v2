@@ -21,13 +21,6 @@ package com.gsma.mobileconnect.r2.constants;
  */
 public class Scope
 {
-    private Scope()
-    {
-        /*
-        Private default constructor
-         */
-    }
-
     public static final String OPENID = "openid";
     public static final String AUTHN = "mc_authn";
     public static final String AUTHZ = "mc_authz";
@@ -38,4 +31,11 @@ public class Scope
     public static final String IDENTITYSIGNUP = "mc_identity_signup";
     public static final String IDENTITYSIGNUPPLUS = "mc_identity_signupplus";
     public static final String IDENTITYNATIONALID = "mc_identity_nationalid";
+
+    private Scope()
+    {
+        /*
+        Private default constructor
+         */
+    }
 }

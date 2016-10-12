@@ -24,13 +24,6 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("unused")
 public final class DefaultOptions
 {
-    private DefaultOptions()
-    {
-        /*
-        Private default constructor
-         */
-    }
-
     private static final String MC_V1_1 = "mc_v1.1";
     private static final String MC_V1_2 = "mc_v1.2";
 
@@ -60,4 +53,11 @@ public final class DefaultOptions
     // Since the wait time is 5 seconds & the maximum timeout = 2 mins
     public static final long MAX_REDIRECTS = 24;
     public static final long WAIT_TIME = 5000L; // 5 seconds
+
+    private DefaultOptions()
+    {
+        /*
+        Private default constructor
+         */
+    }
 }

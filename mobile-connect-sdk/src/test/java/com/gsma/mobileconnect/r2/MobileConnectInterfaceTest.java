@@ -18,17 +18,13 @@ package com.gsma.mobileconnect.r2;
 
 import com.gsma.mobileconnect.r2.authentication.AuthenticationService;
 import com.gsma.mobileconnect.r2.constants.Parameters;
-import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
-import com.gsma.mobileconnect.r2.discovery.DiscoveryService;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.rest.MockRestClient;
-import com.gsma.mobileconnect.r2.rest.RequestFailedException;
 import com.gsma.mobileconnect.r2.utils.TestUtils;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.net.URI;
@@ -106,7 +102,7 @@ public class MobileConnectInterfaceTest
         final MobileConnectStatus status =
             this.mobileConnectInterface.refreshToken("RefreshToken", discoveryResponse);
 
-        Assert.assertNotNull(status);
+        assertNotNull(status);
 
         assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.COMPLETE);
 
@@ -126,7 +122,7 @@ public class MobileConnectInterfaceTest
             this.mobileConnectInterface.revokeToken("AccessToken", Parameters.ACCESS_TOKEN_HINT,
                 discoveryResponse);
 
-        Assert.assertNotNull(status);
+        assertNotNull(status);
 
         assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.COMPLETE);
         assertEquals(status.getOutcome(), AuthenticationService.REVOKE_TOKEN_SUCCESS);

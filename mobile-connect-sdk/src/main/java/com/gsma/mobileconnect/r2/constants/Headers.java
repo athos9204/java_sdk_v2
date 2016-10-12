@@ -23,13 +23,6 @@ package com.gsma.mobileconnect.r2.constants;
  */
 public final class Headers
 {
-    private Headers()
-    {
-        /*
-        Private default constructor
-         */
-    }
-
     /**
      * Key for Source Ip Header
      */
@@ -49,4 +42,11 @@ public final class Headers
      * Key for cookie header.
      */
     public static final String COOKIE = "Cookie";
+
+    private Headers()
+    {
+        /*
+        Private default constructor
+         */
+    }
 }

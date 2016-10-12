@@ -23,13 +23,6 @@ package com.gsma.mobileconnect.r2.constants;
  */
 public final class LinkRels
 {
-    private LinkRels()
-    {
-        /*
-        Private default constructor
-         */
-    }
-
     /**
      * Key for authorization url
      */
@@ -78,4 +71,11 @@ public final class LinkRels
      * Key for operator selection
      */
     public static final String OPERATOR_SELECTION = "operatorSelection";
+
+    private LinkRels()
+    {
+        /*
+        Private default constructor
+         */
+    }
 }
