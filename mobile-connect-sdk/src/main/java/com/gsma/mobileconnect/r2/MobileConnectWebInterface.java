@@ -762,15 +762,15 @@ public class MobileConnectWebInterface
         private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder =
             new DefaultEncodeDecoder();
 
-        public Builder withDiscoveryService(final IDiscoveryService val)
-        {
-            this.discoveryService = val;
-            return this;
-        }
-
         public Builder withAuthnService(final IAuthenticationService val)
         {
             this.authnService = val;
+            return this;
+        }
+
+        public Builder withDiscoveryService(final IDiscoveryService val)
+        {
+            this.discoveryService = val;
             return this;
         }
 
@@ -780,27 +780,27 @@ public class MobileConnectWebInterface
             return this;
         }
 
-        public Builder withJwKeysetService(final IJWKeysetService val)
-        {
-            this.jwKeysetService = val;
-            return this;
-        }
-
         public Builder withJsonService(final IJsonService val)
         {
             this.jsonService = val;
             return this;
         }
 
-        public Builder withConfig(final MobileConnectConfig val)
+        public Builder withJwKeysetService(final IJWKeysetService val)
         {
-            this.config = val;
+            this.jwKeysetService = val;
             return this;
         }
 
         public Builder withIMobileConnectEncodeDecoder(final IMobileConnectEncodeDecoder val)
         {
             this.iMobileConnectEncodeDecoder = val;
+            return this;
+        }
+
+        public Builder withConfig(final MobileConnectConfig val)
+        {
+            this.config = val;
             return this;
         }
 
