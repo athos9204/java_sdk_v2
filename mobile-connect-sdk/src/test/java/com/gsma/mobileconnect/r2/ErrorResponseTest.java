@@ -50,7 +50,7 @@ public class ErrorResponseTest
             .withDescription(desc)
             .withErrorDescription(null)
             .build();
-        assertEquals(response.getDescription(), desc);
+        assertEquals(response.getErrorDescription(), desc);
     }
 
     @Test

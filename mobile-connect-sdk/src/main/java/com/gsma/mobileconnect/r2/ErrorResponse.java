@@ -58,14 +58,6 @@ public class ErrorResponse
     }
 
     /**
-     * @return the description
-     */
-    public String getDescription()
-    {
-        return description;
-    }
-
-    /**
      * @return the error URI.
      */
     public String getErrorUri()
