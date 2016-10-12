@@ -68,6 +68,23 @@ public class MobileConnectStatusTest
     }
 
     @Test
+    public void testWithSdkSession() throws Exception
+    {
+        MobileConnectStatus status = mobileConnectStatus.withSdkSession("sdkSession123");
+        assertNotNull(status);
+        assertEquals(status.getSdkSession(), "sdkSession123");
+    }
+
+    @Test
+    public void testBuildWithNullStatus() throws Exception
+    {
+        MobileConnectStatus status = new MobileConnectStatus.Builder(null).withResponseType(
+            MobileConnectStatus.ResponseType.START_DISCOVERY).build();
+        assertNotNull(status);
+        assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.START_DISCOVERY);
+    }
+
+    @Test
     public void testGetResponseType() throws Exception
     {
         assertEquals(mobileConnectStatus.getResponseType(),

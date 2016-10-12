@@ -17,7 +17,7 @@ public class DiscoveryOptionsTest
     public void setUp() throws Exception
     {
         uri = new URI("http://redirect");
-        discoveryOptions = new DiscoveryOptions.Builder()
+        discoveryOptions = new DiscoveryOptions.Builder(null)
             .withIdentifiedMnc("iMnc")
             .withSelectedMcc("sMcc")
             .withSelectedMnc("sMnc")
