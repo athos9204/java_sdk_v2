@@ -19,15 +19,20 @@ package com.gsma.mobileconnect.r2;
 import com.gsma.mobileconnect.r2.authentication.AuthenticationService;
 import com.gsma.mobileconnect.r2.constants.Parameters;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
+import com.gsma.mobileconnect.r2.discovery.DiscoveryService;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
+import com.gsma.mobileconnect.r2.identity.IdentityResponse;
+import com.gsma.mobileconnect.r2.identity.IdentityService;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.rest.MockRestClient;
 import com.gsma.mobileconnect.r2.utils.TestUtils;
+import org.mockito.Mockito;
 import org.testng.annotations.Test;
 
 import java.net.URI;
+import java.util.concurrent.ExecutorService;
 
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
@@ -123,5 +128,17 @@ public class MobileConnectInterfaceTest
 
         assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.COMPLETE);
         assertEquals(status.getOutcome(), AuthenticationService.REVOKE_TOKEN_SUCCESS);
+    }
+
+    @Test
+    public void testBuilder()
+    {
+        assertNotNull(new MobileConnectInterface.Builder()
+            .withDiscoveryService(Mockito.mock(DiscoveryService.class))
+            .withAuthnService(Mockito.mock(AuthenticationService.class))
+            .withIdentityService(Mockito.mock(IdentityService.class))
+            .withConfig(this.config)
+            .withExecutorService(Mockito.mock(ExecutorService.class))
+            .build());
     }
 }
