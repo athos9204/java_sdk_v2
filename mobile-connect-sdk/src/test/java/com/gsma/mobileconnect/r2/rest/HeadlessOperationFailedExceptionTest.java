@@ -1,6 +1,7 @@
 package com.gsma.mobileconnect.r2.rest;
 
 import com.gsma.mobileconnect.r2.MobileConnectStatus;
+import com.gsma.mobileconnect.r2.exceptions.HeadlessOperationFailedException;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;

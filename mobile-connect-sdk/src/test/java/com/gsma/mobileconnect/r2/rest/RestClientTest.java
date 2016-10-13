@@ -18,6 +18,7 @@ package com.gsma.mobileconnect.r2.rest;
 
 import com.gsma.mobileconnect.r2.MobileConnectStatus;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
+import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.utils.KeyValuePair;

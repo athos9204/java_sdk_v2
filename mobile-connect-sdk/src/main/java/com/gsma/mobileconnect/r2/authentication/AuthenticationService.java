@@ -27,7 +27,7 @@ import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JsonSerializationException;
 import com.gsma.mobileconnect.r2.rest.IRestClient;
-import com.gsma.mobileconnect.r2.rest.RequestFailedException;
+import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.rest.RestAuthentication;
 import com.gsma.mobileconnect.r2.rest.RestResponse;
 import com.gsma.mobileconnect.r2.utils.*;

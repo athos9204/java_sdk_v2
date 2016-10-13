@@ -16,6 +16,7 @@
  */
 package com.gsma.mobileconnect.r2.rest;
 
+import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.utils.KeyValuePair;
 import org.apache.http.HttpEntity;
 import org.apache.http.entity.ContentType;

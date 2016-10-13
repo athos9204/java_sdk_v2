@@ -19,7 +19,7 @@ package com.gsma.mobileconnect.r2.validation;
 import com.google.common.collect.ImmutableMap;
 import com.gsma.mobileconnect.r2.cache.ConcurrentCache;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
-import com.gsma.mobileconnect.r2.rest.RequestFailedException;
+import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.rest.RestAuthentication;
 import com.gsma.mobileconnect.r2.rest.RestClient;
 import com.gsma.mobileconnect.r2.rest.RestResponse;

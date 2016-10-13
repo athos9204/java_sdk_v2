@@ -30,7 +30,7 @@ import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.rest.MockRestClient;
-import com.gsma.mobileconnect.r2.rest.RequestFailedException;
+import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.utils.HttpUtils;
 import com.gsma.mobileconnect.r2.utils.TestUtils;
 import org.testng.annotations.AfterMethod;

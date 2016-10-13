@@ -18,7 +18,7 @@ package com.gsma.mobileconnect.r2.validation;
 
 import com.gsma.mobileconnect.r2.cache.CacheAccessException;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
-import com.gsma.mobileconnect.r2.rest.RequestFailedException;
+import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 
 import java.util.concurrent.Future;
 

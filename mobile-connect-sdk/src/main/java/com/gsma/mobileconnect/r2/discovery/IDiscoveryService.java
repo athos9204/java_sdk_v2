@@ -19,7 +19,7 @@ package com.gsma.mobileconnect.r2.discovery;
 import com.gsma.mobileconnect.r2.exceptions.InvalidResponseException;
 import com.gsma.mobileconnect.r2.cache.CacheAccessException;
 import com.gsma.mobileconnect.r2.cache.ICache;
-import com.gsma.mobileconnect.r2.rest.RequestFailedException;
+import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.utils.KeyValuePair;
 
 import java.net.URI;

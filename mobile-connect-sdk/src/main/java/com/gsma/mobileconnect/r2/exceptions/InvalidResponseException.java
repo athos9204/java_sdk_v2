@@ -26,7 +26,7 @@ import com.gsma.mobileconnect.r2.rest.RestResponse;
  *
  * @since 2.0
  */
-public class InvalidResponseException extends Exception implements IHasMobileConnectStatus
+public class InvalidResponseException extends AbstractMobileConnectException
 {
     private final Class<?> responseClass;
     private final transient RestResponse restResponse;

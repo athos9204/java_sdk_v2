@@ -22,11 +22,13 @@ import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.constants.Parameters;
 import com.gsma.mobileconnect.r2.discovery.*;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
+import com.gsma.mobileconnect.r2.exceptions.AbstractMobileConnectException;
+import com.gsma.mobileconnect.r2.exceptions.InvalidArgumentException;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.identity.IdentityResponse;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
-import com.gsma.mobileconnect.r2.rest.RequestFailedException;
+import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.utils.*;
 import com.gsma.mobileconnect.r2.validation.IJWKeysetService;
 import com.gsma.mobileconnect.r2.validation.JWKeyset;
@@ -523,22 +525,30 @@ class MobileConnectInterfaceHelper
                         .build();
                 }
             }
+            catch (final InvalidArgumentException e)
+            {
+                return handleErrorStatus(e, method, accessToken, responseType);
+            }
+            catch (final AbstractMobileConnectException e)
+            {
+                return handleErrorStatus(e, method, accessToken, responseType);
+            }
             catch (final Exception e)
             {
                 LOGGER.warn("{} failed for accessToken={}", method,
                     LogUtils.mask(accessToken, LOGGER, Level.WARN), e);
-
-                if (e instanceof IHasMobileConnectStatus)
-                {
-                    return ((IHasMobileConnectStatus) e).toMobileConnectStatus(
-                        String.format("request %s", responseType));
-                }
-                else
-                {
-                    return MobileConnectStatus.error(String.format("request %s", responseType), e);
-                }
+                return MobileConnectStatus.error(String.format("request %s", responseType), e);
             }
         }
+    }
+
+    private static MobileConnectStatus handleErrorStatus(final IHasMobileConnectStatus e,
+        final String method, final String accessToken,
+        final MobileConnectStatus.ResponseType responseType)
+    {
+        LOGGER.warn("{} failed for accessToken={}", method,
+            LogUtils.mask(accessToken, LOGGER, Level.WARN), e);
+        return e.toMobileConnectStatus(String.format("request %s", responseType));
     }
 
     private static MobileConnectStatus extractStatus(final DiscoveryResponse response,
