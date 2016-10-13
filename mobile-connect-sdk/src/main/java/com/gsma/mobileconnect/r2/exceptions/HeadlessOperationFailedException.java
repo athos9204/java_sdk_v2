@@ -16,7 +16,6 @@
  */
 package com.gsma.mobileconnect.r2.exceptions;
 
-import com.gsma.mobileconnect.r2.IHasMobileConnectStatus;
 import com.gsma.mobileconnect.r2.MobileConnectStatus;
 
 /**

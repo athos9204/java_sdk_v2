@@ -16,7 +16,6 @@
  */
 package com.gsma.mobileconnect.r2.exceptions;
 
-import com.gsma.mobileconnect.r2.IHasMobileConnectStatus;
 import com.gsma.mobileconnect.r2.MobileConnectStatus;
 import com.gsma.mobileconnect.r2.rest.RestResponse;
 
@@ -26,6 +25,7 @@ import com.gsma.mobileconnect.r2.rest.RestResponse;
  *
  * @since 2.0
  */
+@SuppressWarnings("unused")
 public class InvalidResponseException extends AbstractMobileConnectException
 {
     private final Class<?> responseClass;

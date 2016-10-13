@@ -24,6 +24,7 @@ import com.gsma.mobileconnect.r2.MobileConnectStatus;
  *
  * @since 2.0
  */
+@SuppressWarnings("WeakerAccess")
 public abstract class AbstractMobileConnectException extends Exception
     implements IHasMobileConnectStatus
 {
