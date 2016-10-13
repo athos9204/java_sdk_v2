@@ -52,7 +52,7 @@ class MobileConnectInterfaceHelper
 {
     private static final Logger LOGGER =
         LoggerFactory.getLogger(MobileConnectInterfaceHelper.class);
-    private static final Pattern NONCE_REGEX = Pattern.compile("\\\"?nonce\\\"?:\\\"(.*)\\\"");
+    private static final Pattern NONCE_REGEX = Pattern.compile("\"?nonce\"?:\"(.*)\"");
     private static final String DISCOVERY_RESPONSE = "discoveryResponse";
 
     private MobileConnectInterfaceHelper()
@@ -483,7 +483,7 @@ class MobileConnectInterfaceHelper
     private static MobileConnectStatus requestInfo(final IIdentityService identityService,
         final String accessToken, final String infoUrl, final String method,
         final MobileConnectStatus.ResponseType responseType,
-        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+        final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
     {
         if (StringUtils.isNullOrEmpty(infoUrl))
         {
@@ -497,48 +497,57 @@ class MobileConnectInterfaceHelper
         }
         else
         {
-            try
-            {
-                final IdentityResponse response =
-                    identityService.requestInfo(URI.create(infoUrl), accessToken,
-                        iMobileConnectEncodeDecoder);
+            return processRequestInfoRequest(identityService, accessToken, infoUrl, method,
+                responseType, mobileConnectEncodeDecoder);
+        }
+    }
 
-                final ErrorResponse errorResponse = response.getErrorResponse();
-                if (errorResponse != null)
-                {
-                    LOGGER.warn(
-                        "Responding with responseType={} for {} for accessToken={}, identity service responded with error={}",
-                        MobileConnectStatus.ResponseType.ERROR, method,
-                        LogUtils.mask(accessToken, LOGGER, Level.WARN), errorResponse);
-                    return MobileConnectStatus.error(errorResponse.getError(),
-                        errorResponse.getErrorDescription(), null);
-                }
-                else
-                {
-                    LOGGER.debug("Responding with responseType={} for {} for accessToken={}",
-                        MobileConnectStatus.ResponseType.USER_INFO, method,
-                        LogUtils.mask(accessToken, LOGGER, Level.DEBUG));
+    private static MobileConnectStatus processRequestInfoRequest(final IIdentityService identityService,
+        final String accessToken, final String infoUrl, final String method,
+        final MobileConnectStatus.ResponseType responseType,
+        final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
+    {
+        try
+        {
+            final IdentityResponse response =
+                identityService.requestInfo(URI.create(infoUrl), accessToken,
+                    mobileConnectEncodeDecoder);
 
-                    return new MobileConnectStatus.Builder()
-                        .withResponseType(responseType)
-                        .withIdentityResponse(response)
-                        .build();
-                }
-            }
-            catch (final InvalidArgumentException e)
+            final ErrorResponse errorResponse = response.getErrorResponse();
+            if (errorResponse != null)
             {
-                return handleErrorStatus(e, method, accessToken, responseType);
+                LOGGER.warn(
+                    "Responding with responseType={} for {} for accessToken={}, identity service responded with error={}",
+                    MobileConnectStatus.ResponseType.ERROR, method,
+                    LogUtils.mask(accessToken, LOGGER, Level.WARN), errorResponse);
+                return MobileConnectStatus.error(errorResponse.getError(),
+                    errorResponse.getErrorDescription(), null);
             }
-            catch (final AbstractMobileConnectException e)
+            else
             {
-                return handleErrorStatus(e, method, accessToken, responseType);
+                LOGGER.debug("Responding with responseType={} for {} for accessToken={}",
+                    MobileConnectStatus.ResponseType.USER_INFO, method,
+                    LogUtils.mask(accessToken, LOGGER, Level.DEBUG));
+
+                return new MobileConnectStatus.Builder()
+                    .withResponseType(responseType)
+                    .withIdentityResponse(response)
+                    .build();
             }
-            catch (final Exception e)
-            {
-                LOGGER.warn("{} failed for accessToken={}", method,
-                    LogUtils.mask(accessToken, LOGGER, Level.WARN), e);
-                return MobileConnectStatus.error(String.format("request %s", responseType), e);
-            }
+        }
+        catch (final InvalidArgumentException e)
+        {
+            return handleErrorStatus(e, method, accessToken, responseType);
+        }
+        catch (final AbstractMobileConnectException e)
+        {
+            return handleErrorStatus(e, method, accessToken, responseType);
+        }
+        catch (final Exception e)
+        {
+            LOGGER.warn("{} failed for accessToken={}", method,
+                LogUtils.mask(accessToken, LOGGER, Level.WARN), e);
+            return MobileConnectStatus.error(String.format("request %s", responseType), e);
         }
     }
 
