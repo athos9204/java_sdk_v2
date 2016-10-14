@@ -37,7 +37,6 @@ import java.security.spec.RSAPublicKeySpec;
  *
  * @since 2.0
  */
-@SuppressWarnings({"WeakerAccess", "unused"})
 class JWKey
 {
     private String keyType;

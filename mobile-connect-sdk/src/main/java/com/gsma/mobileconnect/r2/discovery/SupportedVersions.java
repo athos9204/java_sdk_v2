@@ -159,8 +159,6 @@ public class SupportedVersions
         }
     }
 
-
-    @SuppressWarnings("WeakerAccess")
     protected static class JacksonDeserializer extends JsonDeserializer<SupportedVersions>
     {
         @Override
@@ -185,8 +183,6 @@ public class SupportedVersions
         }
     }
 
-
-    @SuppressWarnings("WeakerAccess")
     protected static class JacksonSerializer extends JsonSerializer<SupportedVersions>
     {
         @Override

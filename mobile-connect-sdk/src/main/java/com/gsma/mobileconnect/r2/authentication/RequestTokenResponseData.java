@@ -29,7 +29,6 @@ import java.util.concurrent.TimeUnit;
  *
  * @since 2.0
  */
-@SuppressWarnings("unused")
 @JsonDeserialize(builder = RequestTokenResponseData.Builder.class)
 public class RequestTokenResponseData
 {

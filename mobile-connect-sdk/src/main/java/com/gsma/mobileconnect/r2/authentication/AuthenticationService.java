@@ -76,7 +76,7 @@ public class AuthenticationService implements IAuthenticationService
         final String encryptedMSISDN, final SupportedVersions versions,
         final AuthenticationOptions options)
     {
-        String loginHint = extractLoginHint(options, encryptedMSISDN);
+        final String loginHint = extractLoginHint(options, encryptedMSISDN);
 
         final AuthenticationOptions.Builder optionsBuilder =
             new AuthenticationOptions.Builder(options)

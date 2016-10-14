@@ -108,7 +108,7 @@ public class RequestTokenResponse
     /**
      * @return the list of HTTP headers returned with the response.
      */
-    @SuppressWarnings("unused")
+
     public List<KeyValuePair> getHeaders()
     {
         return this.headers;
@@ -138,7 +138,6 @@ public class RequestTokenResponse
         return this.errorResponse;
     }
 
-    @SuppressWarnings("WeakerAccess")
     public static final class Builder implements IBuilder<RequestTokenResponse>
     {
         private int responseCode;
