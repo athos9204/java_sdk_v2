@@ -133,12 +133,13 @@ public class MobileConnectInterfaceTest
     @Test
     public void testBuilder()
     {
-        assertNotNull(new MobileConnectInterface.Builder()
+        MobileConnectInterface mobileConnectInterface = new MobileConnectInterface.Builder()
             .withDiscoveryService(Mockito.mock(DiscoveryService.class))
             .withAuthnService(Mockito.mock(AuthenticationService.class))
             .withIdentityService(Mockito.mock(IdentityService.class))
             .withConfig(this.config)
             .withExecutorService(Mockito.mock(ExecutorService.class))
-            .build());
+            .build();
+        assertNotNull(mobileConnectInterface);
     }
 }

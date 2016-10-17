@@ -139,11 +139,11 @@ public class HttpUtilsTest
     public void testExtractCookiesFromRequest() throws Exception
     {
         // Given
-        HttpServletRequest mockRequest = Mockito.mock(HttpServletRequest.class);
+        final HttpServletRequest mockRequest = Mockito.mock(HttpServletRequest.class);
         when(mockRequest.getCookies()).thenReturn(getCookieData());
 
         // When
-        Iterable<KeyValuePair> keyValuePairs = HttpUtils.extractCookiesFromRequest(mockRequest);
+        final Iterable<KeyValuePair> keyValuePairs = HttpUtils.extractCookiesFromRequest(mockRequest);
 
         // Then
         assertEquals(keyValuePairs, AVAILABLE_COOKIES);
@@ -152,9 +152,9 @@ public class HttpUtilsTest
     @Test
     public void testExtractCookiesFromHeaders() throws Exception
     {
-        String cookie1 = "z=£", cookie2 = "x=p", cookie3 = "y=1";
+        final String cookie1 = "z=£", cookie2 = "x=p", cookie3 = "y=1";
         // Given
-        Iterable<KeyValuePair> headers = new KeyValuePair.ListBuilder()
+        final Iterable<KeyValuePair> headers = new KeyValuePair.ListBuilder()
             .add("a", "1")
             .add(Headers.SET_COOKIE, cookie3 + ";")
             .add("b", "2")
@@ -162,10 +162,10 @@ public class HttpUtilsTest
             .add("c", "3")
             .add(Headers.SET_COOKIE, cookie2 + ";")
             .build();
-        String[] expected = {cookie1, cookie2, cookie3};
+        final String[] expected = {cookie1, cookie2, cookie3};
 
         // When
-        List<String> cookiesList = HttpUtils.extractCookiesFromHeaders(headers);
+        final List<String> cookiesList = HttpUtils.extractCookiesFromHeaders(headers);
 
         // Then
         assertEqualsNoOrder(cookiesList.toArray(), expected);
@@ -175,17 +175,17 @@ public class HttpUtilsTest
     public void testExtractCompleteUrl() throws Exception
     {
         // Given
-        StringBuffer url = new StringBuffer("http://test.html");
-        String queryString = "a=x&b=4";
+        final StringBuffer url = new StringBuffer("http://test.html");
+        final String queryString = "a=x&b=4";
 
-        HttpServletRequest mockRequest = Mockito.mock(HttpServletRequest.class);
+        final HttpServletRequest mockRequest = Mockito.mock(HttpServletRequest.class);
         when(mockRequest.getRequestURL()).thenReturn(url);
         when(mockRequest.getQueryString()).thenReturn(queryString);
 
-        URI expected = URI.create(url + "?" + queryString);
+        final URI expected = URI.create(url + "?" + queryString);
 
         // When
-        URI actual = HttpUtils.extractCompleteUrl(mockRequest);
+        final URI actual = HttpUtils.extractCompleteUrl(mockRequest);
 
         // Then
         assertEquals(actual, expected);

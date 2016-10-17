@@ -52,7 +52,7 @@ public class ParsedDiscoveryRedirectTest
     @Test
     public void testHasMccAndMncBothAbsent() throws Exception
     {
-        ParsedDiscoveryRedirect parsedDiscoveryRedirect = new ParsedDiscoveryRedirect.Builder()
+        final ParsedDiscoveryRedirect parsedDiscoveryRedirect = new ParsedDiscoveryRedirect.Builder()
             .withEncryptedMsisdn("encryptedMsisdn")
             .build();
 
@@ -62,7 +62,7 @@ public class ParsedDiscoveryRedirectTest
     @Test
     public void testHasMccAndMncOnlyMncPresent() throws Exception
     {
-        ParsedDiscoveryRedirect parsedDiscoveryRedirect = new ParsedDiscoveryRedirect.Builder()
+        final ParsedDiscoveryRedirect parsedDiscoveryRedirect = new ParsedDiscoveryRedirect.Builder()
             .withEncryptedMsisdn("encryptedMsisdn")
             .withSelectedMnc("mcn")
             .build();
@@ -72,7 +72,7 @@ public class ParsedDiscoveryRedirectTest
     @Test
     public void testHasMccAndMncOnlyMccPresent() throws Exception
     {
-        ParsedDiscoveryRedirect parsedDiscoveryRedirect = new ParsedDiscoveryRedirect.Builder()
+        final ParsedDiscoveryRedirect parsedDiscoveryRedirect = new ParsedDiscoveryRedirect.Builder()
             .withEncryptedMsisdn("encryptedMsisdn")
             .withSelectedMcc("mcc")
             .build();
