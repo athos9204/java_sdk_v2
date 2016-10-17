@@ -65,9 +65,9 @@ public class TokenValidation
      * @return TokenValidationResult that specifies if the token is valid, or if not why it is not
      * valid
      */
-    public static TokenValidationResult validateIdToken(final String idToken, final String clientId,
-        final String issuer, final String nonce, final long maxAge, final JWKeyset keyset,
-        final IJsonService jsonService,
+    public static TokenValidationResult validateIdToken(final String idToken, //NOSONAR
+        final String clientId, final String issuer, final String nonce, final long maxAge,
+        final JWKeyset keyset, final IJsonService jsonService,
         final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
         throws JsonDeserializationException
     {

@@ -174,7 +174,7 @@ class MobileConnectInterfaceHelper
         }
     }
 
-    static MobileConnectStatus requestHeadlessAuthentication(
+    static MobileConnectStatus requestHeadlessAuthentication( //NOSONAR
         final IAuthenticationService authnService, final IIdentityService identityService,
         final DiscoveryResponse discoveryResponse, final String encryptedMsisdn,
         final String expectedState, final String expectedNonce, final MobileConnectConfig config,
@@ -246,12 +246,12 @@ class MobileConnectInterfaceHelper
         }
     }
 
-    static MobileConnectStatus requestToken(final IAuthenticationService authnService,
+    static MobileConnectStatus requestToken(final IAuthenticationService authnService, //NOSONAR
         final IJWKeysetService jwKeysetService, final DiscoveryResponse discoveryResponse,
         final URI redirectedUrl, final String expectedState, final String expectedNonce,
         final MobileConnectConfig config, final MobileConnectRequestOptions options,
         final IJsonService jsonService,
-        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder) //NOSONAR
     {
         ObjectUtils.requireNonNull(discoveryResponse, DISCOVERY_RESPONSE);
         StringUtils.requireNonEmpty(expectedState, "expectedState");
@@ -321,7 +321,7 @@ class MobileConnectInterfaceHelper
         return maxAge;
     }
 
-    private static MobileConnectStatus processRequestTokenResponse(
+    private static MobileConnectStatus processRequestTokenResponse( //NOSONAR
         final RequestTokenResponse requestTokenResponse, final String expectedState,
         final String expectedNonce, final URI redirectedUrl,
         final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder, IJWKeysetService jwks,
@@ -403,8 +403,8 @@ class MobileConnectInterfaceHelper
         return matcher.find() && matcher.group(1).equals(expectedNonce);
     }
 
-    @SuppressWarnings("MethodWithTooManyParameters")
-    static MobileConnectStatus handleUrlRedirect(final IDiscoveryService discoveryService,
+
+    static MobileConnectStatus handleUrlRedirect(final IDiscoveryService discoveryService, //NOSONAR
         final IJWKeysetService jwKeysetService, final IAuthenticationService authnService,
         final URI redirectedUrl, final DiscoveryResponse discoveryResponse,
         final String expectedState, final String expectedNonce, final MobileConnectConfig config,
