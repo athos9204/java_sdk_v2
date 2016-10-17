@@ -251,7 +251,7 @@ class MobileConnectInterfaceHelper
         final URI redirectedUrl, final String expectedState, final String expectedNonce,
         final MobileConnectConfig config, final MobileConnectRequestOptions options,
         final IJsonService jsonService,
-        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder) //NOSONAR
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
         ObjectUtils.requireNonNull(discoveryResponse, DISCOVERY_RESPONSE);
         StringUtils.requireNonEmpty(expectedState, "expectedState");

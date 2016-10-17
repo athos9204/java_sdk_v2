@@ -133,7 +133,7 @@ public class MobileConnectInterfaceTest
     @Test
     public void testBuilder()
     {
-        MobileConnectInterface mobileConnectInterface = new MobileConnectInterface.Builder()
+        final MobileConnectInterface mobileConnectInterface = new MobileConnectInterface.Builder()
             .withDiscoveryService(Mockito.mock(DiscoveryService.class))
             .withAuthnService(Mockito.mock(AuthenticationService.class))
             .withIdentityService(Mockito.mock(IdentityService.class))
