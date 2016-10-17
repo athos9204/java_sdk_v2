@@ -14,13 +14,17 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. YOU AGREE TO
  * INDEMNIFY AND HOLD HARMLESS THE AUTHORS AND COPYRIGHT HOLDERS FROM AND AGAINST ANY SUCH LIABILITY.
  */
-package com.gsma.mobileconnect.r2;
+package com.gsma.mobileconnect.r2.exceptions;
+
+import com.gsma.mobileconnect.r2.IHasMobileConnectStatus;
+import com.gsma.mobileconnect.r2.MobileConnectStatus;
 
 /**
  * Thrown to warn of an invalid argument on entry to a method.
  *
  * @since 2.0
  */
+@SuppressWarnings("unused")
 public class InvalidArgumentException extends IllegalArgumentException
     implements IHasMobileConnectStatus
 {

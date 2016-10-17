@@ -14,8 +14,9 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. YOU AGREE TO
  * INDEMNIFY AND HOLD HARMLESS THE AUTHORS AND COPYRIGHT HOLDERS FROM AND AGAINST ANY SUCH LIABILITY.
  */
-package com.gsma.mobileconnect.r2;
+package com.gsma.mobileconnect.r2.exceptions;
 
+import com.gsma.mobileconnect.r2.MobileConnectStatus;
 import com.gsma.mobileconnect.r2.rest.RestResponse;
 
 /**
@@ -24,7 +25,8 @@ import com.gsma.mobileconnect.r2.rest.RestResponse;
  *
  * @since 2.0
  */
-public class InvalidResponseException extends Exception implements IHasMobileConnectStatus
+@SuppressWarnings("unused")
+public class InvalidResponseException extends AbstractMobileConnectException
 {
     private final Class<?> responseClass;
     private final transient RestResponse restResponse;

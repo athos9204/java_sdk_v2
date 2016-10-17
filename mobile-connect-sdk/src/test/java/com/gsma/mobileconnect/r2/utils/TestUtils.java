@@ -76,6 +76,7 @@ public final class TestUtils
             "{\"sub\":\"411421B0-38D6-6568-A53A-DF99691B7EB6\",\"email\":\"test2@example.com\",\"email_verified\":true}")
         .build();
 
+    @SuppressWarnings("unused")
     public static final RestResponse UNAUTHORIZED_RESPONSE = new RestResponse.Builder()
         .withStatusCode(HttpStatus.SC_UNAUTHORIZED)
         .withHeaders(new KeyValuePair.ListBuilder()

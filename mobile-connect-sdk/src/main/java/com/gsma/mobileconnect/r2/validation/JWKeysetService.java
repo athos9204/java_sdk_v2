@@ -14,14 +14,14 @@
 * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. YOU AGREE TO
 * INDEMNIFY AND HOLD HARMLESS THE AUTHORS AND COPYRIGHT HOLDERS FROM AND AGAINST ANY SUCH LIABILITY.
 */
-package com.gsma.mobileconnect.r2.authentication;
+package com.gsma.mobileconnect.r2.validation;
 
 import com.gsma.mobileconnect.r2.cache.CacheAccessException;
 import com.gsma.mobileconnect.r2.cache.ICache;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.rest.IRestClient;
-import com.gsma.mobileconnect.r2.rest.RequestFailedException;
+import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.rest.RestResponse;
 
 import java.net.URI;
@@ -37,21 +37,23 @@ import java.util.concurrent.Future;
  */
 public class JWKeysetService implements IJWKeysetService
 {
-    final private IRestClient restClient;
-    final private ICache iCache;
-    // TODO: 9/6/2016 relook at instantiating this, can it be instantiated elsewhere higher up?
-    final ExecutorService executorService = Executors.newCachedThreadPool();
-    final JacksonJsonService jacksonJsonService = new JacksonJsonService();
+    private final IRestClient restClient;
+    private final ICache iCache;
+
+    private final ExecutorService executorService;
+    private final JacksonJsonService jacksonJsonService;
 
     /**
      * Creates an instance of the JWKeysetService with a configured cache
      *
-     * @param Builder Builder
+     * @param builder Builder
      */
-    public JWKeysetService(final Builder Builder)
+    private JWKeysetService(final Builder builder)
     {
-        this.restClient = Builder.restClient;
-        this.iCache = Builder.iCache;
+        this.restClient = builder.restClient;
+        this.iCache = builder.iCache;
+        this.executorService = Executors.newCachedThreadPool();
+        this.jacksonJsonService = new JacksonJsonService();
     }
 
     /**
@@ -74,7 +76,6 @@ public class JWKeysetService implements IJWKeysetService
      * {@inheritDoc}
      */
     @Override
-    // TODO: 9/6/2016 need to think about these exceptions properly
     public JWKeyset retrieveJwks(final String url)
         throws CacheAccessException, RequestFailedException, JsonDeserializationException
     {
@@ -114,8 +115,12 @@ public class JWKeysetService implements IJWKeysetService
         private IRestClient restClient;
         private ICache iCache;
 
+
         public Builder()
         {
+            /*
+             * Default Constructor
+             */
         }
 
         public Builder withRestClient(final IRestClient restClient)

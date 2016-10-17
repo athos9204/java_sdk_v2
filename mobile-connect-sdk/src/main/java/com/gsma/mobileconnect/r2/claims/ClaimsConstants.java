@@ -21,35 +21,42 @@ package com.gsma.mobileconnect.r2.claims;
  *
  * @since 2.0
  */
-public interface ClaimsConstants
+public class ClaimsConstants
 {
     /**
      * Key for NONCE
      */
-    String NONCE = "nonce";
+    public static final String NONCE = "nonce";
 
     /**
      * Key for AUD
      */
-    String AUD = "aud";
+    public static final String AUD = "aud";
 
     /**
      * Key for AZP
      */
-    String AZP = "azp";
+    public static final String AZP = "azp";
 
     /**
      * Key for Issuer
      */
-    String ISSUER = "iss";
+    public static final String ISSUER = "iss";
 
     /**
      * Key for expiry time
      */
-    String EXPIRED = "exp";
+    public static final String EXPIRED = "exp";
 
     /**
      * Key for issued at tme
      */
-    String ISSUED_AT_TIME = "iat";
+    public static final String ISSUED_AT_TIME = "iat";
+
+    private ClaimsConstants()
+    {
+        /*
+        Private default constructor
+         */
+    }
 }

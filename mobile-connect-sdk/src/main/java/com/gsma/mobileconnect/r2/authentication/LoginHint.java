@@ -24,21 +24,31 @@ import com.gsma.mobileconnect.r2.utils.Predicate;
 import com.gsma.mobileconnect.r2.utils.StringUtils;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Utility methods for working with login hints for the auth login hint parameter
  *
  * @since 2.0
  */
+@SuppressWarnings("WeakerAccess")
 public class LoginHint
 {
     private static final SupportedVersions DEFAULT_VERSIONS = new SupportedVersions.Builder().build();
-    private static final ArrayList<String> RECOGNISED_HINTS = new ArrayList<String>()
-    {{
-        add(LoginHintPrefixes.MSISDN);
-        add(LoginHintPrefixes.ENCRYPTED_MSISDN);
-        add(LoginHintPrefixes.PCR);
-    }};
+    private static final List<String> RECOGNISED_HINTS = new ArrayList<String>();
+
+    static
+    {
+        RECOGNISED_HINTS.add(LoginHintPrefixes.MSISDN.getName());
+        RECOGNISED_HINTS.add(LoginHintPrefixes.ENCRYPTED_MSISDN.getName());
+        RECOGNISED_HINTS.add(LoginHintPrefixes.PCR.getName());
+    }
+
+    private LoginHint() {
+        /*
+        Empty Private Constructor since all methods are static
+         */
+    }
 
     /**
      * Is login hint with MSISDN supported by the target provider
@@ -47,7 +57,7 @@ public class LoginHint
      */
     public static boolean isSupportedForMsisdn(final ProviderMetadata providerMetadata)
     {
-        return isSupportedFor(providerMetadata, LoginHintPrefixes.MSISDN);
+        return isSupportedFor(providerMetadata, LoginHintPrefixes.MSISDN.getName());
     }
 
     /**
@@ -57,7 +67,7 @@ public class LoginHint
      */
     public static boolean isSupportedForEncryptedMsisdn(final ProviderMetadata providerMetadata)
     {
-        return isSupportedFor(providerMetadata, LoginHintPrefixes.ENCRYPTED_MSISDN);
+        return isSupportedFor(providerMetadata, LoginHintPrefixes.ENCRYPTED_MSISDN.getName());
     }
 
     /**
@@ -67,7 +77,7 @@ public class LoginHint
      */
     public static boolean isSupportedForPcr(final ProviderMetadata providerMetadata)
     {
-        return isSupportedFor(providerMetadata, LoginHintPrefixes.PCR);
+        return isSupportedFor(providerMetadata, LoginHintPrefixes.PCR.getName());
     }
 
     /**
@@ -82,17 +92,10 @@ public class LoginHint
             providerMetadata.getLoginHintMethodsSupported() == null ||
             providerMetadata.getLoginHintMethodsSupported().isEmpty())
         {
-            SupportedVersions supportedVersions = (providerMetadata != null) ? providerMetadata.getMobileConnectVersionSupported() : DEFAULT_VERSIONS;
+            final SupportedVersions supportedVersions = getSupportedVersions(providerMetadata);
 
             // if not a recognised prefix, then it is not supported if no data to state it is supported
-            if (ListUtils.firstMatch(RECOGNISED_HINTS, new Predicate<String>()
-            {
-                @Override
-                public boolean apply(final String input)
-                {
-                    return input.equalsIgnoreCase(prefix);
-                }
-            }) == null)
+            if (getFirstMatch(RECOGNISED_HINTS, prefix) == null)
             {
                 return false;
             }
@@ -104,21 +107,30 @@ public class LoginHint
             }
 
             // If we aren't at 1.2 or greater then we must be on 1.1 and therefore only MSISDN and encrypted are supported
-            if (!LoginHintPrefixes.ENCRYPTED_MSISDN .equalsIgnoreCase(prefix) && !LoginHintPrefixes.MSISDN.equalsIgnoreCase(prefix))
-            {
-                return false;
-            }
+            return !(!LoginHintPrefixes.ENCRYPTED_MSISDN.getName().equalsIgnoreCase(prefix)
+                && !LoginHintPrefixes.MSISDN.getName().equalsIgnoreCase(prefix));
 
-            return true;
         }
-        return ListUtils.firstMatch(providerMetadata.getLoginHintMethodsSupported(), new Predicate<String>()
+        return getFirstMatch(providerMetadata.getLoginHintMethodsSupported(), prefix) != null;
+    }
+
+    private static SupportedVersions getSupportedVersions(final ProviderMetadata providerMetadata)
+    {
+        return (providerMetadata != null)
+               ? providerMetadata.getMobileConnectVersionSupported()
+               : DEFAULT_VERSIONS;
+    }
+
+    private static String getFirstMatch(final List<String> list, final String searchFor)
+    {
+        return ListUtils.firstMatch(list, new Predicate<String>()
         {
             @Override
-            public boolean apply(String input)
+            public boolean apply(final String input)
             {
-                return input.equalsIgnoreCase(prefix);
+                return input.equalsIgnoreCase(searchFor);
             }
-        }) != null;
+        });
     }
 
     /**
@@ -128,7 +140,7 @@ public class LoginHint
      */
     public static String generateForMsisdn(final String msisdn)
     {
-        return generateFor(LoginHintPrefixes.MSISDN, msisdn.replaceAll("\\+",""));
+        return generateFor(LoginHintPrefixes.MSISDN.getName(), msisdn.replaceAll("\\+",""));
     }
 
     /**
@@ -138,7 +150,7 @@ public class LoginHint
      */
     public static String generateForEncryptedMsisdn(final String encryptedMsisdn)
     {
-        return generateFor(LoginHintPrefixes.ENCRYPTED_MSISDN, encryptedMsisdn);
+        return generateFor(LoginHintPrefixes.ENCRYPTED_MSISDN.getName(), encryptedMsisdn);
     }
 
     /**
@@ -148,7 +160,7 @@ public class LoginHint
      */
     public static String generateForPcr(final String pcr)
     {
-        return generateFor(LoginHintPrefixes.PCR, pcr);
+        return generateFor(LoginHintPrefixes.PCR.getName(), pcr);
     }
 
     /**

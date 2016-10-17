@@ -17,7 +17,7 @@
 package com.gsma.mobileconnect.r2.identity;
 
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
-import com.gsma.mobileconnect.r2.rest.RequestFailedException;
+import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 
 import java.net.URI;
 import java.util.concurrent.Future;

@@ -2,11 +2,8 @@ package com.gsma.mobileconnect.r2.utils;
 
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.*;
+import static org.testng.Assert.assertEquals;
 
-/**
- * Created by kartik.prabhu on 28/09/2016.
- */
 public class ByteUtilsTest
 {
     @Test

@@ -19,24 +19,20 @@ package com.gsma.mobileconnect.r2;
 import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
 import com.gsma.mobileconnect.r2.authentication.AuthenticationService;
 import com.gsma.mobileconnect.r2.cache.CacheAccessException;
-import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.constants.Parameters;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryService;
 import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
+import com.gsma.mobileconnect.r2.exceptions.InvalidResponseException;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.rest.MockRestClient;
-import com.gsma.mobileconnect.r2.rest.RequestFailedException;
-import com.gsma.mobileconnect.r2.rest.RestAuthentication;
-import com.gsma.mobileconnect.r2.rest.RestClient;
+import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.utils.HttpUtils;
 import com.gsma.mobileconnect.r2.utils.TestUtils;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -45,13 +41,8 @@ import org.testng.annotations.Test;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-import static org.mockito.Matchers.isA;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
 
 /**
@@ -59,6 +50,7 @@ import static org.testng.Assert.*;
  *
  * @since 2.0
  */
+@SuppressWarnings("UnusedParameters")
 public class MobileConnectWebInterfaceTest
 {
     private final MobileConnectConfig config = new MobileConnectConfig.Builder()
@@ -148,6 +140,7 @@ public class MobileConnectWebInterfaceTest
 
         final String scope = HttpUtils.extractQueryValue(URI.create(status.getUrl()), "scope");
 
+        assertNotNull(scope);
         for (final String include : includes)
         {
             assertTrue(scope.contains(include));
@@ -188,7 +181,7 @@ public class MobileConnectWebInterfaceTest
 
         final MobileConnectStatus status =
             this.mcWebInterface.requestUserInfo(this.request, discoveryResponse,
-                "zaqwsxcderfvbgtyhnmjukilop", null);
+                "zaqwsxcderfvbgtyhnmjukilop");
 
         assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.USER_INFO);
         assertNotNull(status.getIdentityResponse());
@@ -203,7 +196,7 @@ public class MobileConnectWebInterfaceTest
 
         final MobileConnectStatus status =
             this.mcWebInterface.requestUserInfo(this.request, discoveryResponse,
-                "zaqwsxcderfvbgtyhnmjukilop", null);
+                "zaqwsxcderfvbgtyhnmjukilop");
 
         assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.ERROR);
         assertNull(status.getIdentityResponse());
@@ -223,7 +216,7 @@ public class MobileConnectWebInterfaceTest
 
         final MobileConnectStatus status =
             this.mcWebInterface.requestUserInfo(this.request, "sessionid",
-                "zaqwsxcderfvbgtyhnmjukilop", null);
+                "zaqwsxcderfvbgtyhnmjukilop");
 
         assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.USER_INFO);
         assertNotNull(status.getIdentityResponse());

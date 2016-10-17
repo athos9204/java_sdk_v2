@@ -22,12 +22,18 @@ import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.constants.Parameters;
 import com.gsma.mobileconnect.r2.discovery.*;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
+import com.gsma.mobileconnect.r2.exceptions.AbstractMobileConnectException;
+import com.gsma.mobileconnect.r2.exceptions.InvalidArgumentException;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.identity.IdentityResponse;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
-import com.gsma.mobileconnect.r2.rest.RequestFailedException;
+import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.utils.*;
+import com.gsma.mobileconnect.r2.validation.IJWKeysetService;
+import com.gsma.mobileconnect.r2.validation.JWKeyset;
+import com.gsma.mobileconnect.r2.validation.TokenValidation;
+import com.gsma.mobileconnect.r2.validation.TokenValidationResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
@@ -46,7 +52,8 @@ class MobileConnectInterfaceHelper
 {
     private static final Logger LOGGER =
         LoggerFactory.getLogger(MobileConnectInterfaceHelper.class);
-    private static final Pattern NONCE_REGEX = Pattern.compile("\\\"?nonce\\\"?:\\\"(.*)\\\"");
+    private static final Pattern NONCE_REGEX = Pattern.compile("\"?nonce\"?:\"(.*)\"");
+    private static final String DISCOVERY_RESPONSE = "discoveryResponse";
 
     private MobileConnectInterfaceHelper()
     {
@@ -130,7 +137,7 @@ class MobileConnectInterfaceHelper
         final String nonce, final MobileConnectConfig config,
         final AuthenticationOptions.Builder authnOptionsBuilder)
     {
-        ObjectUtils.requireNonNull(discoveryResponse, "discoveryResponse");
+        ObjectUtils.requireNonNull(discoveryResponse, DISCOVERY_RESPONSE);
 
         try
         {
@@ -167,7 +174,7 @@ class MobileConnectInterfaceHelper
         }
     }
 
-    static MobileConnectStatus requestHeadlessAuthentication(
+    static MobileConnectStatus requestHeadlessAuthentication( //NOSONAR
         final IAuthenticationService authnService, final IIdentityService identityService,
         final DiscoveryResponse discoveryResponse, final String encryptedMsisdn,
         final String expectedState, final String expectedNonce, final MobileConnectConfig config,
@@ -175,7 +182,7 @@ class MobileConnectInterfaceHelper
         final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder,
         final IJWKeysetService jwKeysetService, final IJsonService jsonService)
     {
-        ObjectUtils.requireNonNull(discoveryResponse, "discoveryResponse");
+        ObjectUtils.requireNonNull(discoveryResponse, DISCOVERY_RESPONSE);
 
         final AuthenticationOptions.Builder builder = options != null
                                                       ? options.getAuthenticationOptionsBuilder()
@@ -239,14 +246,14 @@ class MobileConnectInterfaceHelper
         }
     }
 
-    static MobileConnectStatus requestToken(final IAuthenticationService authnService,
+    static MobileConnectStatus requestToken(final IAuthenticationService authnService, //NOSONAR
         final IJWKeysetService jwKeysetService, final DiscoveryResponse discoveryResponse,
         final URI redirectedUrl, final String expectedState, final String expectedNonce,
         final MobileConnectConfig config, final MobileConnectRequestOptions options,
         final IJsonService jsonService,
         final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
-        ObjectUtils.requireNonNull(discoveryResponse, "discoveryResponse");
+        ObjectUtils.requireNonNull(discoveryResponse, DISCOVERY_RESPONSE);
         StringUtils.requireNonEmpty(expectedState, "expectedState");
 
         long maxAge = extractMaxAge(options);
@@ -314,7 +321,7 @@ class MobileConnectInterfaceHelper
         return maxAge;
     }
 
-    private static MobileConnectStatus processRequestTokenResponse(
+    private static MobileConnectStatus processRequestTokenResponse( //NOSONAR
         final RequestTokenResponse requestTokenResponse, final String expectedState,
         final String expectedNonce, final URI redirectedUrl,
         final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder, IJWKeysetService jwks,
@@ -352,7 +359,7 @@ class MobileConnectInterfaceHelper
 
             final TokenValidationResult accessTokenValidationResult =
                 TokenValidation.validateAccessToken(requestTokenResponse.getResponseData());
-            if (!TokenValidationResult.Valid.equals(accessTokenValidationResult))
+            if (!TokenValidationResult.VALID.equals(accessTokenValidationResult))
             {
                 LOGGER.info("Access Token Validation Failure...");
                 return MobileConnectStatus.error("Invalid Access Token",
@@ -370,7 +377,7 @@ class MobileConnectInterfaceHelper
                     clientId, issuer, expectedNonce, maxAge, jwKeyset, jsonService,
                     iMobileConnectEncodeDecoder);
 
-            if (TokenValidationResult.Valid.equals(tokenValidationResult))
+            if (TokenValidationResult.VALID.equals(tokenValidationResult))
             {
                 LOGGER.info("Id Token Validation Success");
                 return MobileConnectStatus.complete(requestTokenResponse);
@@ -396,7 +403,8 @@ class MobileConnectInterfaceHelper
         return matcher.find() && matcher.group(1).equals(expectedNonce);
     }
 
-    static MobileConnectStatus handleUrlRedirect(final IDiscoveryService discoveryService,
+
+    static MobileConnectStatus handleUrlRedirect(final IDiscoveryService discoveryService, //NOSONAR
         final IJWKeysetService jwKeysetService, final IAuthenticationService authnService,
         final URI redirectedUrl, final DiscoveryResponse discoveryResponse,
         final String expectedState, final String expectedNonce, final MobileConnectConfig config,
@@ -432,7 +440,6 @@ class MobileConnectInterfaceHelper
             String errorDescription =
                 HttpUtils.extractQueryValue(redirectedUrl, Parameters.ERROR_DESCRIPTION);
 
-            // TODO Remove extra code once endpoint has been made compliant with OpenId Specification
             if (errorDescription == null)
             {
                 errorDescription =
@@ -476,7 +483,7 @@ class MobileConnectInterfaceHelper
     private static MobileConnectStatus requestInfo(final IIdentityService identityService,
         final String accessToken, final String infoUrl, final String method,
         final MobileConnectStatus.ResponseType responseType,
-        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+        final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
     {
         if (StringUtils.isNullOrEmpty(infoUrl))
         {
@@ -490,50 +497,67 @@ class MobileConnectInterfaceHelper
         }
         else
         {
-            try
+            return processRequestInfoRequest(identityService, accessToken, infoUrl, method,
+                responseType, mobileConnectEncodeDecoder);
+        }
+    }
+
+    private static MobileConnectStatus processRequestInfoRequest(final IIdentityService identityService,
+        final String accessToken, final String infoUrl, final String method,
+        final MobileConnectStatus.ResponseType responseType,
+        final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
+    {
+        try
+        {
+            final IdentityResponse response =
+                identityService.requestInfo(URI.create(infoUrl), accessToken,
+                    mobileConnectEncodeDecoder);
+
+            final ErrorResponse errorResponse = response.getErrorResponse();
+            if (errorResponse != null)
             {
-                final IdentityResponse response =
-                    identityService.requestInfo(URI.create(infoUrl), accessToken,
-                        iMobileConnectEncodeDecoder);
-
-                final ErrorResponse errorResponse = response.getErrorResponse();
-                if (errorResponse != null)
-                {
-                    LOGGER.warn(
-                        "Responding with responseType={} for {} for accessToken={}, identity service responded with error={}",
-                        MobileConnectStatus.ResponseType.ERROR, method,
-                        LogUtils.mask(accessToken, LOGGER, Level.WARN), errorResponse);
-                    return MobileConnectStatus.error(errorResponse.getError(),
-                        errorResponse.getErrorDescription(), null);
-                }
-                else
-                {
-                    LOGGER.debug("Responding with responseType={} for {} for accessToken={}",
-                        MobileConnectStatus.ResponseType.USER_INFO, method,
-                        LogUtils.mask(accessToken, LOGGER, Level.DEBUG));
-
-                    return new MobileConnectStatus.Builder()
-                        .withResponseType(responseType)
-                        .withIdentityResponse(response)
-                        .build();
-                }
+                LOGGER.warn(
+                    "Responding with responseType={} for {} for accessToken={}, identity service responded with error={}",
+                    MobileConnectStatus.ResponseType.ERROR, method,
+                    LogUtils.mask(accessToken, LOGGER, Level.WARN), errorResponse);
+                return MobileConnectStatus.error(errorResponse.getError(),
+                    errorResponse.getErrorDescription(), null);
             }
-            catch (final Exception e)
+            else
             {
-                LOGGER.warn("{} failed for accessToken={}", method,
-                    LogUtils.mask(accessToken, LOGGER, Level.WARN), e);
+                LOGGER.debug("Responding with responseType={} for {} for accessToken={}",
+                    MobileConnectStatus.ResponseType.USER_INFO, method,
+                    LogUtils.mask(accessToken, LOGGER, Level.DEBUG));
 
-                if (e instanceof IHasMobileConnectStatus)
-                {
-                    return ((IHasMobileConnectStatus) e).toMobileConnectStatus(
-                        String.format("request %s", responseType));
-                }
-                else
-                {
-                    return MobileConnectStatus.error(String.format("request %s", responseType), e);
-                }
+                return new MobileConnectStatus.Builder()
+                    .withResponseType(responseType)
+                    .withIdentityResponse(response)
+                    .build();
             }
         }
+        catch (final InvalidArgumentException e)
+        {
+            return handleErrorStatus(e, method, accessToken, responseType);
+        }
+        catch (final AbstractMobileConnectException e)
+        {
+            return handleErrorStatus(e, method, accessToken, responseType);
+        }
+        catch (final Exception e)
+        {
+            LOGGER.warn("{} failed for accessToken={}", method,
+                LogUtils.mask(accessToken, LOGGER, Level.WARN), e);
+            return MobileConnectStatus.error(String.format("request %s", responseType), e);
+        }
+    }
+
+    private static MobileConnectStatus handleErrorStatus(final IHasMobileConnectStatus e,
+        final String method, final String accessToken,
+        final MobileConnectStatus.ResponseType responseType)
+    {
+        LOGGER.warn("{} failed for accessToken={}", method,
+            LogUtils.mask(accessToken, LOGGER, Level.WARN), e);
+        return e.toMobileConnectStatus(String.format("request %s", responseType));
     }
 
     private static MobileConnectStatus extractStatus(final DiscoveryResponse response,
@@ -581,7 +605,7 @@ class MobileConnectInterfaceHelper
         final String refreshToken, final DiscoveryResponse discoveryResponse,
         final MobileConnectConfig config)
     {
-        ObjectUtils.requireNonNull(discoveryResponse, "discoveryResponse");
+        ObjectUtils.requireNonNull(discoveryResponse, DISCOVERY_RESPONSE);
         ObjectUtils.requireNonNull(refreshToken, "refreshToken");
 
         if (!isUsableDiscoveryResponse(discoveryResponse))
@@ -636,7 +660,7 @@ class MobileConnectInterfaceHelper
     {
         try
         {
-            ObjectUtils.requireNonNull(discoveryResponse, "discoveryResponse");
+            ObjectUtils.requireNonNull(discoveryResponse, DISCOVERY_RESPONSE);
             ObjectUtils.requireNonNull(token, "token");
 
             final String revokeTokenUrl = discoveryResponse.getOperatorUrls().getRevokeTokenUrl();

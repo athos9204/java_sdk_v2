@@ -19,63 +19,70 @@ package com.gsma.mobileconnect.r2.constants;
 /**
  * @since 2.0
  */
-public interface Parameters
+public final class Parameters
 {
     // Required param for discovery
-    String REDIRECT_URL = "Redirect_URL";
+    public static final String REDIRECT_URL = "Redirect_URL";
 
     // Optional params for discovery
-    String MANUALLY_SELECT = "Manually-Select";
-    String IDENTIFIED_MCC = "Identified-MCC";
-    String IDENTIFIED_MNC = "Identified-MNC";
-    String SELECTED_MCC = "Selected-MCC";
-    String SELECTED_MNC = "Selected-MNC";
-    String USING_MOBILE_DATA = "Using-Mobile-Data";
-    String LOCAL_CLIENT_IP = "Local-Client-IP";
-    String MSISDN = "MSISDN";
+    public static final String MANUALLY_SELECT = "Manually-Select";
+    public static final String IDENTIFIED_MCC = "Identified-MCC";
+    public static final String IDENTIFIED_MNC = "Identified-MNC";
+    public static final String SELECTED_MCC = "Selected-MCC";
+    public static final String SELECTED_MNC = "Selected-MNC";
+    public static final String USING_MOBILE_DATA = "Using-Mobile-Data";
+    public static final String LOCAL_CLIENT_IP = "Local-Client-IP";
+    public static final String MSISDN = "MSISDN";
 
-    String MCC_MNC = "mcc_mnc";
-    String SUBSCRIBER_ID = "subscriber_id";
+    public static final String MCC_MNC = "mcc_mnc";
+    public static final String SUBSCRIBER_ID = "subscriber_id";
 
     // Required params for authentication
-    String CLIENT_ID = "client_id";
-    String RESPONSE_TYPE = "response_type";
-    String AUTHENTICATION_REDIRECT_URI = "redirect_uri";
-    String SCOPE = "scope";
-    String ACR_VALUES = "acr_values";
-    String STATE = "state";
-    String NONCE = "nonce";
-    String VERSION = "version";
+    public static final String CLIENT_ID = "client_id";
+    public static final String RESPONSE_TYPE = "response_type";
+    public static final String AUTHENTICATION_REDIRECT_URI = "redirect_uri";
+    public static final String SCOPE = "scope";
+    public static final String ACR_VALUES = "acr_values";
+    public static final String STATE = "state";
+    public static final String NONCE = "nonce";
+    public static final String VERSION = "version";
 
     // Optional params for authentication
-    String DISPLAY = "display";
-    String PROMPT = "prompt";
-    String MAX_AGE = "max-age";
-    String UI_LOCALES = "ui-locales";
-    String CLAIMS_LOCALES = "claims_locales";
-    String ID_TOKEN_HINT = "id_token_hint";
-    String LOGIN_HINT = "login_hint";
-    String DTBS = "dtbs";
-    String CLAIMS = "claims";
+    public static final String DISPLAY = "display";
+    public static final String PROMPT = "prompt";
+    public static final String MAX_AGE = "max-age";
+    public static final String UI_LOCALES = "ui_locales";
+    public static final String CLAIMS_LOCALES = "claims_locales";
+    public static final String ID_TOKEN_HINT = "id_token_hint";
+    public static final String LOGIN_HINT = "login_hint";
+    public static final String DTBS = "dtbs";
+    public static final String CLAIMS = "claims";
 
     // Required params for authorization
-    String CLIENT_NAME = "client_name";
-    String CONTEXT = "context";
-    String BINDING_MESSAGE = "binding_message";
+    public static final String CLIENT_NAME = "client_name";
+    public static final String CONTEXT = "context";
+    public static final String BINDING_MESSAGE = "binding_message";
 
     // Params for AuthorizationResponse
-    String ERROR = "error";
-    String ERROR_DESCRIPTION = "error_description";
-    String DESCRIPTION = "description";
-    String ERROR_URI = "error_uri";
-    String CODE = "code";
+    public static final String ERROR = "error";
+    public static final String ERROR_DESCRIPTION = "error_description";
+    public static final String DESCRIPTION = "description";
+    public static final String ERROR_URI = "error_uri";
+    public static final String CODE = "code";
 
     // Params for Token
-    String GRANT_TYPE = "grant_type";
-    String REFRESH_TOKEN = "refresh_token";
-    String TOKEN = "token";
-    String TOKEN_TYPE_HINT = "token_type_hint";
+    public static final String GRANT_TYPE = "grant_type";
+    public static final String REFRESH_TOKEN = "refresh_token";
+    public static final String TOKEN = "token";
+    public static final String TOKEN_TYPE_HINT = "token_type_hint";
 
-    String ACCESS_TOKEN_HINT = "access_token";
-    String REFRESH_TOKEN_HINT = "refresh_token";
+    public static final String ACCESS_TOKEN_HINT = "access_token";
+    public static final String REFRESH_TOKEN_HINT = "refresh_token";
+
+    private Parameters()
+    {
+        /*
+        Private default constructor
+         */
+    }
 }

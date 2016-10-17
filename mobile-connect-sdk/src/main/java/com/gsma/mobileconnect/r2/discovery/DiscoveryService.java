@@ -16,18 +16,18 @@
  */
 package com.gsma.mobileconnect.r2.discovery;
 
-import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
-import com.gsma.mobileconnect.r2.InvalidResponseException;
+import com.gsma.mobileconnect.r2.exceptions.InvalidResponseException;
 import com.gsma.mobileconnect.r2.cache.CacheAccessException;
 import com.gsma.mobileconnect.r2.cache.ICache;
 import com.gsma.mobileconnect.r2.constants.LinkRels;
 import com.gsma.mobileconnect.r2.constants.Parameters;
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.json.Link;
 import com.gsma.mobileconnect.r2.rest.IRestClient;
-import com.gsma.mobileconnect.r2.rest.RequestFailedException;
+import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.rest.RestAuthentication;
 import com.gsma.mobileconnect.r2.rest.RestResponse;
 import com.gsma.mobileconnect.r2.utils.*;
@@ -79,7 +79,7 @@ public class DiscoveryService implements IDiscoveryService
      * @param mnc Mobile Network Code
      * @return concatenated key.
      */
-    static String concatKey(final String mcc, final String mnc)
+    private static String concatKey(final String mcc, final String mnc)
     {
         String key = null;
 
@@ -162,21 +162,9 @@ public class DiscoveryService implements IDiscoveryService
         ObjectUtils.requireNonNull(options, "options");
         ObjectUtils.requireNonNull(options.getRedirectUrl(), "options.redirectUrl");
 
-        DiscoveryResponse cachedDiscoveryResponse = null;
+        DiscoveryResponse cachedDiscoveryResponse = fetchCachedDiscoveryResponse(options, useCache);
 
-        if (useCache)
-        {
-            try
-            {
-                cachedDiscoveryResponse = this.getCachedDiscoveryResponse(options);
-            }
-            catch (final CacheAccessException cae)
-            {
-                LOGGER.warn("Failed to fetch cached discovery response", cae);
-            }
-        }
-
-        DiscoveryResponse discoveryResponse = null;
+        DiscoveryResponse discoveryResponse;
 
         if (cachedDiscoveryResponse != null && !cachedDiscoveryResponse.hasExpired())
         {
@@ -200,30 +188,15 @@ public class DiscoveryService implements IDiscoveryService
                                : this.restClient.postFormData(discoveryUrl, authentication,
                                    queryParams, options.getClientIp(), cookies);
             }
-            catch (final RequestFailedException ehe)
+            catch (final RequestFailedException e)
             {
-                LOGGER.warn("Failed to perform fetch of discovery response", ehe);
-
+                LOGGER.warn("Failed to perform fetch of discovery response", e);
                 if (cachedDiscoveryResponse == null)
                 {
-                    throw ehe;
+                    throw e;
                 }
             }
-
-            try
-            {
-                discoveryResponse =
-                    DiscoveryResponse.fromRestResponse(restResponse, this.jsonService);
-            }
-            catch (final JsonDeserializationException jde)
-            {
-                LOGGER.warn("Failed to fetch response from discovery service", jde);
-
-                if (cachedDiscoveryResponse == null)
-                {
-                    throw new InvalidResponseException(restResponse, DiscoveryResponse.class, jde);
-                }
-            }
+            discoveryResponse = convertFromRestResponse(restResponse, cachedDiscoveryResponse);
 
             this.addCachedDiscoveryResponse(options, discoveryResponse);
         }
@@ -235,13 +208,57 @@ public class DiscoveryService implements IDiscoveryService
             discoveryResponse = cachedDiscoveryResponse;
         }
 
+        updateWithProviderMetadata(discoveryResponse, useCache);
+
+        return discoveryResponse;
+    }
+
+    private DiscoveryResponse convertFromRestResponse(RestResponse restResponse,
+        DiscoveryResponse cachedDiscoveryResponse) throws InvalidResponseException
+    {
+        DiscoveryResponse discoveryResponse = null;
+        try
+        {
+            discoveryResponse =
+                DiscoveryResponse.fromRestResponse(restResponse, this.jsonService);
+        }
+        catch (final JsonDeserializationException jde)
+        {
+            LOGGER.warn("Failed to fetch response from discovery service", jde);
+            if (cachedDiscoveryResponse == null)
+            {
+                throw new InvalidResponseException(restResponse, DiscoveryResponse.class, jde);
+            }
+        }
+        return discoveryResponse;
+    }
+
+    private void updateWithProviderMetadata(final DiscoveryResponse discoveryResponse,
+        final boolean useCache)
+    {
         if (discoveryResponse != null)
         {
             final URI url = this.extractProviderMetadataUrl(discoveryResponse);
             discoveryResponse.setProviderMetadata(this.retrieveProviderMetadata(url, useCache));
         }
+    }
 
-        return discoveryResponse;
+    private DiscoveryResponse fetchCachedDiscoveryResponse(final DiscoveryOptions options,
+        final boolean useCache)
+    {
+        DiscoveryResponse cachedDiscoveryResponse = null;
+        if (useCache)
+        {
+            try
+            {
+                cachedDiscoveryResponse = this.getCachedDiscoveryResponse(options);
+            }
+            catch (final CacheAccessException cae)
+            {
+                LOGGER.warn("Failed to fetch cached discovery response", cae);
+            }
+        }
+        return cachedDiscoveryResponse;
     }
 
     private DiscoveryResponse getCachedDiscoveryResponse(final DiscoveryOptions options)
@@ -565,32 +582,12 @@ public class DiscoveryService implements IDiscoveryService
                     final RestResponse restResponse =
                         this.restClient.get(url, null, null, null, null);
 
-
-                    if (!HttpUtils.isHttpErrorCode(restResponse.getStatusCode()))
-                    {
-                        providerMetadata = this.jsonService.deserialize(restResponse.getContent(),
-                            ProviderMetadata.class);
-
-                        this.cache.add(url.toString(), providerMetadata);
-                    }
-                    else
-                    {
-                        LOGGER.warn(
-                            "Received an error response with HTTP status {} for provider metadata from {}",
-                            restResponse.getStatusCode(), url);
-                    }
+                    providerMetadata = processRestResponse(restResponse, url);
                 }
-                catch (final CacheAccessException cae)
-                {
-                    LOGGER.warn("Failed to store provider metadata in cache", cae);
-                }
+
                 catch (final RequestFailedException ehe)
                 {
                     LOGGER.warn("Failed to perform fetch of provider metadata from provider", ehe);
-                }
-                catch (final JsonDeserializationException jde)
-                {
-                    LOGGER.warn("Failed to deserialize provider metadata from provider", jde);
                 }
             }
 
@@ -612,6 +609,36 @@ public class DiscoveryService implements IDiscoveryService
             providerMetadata = new ProviderMetadata.Builder().build();
         }
 
+        return providerMetadata;
+    }
+
+    private ProviderMetadata processRestResponse(final RestResponse restResponse, final URI url)
+    {
+        ProviderMetadata providerMetadata = null;
+        try
+        {
+            if (!HttpUtils.isHttpErrorCode(restResponse.getStatusCode()))
+            {
+                providerMetadata =
+                    this.jsonService.deserialize(restResponse.getContent(), ProviderMetadata.class);
+
+                this.cache.add(url.toString(), providerMetadata);
+            }
+            else
+            {
+                LOGGER.warn(
+                    "Received an error response with HTTP status {} for provider metadata from {}",
+                    restResponse.getStatusCode(), url);
+            }
+        }
+        catch (final JsonDeserializationException jde)
+        {
+            LOGGER.warn("Failed to deserialize provider metadata from provider", jde);
+        }
+        catch (final CacheAccessException cae)
+        {
+            LOGGER.warn("Failed to store provider metadata in cache", cae);
+        }
         return providerMetadata;
     }
 
@@ -648,8 +675,7 @@ public class DiscoveryService implements IDiscoveryService
             return this;
         }
 
-        public Builder withIMobileConnectEncodeDecoder(
-            IMobileConnectEncodeDecoder val)
+        public Builder withIMobileConnectEncodeDecoder(IMobileConnectEncodeDecoder val)
         {
             this.iMobileConnectEncodeDecoder = val;
             return this;

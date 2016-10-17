@@ -36,7 +36,7 @@ public class LoginHintTest
     {
         final ProviderMetadata providerMetadata = new ProviderMetadata.Builder()
             .withLoginHintMethodsSupported(new ArrayList<String>(){{
-                add(LoginHintPrefixes.MSISDN);
+                add(LoginHintPrefixes.MSISDN.getName());
             }})
             .build();
 
@@ -50,7 +50,7 @@ public class LoginHintTest
     {
         final ProviderMetadata providerMetadata = new ProviderMetadata.Builder()
             .withLoginHintMethodsSupported(new ArrayList<String>(){{
-                add(LoginHintPrefixes.PCR);
+                add(LoginHintPrefixes.PCR.getName());
             }})
             .build();
 
@@ -64,7 +64,7 @@ public class LoginHintTest
     {
         final ProviderMetadata providerMetadata = new ProviderMetadata.Builder()
             .withLoginHintMethodsSupported(new ArrayList<String>(){{
-                add(LoginHintPrefixes.ENCRYPTED_MSISDN);
+                add(LoginHintPrefixes.ENCRYPTED_MSISDN.getName());
             }})
             .build();
 
@@ -78,7 +78,7 @@ public class LoginHintTest
     {
         final ProviderMetadata providerMetadata = new ProviderMetadata.Builder()
             .withLoginHintMethodsSupported(new ArrayList<String>(){{
-                add(LoginHintPrefixes.PCR);
+                add(LoginHintPrefixes.PCR.getName());
             }})
             .build();
 
@@ -92,7 +92,7 @@ public class LoginHintTest
     {
         final ProviderMetadata providerMetadata = new ProviderMetadata.Builder()
             .withLoginHintMethodsSupported(new ArrayList<String>(){{
-                add(LoginHintPrefixes.PCR);
+                add(LoginHintPrefixes.PCR.getName());
             }})
             .build();
 
@@ -106,7 +106,7 @@ public class LoginHintTest
     {
         final ProviderMetadata providerMetadata = new ProviderMetadata.Builder()
             .withLoginHintMethodsSupported(new ArrayList<String>(){{
-                add(LoginHintPrefixes.MSISDN);
+                add(LoginHintPrefixes.MSISDN.getName());
             }})
             .build();
 
@@ -167,7 +167,7 @@ public class LoginHintTest
     {
         final ProviderMetadata providerMetadata = new ProviderMetadata.Builder()
             .withLoginHintMethodsSupported(new ArrayList<String>(){{
-                add(LoginHintPrefixes.MSISDN);
+                add(LoginHintPrefixes.MSISDN.getName());
             }})
             .build();
 
@@ -203,13 +203,13 @@ public class LoginHintTest
     @Test
     public void generateForShouldReturnNullWhenValueNull()
     {
-        assertNull(LoginHint.generateFor(LoginHintPrefixes.PCR, null));
+        assertNull(LoginHint.generateFor(LoginHintPrefixes.PCR.getName(), null));
     }
 
     @Test
     public void generateForShouldReturnNullWhenValueEmpty()
     {
-        assertNull(LoginHint.generateFor(LoginHintPrefixes.PCR, ""));
+        assertNull(LoginHint.generateFor(LoginHintPrefixes.PCR.getName(), ""));
     }
 
     @Test

@@ -21,15 +21,16 @@ package com.gsma.mobileconnect.r2.exceptions;
  *
  * @since 2.0
  */
+@SuppressWarnings("WeakerAccess")
 public class MobileConnectInvalidJWKException extends Exception
 {
     public MobileConnectInvalidJWKException(final String message)
     {
-        super(String.format(message));
+        super(message);
     }
 
     public MobileConnectInvalidJWKException(final String message, final Throwable cause)
     {
-        super(String.format(message), cause);
+        super(message, cause);
     }
 }

@@ -14,7 +14,7 @@
 * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. YOU AGREE TO
 * INDEMNIFY AND HOLD HARMLESS THE AUTHORS AND COPYRIGHT HOLDERS FROM AND AGAINST ANY SUCH LIABILITY.
 */
-package com.gsma.mobileconnect.r2.authentication;
+package com.gsma.mobileconnect.r2.validation;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -197,10 +197,6 @@ class JWKey
 
             isValid = verifyRsa(input, expected, signatureAlgorithm, mobileConnectEncodeDecoder);
         }
-//        else if (isSymmetric())
-//        {
-//            isValid = verifyMac(input, expected, algorithm, signatureAlgorithm);
-//        }
         return isValid;
     }
 
@@ -228,20 +224,4 @@ class JWKey
             mobileConnectEncodeDecoder.decodeFromBase64(expected));
     }
 
-    // TODO: 03/10/16 Mac verification codeblock does not work, can't create a Mac key
-//    private boolean verifyMac(final String input, final String expected, final String algorithm,
-//        final SignatureAlgorithm signatureAlgorithm,
-//    final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
-//        throws NoSuchAlgorithmException, InvalidKeySpecException, MobileConnectInvalidJWKException
-//    {
-//        if (StringUtils.isNullOrEmpty(this.getKey()))
-//        {
-//            throw new MobileConnectInvalidJWKException("HMAC key does not have secret");
-//        }
-//        final KeyFactory keyFactory = KeyFactory.getInstance("MAC");
-//        final Key hmacKey =
-//            keyFactory.generatePublic(new SecretKeySpec(this.getKey().getBytes(), algorithm));
-//        return new MacValidator(signatureAlgorithm, hmacKey).isValid(input.getBytes(),
-//            mobileConnectEncodeDecoder.decodeFromBase64(expected));
-//    }
 }

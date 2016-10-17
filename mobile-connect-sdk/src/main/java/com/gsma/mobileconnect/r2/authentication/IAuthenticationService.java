@@ -16,12 +16,11 @@
  */
 package com.gsma.mobileconnect.r2.authentication;
 
-import com.gsma.mobileconnect.r2.ErrorResponse;
-import com.gsma.mobileconnect.r2.InvalidResponseException;
+import com.gsma.mobileconnect.r2.exceptions.InvalidResponseException;
 import com.gsma.mobileconnect.r2.discovery.ProviderMetadata;
 import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
-import com.gsma.mobileconnect.r2.rest.RequestFailedException;
-import com.gsma.mobileconnect.r2.rest.HeadlessOperationFailedException;
+import com.gsma.mobileconnect.r2.exceptions.HeadlessOperationFailedException;
+import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 
 import java.net.URI;
 import java.util.concurrent.Future;
@@ -47,9 +46,10 @@ public interface IAuthenticationService
      *                        supported versions will be used to generate the auth url
      * @param options         Optional parameters
      */
-    StartAuthenticationResponse startAuthentication(final String clientId, final URI authorizeUrl,
-        final URI redirectUrl, final String state, final String nonce, final String encryptedMSISDN,
-        final SupportedVersions versions, final AuthenticationOptions options);
+    StartAuthenticationResponse startAuthentication(final String clientId,  //NOSONAR
+        final URI authorizeUrl, final URI redirectUrl, final String state, final String nonce,
+        final String encryptedMSISDN, final SupportedVersions versions,
+        final AuthenticationOptions options);
 
     /**
      * Synchronous wrapper for
@@ -66,7 +66,7 @@ public interface IAuthenticationService
      * @throws RequestFailedException   on failure to access endpoint.
      * @throws InvalidResponseException on failure to process response from endpoint.
      */
-    RequestTokenResponse requestToken(final String clientId, final String clientSecret,
+    RequestTokenResponse requestToken(final String clientId, final String clientSecret, //NOSONAR
         final URI requestTokenUrl, final URI redirectUrl, final String code)
         throws RequestFailedException, InvalidResponseException;
 
@@ -108,7 +108,7 @@ public interface IAuthenticationService
      * @param options          Optional parameters
      * @return Token if headless authentication is successful
      */
-    Future<RequestTokenResponse> requestHeadlessAuthentication(final String clientId,
+    Future<RequestTokenResponse> requestHeadlessAuthentication(final String clientId, //NOSONAR
         final String clientSecret, final URI authorizationUrl, final URI requestTokenUrl,
         final URI redirectUrl, final String state, final String nonce, final String encryptedMsisdn,
         final SupportedVersions versions, final AuthenticationOptions options)
@@ -125,7 +125,7 @@ public interface IAuthenticationService
      *                        (Required)
      * @param refreshToken    Refresh token returned from RequestToken request
      */
-    RequestTokenResponse refreshToken(final String clientId, final String clientSecret,
+    RequestTokenResponse refreshToken(final String clientId, final String clientSecret, //NOSONAR
         final URI refreshTokenUrl, final String refreshToken)
         throws RequestFailedException, InvalidResponseException;
 
@@ -141,7 +141,7 @@ public interface IAuthenticationService
      * @param token           Access/Refresh token returned from RequestToken request
      * @param tokenTypeHint   Hint to indicate the type of token being passed in
      */
-    String revokeToken(final String clientId, final String clientSecret,
+    String revokeToken(final String clientId, final String clientSecret, //NOSONAR
         final URI refreshTokenUrl, final String token, final String tokenTypeHint)
         throws RequestFailedException, InvalidResponseException;
 }

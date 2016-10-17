@@ -18,14 +18,19 @@ package com.gsma.mobileconnect.r2.utils;
 
 import com.google.common.collect.ImmutableList;
 import com.gsma.mobileconnect.r2.ErrorResponse;
+import com.gsma.mobileconnect.r2.constants.Headers;
 import org.apache.http.HttpHeaders;
 import org.apache.http.HttpStatus;
+import org.mockito.Mockito;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.util.List;
 
+import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
 
 /**
@@ -128,5 +133,72 @@ public class HttpUtilsTest
         final List<KeyValuePair> result = HttpUtils.proxyRequired(required, available);
 
         assertEqualsNoOrder(result.toArray(new KeyValuePair[] {}), expected);
+    }
+
+    @Test
+    public void testExtractCookiesFromRequest() throws Exception
+    {
+        // Given
+        final HttpServletRequest mockRequest = Mockito.mock(HttpServletRequest.class);
+        when(mockRequest.getCookies()).thenReturn(getCookieData());
+
+        // When
+        final Iterable<KeyValuePair> keyValuePairs = HttpUtils.extractCookiesFromRequest(mockRequest);
+
+        // Then
+        assertEquals(keyValuePairs, AVAILABLE_COOKIES);
+    }
+
+    @Test
+    public void testExtractCookiesFromHeaders() throws Exception
+    {
+        final String cookie1 = "z=£", cookie2 = "x=p", cookie3 = "y=1";
+        // Given
+        final Iterable<KeyValuePair> headers = new KeyValuePair.ListBuilder()
+            .add("a", "1")
+            .add(Headers.SET_COOKIE, cookie3 + ";")
+            .add("b", "2")
+            .add(Headers.SET_COOKIE, cookie1)
+            .add("c", "3")
+            .add(Headers.SET_COOKIE, cookie2 + ";")
+            .build();
+        final String[] expected = {cookie1, cookie2, cookie3};
+
+        // When
+        final List<String> cookiesList = HttpUtils.extractCookiesFromHeaders(headers);
+
+        // Then
+        assertEqualsNoOrder(cookiesList.toArray(), expected);
+    }
+
+    @Test
+    public void testExtractCompleteUrl() throws Exception
+    {
+        // Given
+        final StringBuffer url = new StringBuffer("http://test.html");
+        final String queryString = "a=x&b=4";
+
+        final HttpServletRequest mockRequest = Mockito.mock(HttpServletRequest.class);
+        when(mockRequest.getRequestURL()).thenReturn(url);
+        when(mockRequest.getQueryString()).thenReturn(queryString);
+
+        final URI expected = URI.create(url + "?" + queryString);
+
+        // When
+        final URI actual = HttpUtils.extractCompleteUrl(mockRequest);
+
+        // Then
+        assertEquals(actual, expected);
+    }
+
+    private Cookie[] getCookieData()
+    {
+        final Cookie[] cookies = new Cookie[3];
+        int count = 0;
+        for (KeyValuePair keyValuePair : AVAILABLE_COOKIES)
+        {
+            cookies[count++] = new Cookie(keyValuePair.getName(), keyValuePair.getValue());
+        }
+        return cookies;
     }
 }

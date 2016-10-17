@@ -38,29 +38,31 @@ import java.util.*;
 @JsonSerialize(using = SupportedVersions.JacksonSerializer.class)
 public class SupportedVersions
 {
-    private final List<String> recognised_versions = new ArrayList<String>()
-    {{
-        add(Scopes.MOBILECONNECT);
-        add(Scopes.MOBILECONNECTAUTHENTICATION);
-        add(Scopes.MOBILECONNECTAUTHORIZATION);
-        add(Scopes.MOBILECONNECTIDENTITYNATIONALID);
-        add(Scopes.MOBILECONNECTIDENTITYPHONE);
-        add(Scopes.MOBILECONNECTIDENTITYSIGNUP);
-        add(Scopes.MOBILECONNECTIDENTITYSIGNUPPLUS);
-    }};
+    private final List<String> recognisedVersions = new ArrayList<String>();
+
     private final Map<String, String> versions;
     private final String maxSupportedVersion;
 
     /**
-     * Creates a new instance of the SupportedVersions class using the versionSupport dictionary to generate initial values
-     * @param versionSupport
+     * Creates a new instance of the SupportedVersions class using the versionSupport dictionary to
+     * generate initial values
+     *
+     * @param versionSupport Map of versions supported
      */
     private SupportedVersions(final Map<String, String> versionSupport)
     {
+        recognisedVersions.add(Scopes.MOBILECONNECT);
+        recognisedVersions.add(Scopes.MOBILECONNECTAUTHENTICATION);
+        recognisedVersions.add(Scopes.MOBILECONNECTAUTHORIZATION);
+        recognisedVersions.add(Scopes.MOBILECONNECTIDENTITYNATIONALID);
+        recognisedVersions.add(Scopes.MOBILECONNECTIDENTITYPHONE);
+        recognisedVersions.add(Scopes.MOBILECONNECTIDENTITYSIGNUP);
+        recognisedVersions.add(Scopes.MOBILECONNECTIDENTITYSIGNUPPLUS);
+
         this.versions = versionSupport != null
                         ? Collections.unmodifiableMap(new HashMap<String, String>(versionSupport))
                         : MobileConnectVersions.DEFAULT_SUPPORTED_VERSIONS;
-        this.maxSupportedVersion = identifyMaxSupportedVersion(versions);
+        this.maxSupportedVersion = identifyMaxSupportedVersion(this.versions);
     }
 
     private static String identifyMaxSupportedVersion(final Map<String, String> versions)
@@ -90,16 +92,15 @@ public class SupportedVersions
     {
         ObjectUtils.requireNonNull(scope, "scope");
 
-        if (ListUtils.firstMatch(recognised_versions, new Predicate<String>()
-            {
-                @Override
-                public boolean apply(final String input)
-                {
-                    return input.equals(scope);
-                }
-            }) == null)
+        if (ListUtils.firstMatch(recognisedVersions, new Predicate<String>()
         {
-            // TODO: 09/09/16 Should this default to something? 
+            @Override
+            public boolean apply(final String input)
+            {
+                return input.equals(scope);
+            }
+        }) == null)
+        {
             return null;
         }
 
@@ -111,16 +112,14 @@ public class SupportedVersions
 
     /**
      * Test for support of the specified version or a greater version
+     *
      * @param version Version to test support
      * @return True if version or higher is supported
      */
     public boolean isVersionSupported(final String version)
     {
-        if (StringUtils.isNullOrEmpty(version))
-        {
-            return false;
-        }
-        return (VersionUtils.versionCompare(maxSupportedVersion, version) >= 0);
+        return !StringUtils.isNullOrEmpty(version) && (VersionUtils.versionCompare(
+            maxSupportedVersion, version) >= 0);
     }
 
     public static class Builder implements IBuilder<SupportedVersions>
@@ -160,7 +159,6 @@ public class SupportedVersions
         }
     }
 
-
     protected static class JacksonDeserializer extends JsonDeserializer<SupportedVersions>
     {
         @Override
@@ -184,7 +182,6 @@ public class SupportedVersions
             return builder.build();
         }
     }
-
 
     protected static class JacksonSerializer extends JsonSerializer<SupportedVersions>
     {

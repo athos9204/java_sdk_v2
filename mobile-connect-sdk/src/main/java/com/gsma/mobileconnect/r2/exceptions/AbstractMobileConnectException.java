@@ -14,47 +14,27 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. YOU AGREE TO
  * INDEMNIFY AND HOLD HARMLESS THE AUTHORS AND COPYRIGHT HOLDERS FROM AND AGAINST ANY SUCH LIABILITY.
  */
-package com.gsma.mobileconnect.r2.rest;
+package com.gsma.mobileconnect.r2.exceptions;
 
 import com.gsma.mobileconnect.r2.IHasMobileConnectStatus;
 import com.gsma.mobileconnect.r2.MobileConnectStatus;
-import com.gsma.mobileconnect.r2.utils.HttpUtils;
-
-import java.net.URI;
 
 /**
- * Exception thrown when the headless operation fails due to too many redirects or when it times out
+ * Abstract class to extend from when exceptions implement the IHasMobileConnectStatus interface
  *
  * @since 2.0
  */
-public class HeadlessOperationFailedException extends Exception implements IHasMobileConnectStatus
+@SuppressWarnings("WeakerAccess")
+public abstract class AbstractMobileConnectException extends Exception
+    implements IHasMobileConnectStatus
 {
-    private final String message;
-
-    /**
-     * Create an instance of this exception.
-     *
-     * @param message HTTP method of the request.
-     */
-    public HeadlessOperationFailedException(final String message)
+    public AbstractMobileConnectException(final String message)
     {
         super(message);
-        this.message = message;
     }
 
-    /**
-     * @return the message giving details of this exception
-     */
-    public String getMesage()
+    public AbstractMobileConnectException(final String format, final Throwable cause)
     {
-        return this.message;
-    }
-
-    @Override
-    public MobileConnectStatus toMobileConnectStatus(final String task)
-    {
-        return MobileConnectStatus.error("http_failure",
-            String.format("%s headless operation either had too many redirects or it timed out",
-                task), this);
+        super(format, cause);
     }
 }

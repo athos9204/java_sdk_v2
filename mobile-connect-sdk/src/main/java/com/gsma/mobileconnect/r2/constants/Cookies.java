@@ -21,21 +21,28 @@ package com.gsma.mobileconnect.r2.constants;
  *
  * @since 2.0
  */
-public interface Cookies
+public final class Cookies
 {
     /**
      * Key for Most Recent Selected Operator cookie
      */
-   String MOST_RECENT_SELECTED_OPERATOR = "Most-Recent-Selected-Operator";
+   public static final String MOST_RECENT_SELECTED_OPERATOR = "Most-Recent-Selected-Operator";
 
     /**
      * Key for Most Recent Selected Operator Expiry cookie
      */
-   String MOST_RECENT_SELECTED_OPERATOR_EXPIRY =
+    public static final String MOST_RECENT_SELECTED_OPERATOR_EXPIRY =
         "Most-Recent-Selected-Operator-Expiry";
 
     /**
      * Key for Enum-Nonce cookie
      */
-   String ENUM_NONCE = "Enum-Nonce";
+    public static final String ENUM_NONCE = "Enum-Nonce";
+
+    private Cookies()
+    {
+        /*
+        Private default constructor
+         */
+    }
 }

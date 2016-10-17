@@ -29,6 +29,7 @@ import java.net.URI;
  *
  * @since 2.0
  */
+@SuppressWarnings("WeakerAccess")
 public class AuthenticationOptions
 {
     private final String clientId;
@@ -169,6 +170,7 @@ public class AuthenticationOptions
         return this.claims;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static final class Builder implements IBuilder<AuthenticationOptions>
     {
         private String clientId;

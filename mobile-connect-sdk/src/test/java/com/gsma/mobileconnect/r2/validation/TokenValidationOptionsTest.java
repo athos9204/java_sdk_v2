@@ -1,4 +1,4 @@
-package com.gsma.mobileconnect.r2.authentication;
+package com.gsma.mobileconnect.r2.validation;
 
 import org.testng.annotations.Test;
 
@@ -13,11 +13,11 @@ public class TokenValidationOptionsTest
     public void testGetAcceptedValidationResults() throws Exception
     {
         TokenValidationOptions tokenValidationOptions = new TokenValidationOptions.Builder()
-            .withAcceptedValidationResults(TokenValidationResult.Valid)
+            .withAcceptedValidationResults(TokenValidationResult.VALID)
             .build();
 
         assertEquals(tokenValidationOptions.getAcceptedValidationResults(),
-            TokenValidationResult.Valid);
+            TokenValidationResult.VALID);
     }
 
 }

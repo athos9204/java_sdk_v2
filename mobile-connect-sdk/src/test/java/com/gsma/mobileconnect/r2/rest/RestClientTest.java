@@ -16,8 +16,9 @@
  */
 package com.gsma.mobileconnect.r2.rest;
 
-import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.MobileConnectStatus;
+import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
+import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.utils.KeyValuePair;
@@ -25,7 +26,6 @@ import com.gsma.mobileconnect.r2.utils.TestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.*;
 import org.apache.http.client.HttpClient;
-import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.entity.ContentType;
@@ -159,7 +159,7 @@ public class RestClientTest
         final StringEntity entity = (StringEntity) request.getEntity();
         assertEqualsNoOrder(TestUtils.splitArray(getStringContent(entity)),
             TestUtils.splitArray(jsonContent));
-        assertEquals(entity.getContentType().getValue().toString(),
+        assertEquals(entity.getContentType().getValue(),
             ContentType.APPLICATION_JSON.withCharset("UTF-8").toString());
     }
 
@@ -185,7 +185,7 @@ public class RestClientTest
 
         final StringEntity entity = (StringEntity) request.getEntity();
         assertEquals(getStringContent(entity), content);
-        assertEquals(entity.getContentType().getValue().toString(),
+        assertEquals(entity.getContentType().getValue(),
             ContentType.TEXT_PLAIN.withCharset("UTF-8").toString());
     }
 
@@ -368,8 +368,6 @@ public class RestClientTest
     @Test(expectedExceptions = RequestFailedException.class)
     public void testGetFinalRedirectRequestFailed() throws RequestFailedException, IOException
     {
-        List<KeyValuePair> headers = new ArrayList<KeyValuePair>();
-        headers.add(new KeyValuePair("Location", "http://1redirect"));
         when(httpClient.execute(any(HttpUriRequest.class),
             any(RestClient.RestResponseHandler.class))).thenThrow(RequestFailedException.class);
 

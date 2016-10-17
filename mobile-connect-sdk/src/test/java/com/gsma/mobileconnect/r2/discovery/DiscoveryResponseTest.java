@@ -185,6 +185,7 @@ public class DiscoveryResponseTest
              "openid mc_authz", null}};
     }
 
+    @SuppressWarnings("unchecked")
     @Test(dataProvider = "mobileConnectServiceSupportedData")
     void isMobileConnectServiceSupported(final String name, final ServiceSupportedTestMode mode,
         final String scopesToTest, final Boolean expected) throws JsonDeserializationException

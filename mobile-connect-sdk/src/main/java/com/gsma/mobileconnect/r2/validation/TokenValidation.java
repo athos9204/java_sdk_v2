@@ -14,8 +14,9 @@
 * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. YOU AGREE TO
 * INDEMNIFY AND HOLD HARMLESS THE AUTHORS AND COPYRIGHT HOLDERS FROM AND AGAINST ANY SUCH LIABILITY.
 */
-package com.gsma.mobileconnect.r2.authentication;
+package com.gsma.mobileconnect.r2.validation;
 
+import com.gsma.mobileconnect.r2.authentication.RequestTokenResponseData;
 import com.gsma.mobileconnect.r2.claims.Claims;
 import com.gsma.mobileconnect.r2.claims.ClaimsConstants;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
@@ -39,6 +40,7 @@ import java.util.Date;
  *
  * @since 2.0
  */
+@SuppressWarnings("WeakerAccess")
 public class TokenValidation
 {
     private static final Logger LOGGER = LoggerFactory.getLogger(TokenValidation.class);
@@ -63,22 +65,22 @@ public class TokenValidation
      * @return TokenValidationResult that specifies if the token is valid, or if not why it is not
      * valid
      */
-    public static TokenValidationResult validateIdToken(final String idToken, final String clientId,
-        final String issuer, final String nonce, final long maxAge, final JWKeyset keyset,
-        final IJsonService jsonService,
+    public static TokenValidationResult validateIdToken(final String idToken, //NOSONAR
+        final String clientId, final String issuer, final String nonce, final long maxAge,
+        final JWKeyset keyset, final IJsonService jsonService,
         final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
         throws JsonDeserializationException
     {
         if (StringUtils.isNullOrEmpty(idToken))
         {
-            LOGGER.warn("Idtoken is missing");
-            return TokenValidationResult.IdTokenMissing;
+            LOGGER.warn("Id token is missing");
+            return TokenValidationResult.ID_TOKEN_MISSING;
         }
 
         TokenValidationResult result =
             validateIdTokenClaims(idToken, clientId, issuer, nonce, maxAge, jsonService,
                 mobileConnectEncodeDecoder);
-        if (result != TokenValidationResult.Valid)
+        if (result != TokenValidationResult.VALID)
         {
             return result;
         }
@@ -93,7 +95,7 @@ public class TokenValidation
      * @param idToken                     IDToken to validate
      * @param keyset                      Keyset retrieved from the jwks url, used to validate the
      *                                    token signature. If null the token will not be validated
-     *                                    and {@link TokenValidationResult#JWKSError}
+     *                                    and {@link TokenValidationResult#JWKS_ERROR}
      * @param jsonService                 Json service to be used deserialising strings to objects
      * @param mobileConnectEncodeDecoder  Class used to encode/decode
      * @return TokenValidationResult that specifies if the token signature is valid, or if not why
@@ -107,56 +109,68 @@ public class TokenValidation
         if (keyset == null)
         {
             LOGGER.warn("Keyset not found");
-            return TokenValidationResult.JWKSError;
+            return TokenValidationResult.JWKS_ERROR;
         }
-        JWKey jwKeyDeserialized;
+
         try
         {
-            jwKeyDeserialized = jsonService.deserialize(
-                JsonWebTokens.Part.HEADER.decode(idToken, mobileConnectEncodeDecoder),
-                JWKey.class);
-            final String alg = jwKeyDeserialized.getAlgorithm();
-            final String keyId = jwKeyDeserialized.getKeyId();
-
-            JWKey jwKey = ListUtils.firstMatch(keyset.getKeys(), new Predicate<JWKey>()
-            {
-                @Override
-                public boolean apply(JWKey input)
-                {
-                    if (input.getKeyId() == null)
-                    {
-                        return keyId == null && (StringUtils.isNullOrEmpty(input.getAlgorithm())
-                            || input.getAlgorithm().equals(alg));
-                    }
-                    return input.getKeyId().equals(keyId) && (StringUtils.isNullOrEmpty(
-                        input.getAlgorithm()) || input.getAlgorithm().equals(alg));
-                }
-            });
-
-            if (jwKey == null)
-            {
-                LOGGER.warn("No key found in keyset matching idtoken header");
-                return TokenValidationResult.NoMatchingKey;
-            }
-
-            final int lastSplitIndex = idToken.lastIndexOf('.');
-            if (lastSplitIndex < 0 || lastSplitIndex == idToken.length() - 1)
-            {
-                LOGGER.warn("Error discovering signature");
-                return TokenValidationResult.InvalidSignature;
-            }
-
-            final String dataToSign = idToken.substring(0, lastSplitIndex);
-            final String signature = idToken.substring(lastSplitIndex + 1);
-
-
-            return verifySignature(jwKey, dataToSign, signature, alg, mobileConnectEncodeDecoder);
+            return validateSignature(idToken, keyset, jsonService, mobileConnectEncodeDecoder);
         }
         catch (JsonDeserializationException e)
         {
             LOGGER.warn("Error deserializing idToken");
             throw new JsonDeserializationException(JWKey.class, idToken, e);
         }
+    }
+
+    private static TokenValidationResult validateSignature(final String idToken,
+        final JWKeyset keyset, final IJsonService jsonService,
+        final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
+        throws JsonDeserializationException
+    {
+        final JWKey jwKeyDeserialized = jsonService.deserialize(
+            JsonWebTokens.Part.HEADER.decode(idToken, mobileConnectEncodeDecoder),
+            JWKey.class);
+        final String alg = jwKeyDeserialized.getAlgorithm();
+        final String keyId = jwKeyDeserialized.getKeyId();
+
+        final JWKey jwKey = extractJwKey(keyset, alg, keyId);
+
+        if (jwKey == null)
+        {
+            LOGGER.warn("No key found in keyset matching idtoken header");
+            return TokenValidationResult.NO_MATCHING_KEY;
+        }
+
+        final int lastSplitIndex = idToken.lastIndexOf('.');
+        if (lastSplitIndex < 0 || lastSplitIndex == idToken.length() - 1)
+        {
+            LOGGER.warn("Error discovering signature");
+            return TokenValidationResult.INVALID_SIGNATURE;
+        }
+
+        final String dataToSign = idToken.substring(0, lastSplitIndex);
+        final String signature = idToken.substring(lastSplitIndex + 1);
+
+        return verifySignature(jwKey, dataToSign, signature, alg, mobileConnectEncodeDecoder);
+    }
+
+    private static JWKey extractJwKey(final JWKeyset keyset, final String alg, final String keyId)
+    {
+        return ListUtils.firstMatch(keyset.getKeys(), new Predicate<JWKey>()
+        {
+            @Override
+            public boolean apply(final JWKey input)
+            {
+                if (input.getKeyId() == null)
+                {
+                    return keyId == null && (StringUtils.isNullOrEmpty(input.getAlgorithm())
+                        || input.getAlgorithm().equals(alg));
+                }
+                return input.getKeyId().equals(keyId) && (StringUtils.isNullOrEmpty(
+                    input.getAlgorithm()) || input.getAlgorithm().equals(alg));
+            }
+        });
     }
 
     private static TokenValidationResult verifySignature(final JWKey jwKey, final String dataToSign,
@@ -167,22 +181,22 @@ public class TokenValidation
         try
         {
             isValid = jwKey.verify(dataToSign, signature, alg, mobileConnectEncodeDecoder);
-            return isValid ? TokenValidationResult.Valid : TokenValidationResult.InvalidSignature;
+            return isValid ? TokenValidationResult.VALID : TokenValidationResult.INVALID_SIGNATURE;
         }
         catch (MobileConnectInvalidJWKException e)
         {
             LOGGER.warn("Id Token validation failed", e);
-            return TokenValidationResult.KeyMisformed;
+            return TokenValidationResult.KEY_MISFORMED;
         }
         catch (InvalidKeySpecException e)
         {
             LOGGER.warn("Key specification invalid", e);
-            return TokenValidationResult.KeyMisformed;
+            return TokenValidationResult.KEY_MISFORMED;
         }
         catch (NoSuchAlgorithmException e)
         {
             LOGGER.warn("No matching algorithm found", e);
-            return TokenValidationResult.IncorrectAlgorithm;
+            return TokenValidationResult.INCORRECT_ALGORITHM;
         }
     }
 
@@ -207,46 +221,70 @@ public class TokenValidation
         final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
         throws JsonDeserializationException
     {
-        String claimsJson = JsonWebTokens.Part.CLAIMS.decode(idToken, mobileConnectEncodeDecoder);
-        Claims claims = jsonService.deserialize(claimsJson, Claims.class);
+        final Claims claims = extractClaims(idToken, jsonService, mobileConnectEncodeDecoder);
 
-        if (expectedNonce != null && !expectedNonce.equals(
-            claims.get(ClaimsConstants.NONCE).getValue().toString()))
+        if (isNonceInvalid(claims, expectedNonce))
         {
             LOGGER.warn("Invalid Nonce");
-            return TokenValidationResult.InvalidNonce;
+            return TokenValidationResult.INVALID_NONCE;
         }
 
-        if (!claims.get(ClaimsConstants.ISSUER).getValue().toString().equals(issuer))
+        if (isIssuerInvalid(claims, issuer))
         {
             LOGGER.warn("Issuer does not match expected");
-            return TokenValidationResult.InvalidIssuer;
+            return TokenValidationResult.INVALID_ISSUER;
         }
 
         if (!doesAudOrAzpClaimMatchClientId(claims, clientId))
         {
             LOGGER.warn("Audience or Authorized party does not match client id");
-            return TokenValidationResult.InvalidAudAndAzp;
+            return TokenValidationResult.INVALID_AUD_AND_AZP;
         }
 
+        return validateTokenExpiry(claims, maxAge);
+    }
+
+    private static Claims extractClaims(final String idToken, final IJsonService jsonService,
+        final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
+        throws JsonDeserializationException
+    {
+        String claimsJson = JsonWebTokens.Part.CLAIMS.decode(idToken, mobileConnectEncodeDecoder);
+        return jsonService.deserialize(claimsJson, Claims.class);
+    }
+
+    private static boolean isNonceInvalid(final Claims claims, final String expectedNonce)
+    {
+        return expectedNonce != null && !expectedNonce.equals(
+            claims.get(ClaimsConstants.NONCE).getValue().toString());
+    }
+
+    private static boolean isIssuerInvalid(final Claims claims, final String issuer)
+    {
+        return !claims.get(ClaimsConstants.ISSUER).getValue().toString().equals(issuer);
+    }
+
+    private static boolean doesAudOrAzpClaimMatchClientId(final Claims claims,
+        final String clientId)
+    {
+        return clientId.equals(claims.get(ClaimsConstants.AUD).getValue()) || clientId.equals(
+            claims.get(ClaimsConstants.AZP).getValue());
+    }
+
+    private static TokenValidationResult validateTokenExpiry(Claims claims, long maxAge)
+    {
         if (tokenHasExpired(claims))
         {
             LOGGER.warn("Id token has expired");
-            return TokenValidationResult.IdTokenExpired;
+            return TokenValidationResult.ID_TOKEN_EXPIRED;
         }
 
         if (maxAgeHasPassed(claims, maxAge))
         {
             LOGGER.warn("Id token has passed max age");
-            return TokenValidationResult.MaxAgePassed;
+            return TokenValidationResult.MAX_AGE_PASSED;
         }
-        return TokenValidationResult.Valid;
-    }
 
-    private static boolean maxAgeHasPassed(final Claims claims, final long maxAge)
-    {
-        return (Long.valueOf(claims.get(ClaimsConstants.ISSUED_AT_TIME).getValue().toString())
-            * 1000) + (maxAge * 1000) < Calendar.getInstance().getTimeInMillis();
+        return TokenValidationResult.VALID;
     }
 
     private static boolean tokenHasExpired(final Claims claims)
@@ -255,11 +293,10 @@ public class TokenValidation
             < Calendar.getInstance().getTimeInMillis();
     }
 
-    private static boolean doesAudOrAzpClaimMatchClientId(final Claims claims,
-        final String clientId)
+    private static boolean maxAgeHasPassed(final Claims claims, final long maxAge)
     {
-        return clientId.equals(claims.get(ClaimsConstants.AUD).getValue()) || clientId.equals(
-            claims.get(ClaimsConstants.AZP).getValue());
+        return (Long.valueOf(claims.get(ClaimsConstants.ISSUED_AT_TIME).getValue().toString())
+            * 1000) + (maxAge * 1000) < Calendar.getInstance().getTimeInMillis();
     }
 
     /**
@@ -275,7 +312,7 @@ public class TokenValidation
         if (StringUtils.isNullOrEmpty(tokenResponse.getAccessToken()))
         {
             LOGGER.warn("Access token is missing");
-            return TokenValidationResult.AccessTokenMissing;
+            return TokenValidationResult.ACCESS_TOKEN_MISSING;
         }
 
         if (tokenResponse.getExpiry() != null && tokenResponse
@@ -283,8 +320,8 @@ public class TokenValidation
             .before(new Date(Calendar.getInstance().getTimeInMillis())))
         {
             LOGGER.warn("Access token has expired");
-            return TokenValidationResult.AccessTokenExpired;
+            return TokenValidationResult.ACCESS_TOKEN_EXPIRED;
         }
-        return TokenValidationResult.Valid;
+        return TokenValidationResult.VALID;
     }
 }

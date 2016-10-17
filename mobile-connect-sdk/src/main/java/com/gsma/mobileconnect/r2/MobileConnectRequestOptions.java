@@ -17,7 +17,7 @@
 package com.gsma.mobileconnect.r2;
 
 import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
-import com.gsma.mobileconnect.r2.authentication.TokenValidationOptions;
+import com.gsma.mobileconnect.r2.validation.TokenValidationOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
 

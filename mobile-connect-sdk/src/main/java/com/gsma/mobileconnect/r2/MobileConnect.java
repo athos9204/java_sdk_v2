@@ -18,8 +18,8 @@ package com.gsma.mobileconnect.r2;
 
 import com.gsma.mobileconnect.r2.authentication.AuthenticationService;
 import com.gsma.mobileconnect.r2.authentication.IAuthenticationService;
-import com.gsma.mobileconnect.r2.authentication.IJWKeysetService;
-import com.gsma.mobileconnect.r2.authentication.JWKeysetService;
+import com.gsma.mobileconnect.r2.validation.IJWKeysetService;
+import com.gsma.mobileconnect.r2.validation.JWKeysetService;
 import com.gsma.mobileconnect.r2.cache.ConcurrentCache;
 import com.gsma.mobileconnect.r2.cache.ICache;
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;

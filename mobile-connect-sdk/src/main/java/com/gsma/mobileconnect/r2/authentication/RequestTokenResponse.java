@@ -17,7 +17,7 @@
 package com.gsma.mobileconnect.r2.authentication;
 
 import com.gsma.mobileconnect.r2.ErrorResponse;
-import com.gsma.mobileconnect.r2.InvalidResponseException;
+import com.gsma.mobileconnect.r2.exceptions.InvalidResponseException;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
@@ -108,6 +108,7 @@ public class RequestTokenResponse
     /**
      * @return the list of HTTP headers returned with the response.
      */
+
     public List<KeyValuePair> getHeaders()
     {
         return this.headers;

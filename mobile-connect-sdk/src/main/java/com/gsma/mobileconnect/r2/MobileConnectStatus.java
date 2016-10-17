@@ -32,6 +32,7 @@ import java.util.List;
  *
  * @since 2.0
  */
+@SuppressWarnings("WeakerAccess")
 @JsonDeserialize(builder = MobileConnectStatus.Builder.class)
 public class MobileConnectStatus
 {
@@ -446,6 +447,7 @@ public class MobileConnectStatus
                 this.requestTokenResponse = status.requestTokenResponse;
                 this.identityResponse = status.identityResponse;
                 this.exception = status.exception;
+                this.outcome = status.outcome;
             }
         }
 

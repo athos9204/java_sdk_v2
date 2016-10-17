@@ -17,7 +17,7 @@
 package com.gsma.mobileconnect.r2;
 
 import com.gsma.mobileconnect.r2.authentication.IAuthenticationService;
-import com.gsma.mobileconnect.r2.authentication.IJWKeysetService;
+import com.gsma.mobileconnect.r2.validation.IJWKeysetService;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;

@@ -117,26 +117,31 @@ public class Claims
                 }
                 else
                 {
-                    final ClaimsValue.Builder builder =
-                        new ClaimsValue.Builder().withEssential(value.has("essential"))
-                            .withValue(value.isNumber() ? value.longValue() : value.textValue());
-
-                    if (value.has(VALUES))
-                    {
-                        final List<Object> objects = new ArrayList<Object>();
-                        for (final JsonNode v : value.get(VALUES))
-                        {
-                            objects.add(v.textValue());
-                        }
-                        builder.withValues(objects.toArray());
-                    }
-                    claimsValue = builder.build();
+                    claimsValue = extractClaimsValue(value);
                 }
 
                 claims.claimsMap.put(entry.getKey(), claimsValue);
             }
 
             return claims;
+        }
+
+        private ClaimsValue extractClaimsValue(JsonNode value)
+        {
+            final ClaimsValue.Builder builder =
+                new ClaimsValue.Builder().withEssential(value.has("essential"))
+                    .withValue(value.isNumber() ? value.longValue() : value.textValue());
+
+            if (value.has(VALUES))
+            {
+                final List<Object> objects = new ArrayList<Object>();
+                for (final JsonNode v : value.get(VALUES))
+                {
+                    objects.add(v.textValue());
+                }
+                builder.withValues(objects.toArray());
+            }
+            return builder.build();
         }
     }
 

@@ -1,7 +1,7 @@
 package com.gsma.mobileconnect.r2;
 
 import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
-import com.gsma.mobileconnect.r2.authentication.TokenValidationOptions;
+import com.gsma.mobileconnect.r2.validation.TokenValidationOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;

@@ -110,6 +110,7 @@ public class RequestTokenResponseData
         return this.expiresIn;
     }
 
+    @SuppressWarnings("WeakerAccess")
     public static final class Builder
     {
         private Date timeReceived;

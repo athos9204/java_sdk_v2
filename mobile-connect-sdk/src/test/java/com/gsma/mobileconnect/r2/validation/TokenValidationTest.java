@@ -14,8 +14,9 @@
 * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. YOU AGREE TO
 * INDEMNIFY AND HOLD HARMLESS THE AUTHORS AND COPYRIGHT HOLDERS FROM AND AGAINST ANY SUCH LIABILITY.
 */
-package com.gsma.mobileconnect.r2.authentication;
+package com.gsma.mobileconnect.r2.validation;
 
+import com.gsma.mobileconnect.r2.authentication.RequestTokenResponseData;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
@@ -50,7 +51,7 @@ public class TokenValidationTest
             TokenValidation.validateIdToken(idToken, clientId, issuer, nonce, maxAge, jwKeyset,
                 jacksonJsonService, iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.Valid);
+        assertEquals(tokenValidationResult, TokenValidationResult.VALID);
     }
 
     @Test
@@ -66,7 +67,7 @@ public class TokenValidationTest
             TokenValidation.validateIdToken(idToken, clientId, issuer, nonce, maxAge, jwKeyset,
                 jacksonJsonService, iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.InvalidSignature);
+        assertEquals(tokenValidationResult, TokenValidationResult.INVALID_SIGNATURE);
     }
 
     @Test
@@ -84,7 +85,7 @@ public class TokenValidationTest
             TokenValidation.validateIdToken(idToken, clientId, issuer, invalidNonce, maxAge,
                 jwKeyset, jacksonJsonService, iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.InvalidNonce);
+        assertEquals(tokenValidationResult, TokenValidationResult.INVALID_NONCE);
     }
 
     @Test
@@ -98,13 +99,13 @@ public class TokenValidationTest
         final TokenValidationResult tokenValidationResultEmpty =
             TokenValidation.validateIdToken(idTokenEmpty, clientId, issuer, nonce, maxAge, jwKeyset,
                 jacksonJsonService, iMobileConnectEncodeDecoder);
-        assertEquals(tokenValidationResultEmpty, TokenValidationResult.IdTokenMissing);
+        assertEquals(tokenValidationResultEmpty, TokenValidationResult.ID_TOKEN_MISSING);
 
         final String idTokenNull = null;
         final TokenValidationResult tokenValidationResultNull =
             TokenValidation.validateIdToken(idTokenNull, clientId, issuer, nonce, maxAge, jwKeyset,
                 jacksonJsonService, iMobileConnectEncodeDecoder);
-        assertEquals(tokenValidationResultNull, TokenValidationResult.IdTokenMissing);
+        assertEquals(tokenValidationResultNull, TokenValidationResult.ID_TOKEN_MISSING);
     }
 
     @Test
@@ -120,7 +121,7 @@ public class TokenValidationTest
             TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService,
                 iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.Valid);
+        assertEquals(tokenValidationResult, TokenValidationResult.VALID);
     }
 
     @Test
@@ -137,7 +138,7 @@ public class TokenValidationTest
             TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService,
                 iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.InvalidSignature);
+        assertEquals(tokenValidationResult, TokenValidationResult.INVALID_SIGNATURE);
     }
 
     // TODO: 23/09/16 test correct hmac key and invalid hmac key
@@ -156,7 +157,7 @@ public class TokenValidationTest
 //            TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService,
 //                iMobileConnectEncodeDecoder);
 //
-//        assertEquals(tokenValidationResult, TokenValidationResult.Valid);
+//        assertEquals(tokenValidationResult, TokenValidationResult.VALID);
 //    }
 
     @Test
@@ -172,7 +173,7 @@ public class TokenValidationTest
             TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService,
                 iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.JWKSError);
+        assertEquals(tokenValidationResult, TokenValidationResult.JWKS_ERROR);
     }
 
     @Test
@@ -189,7 +190,7 @@ public class TokenValidationTest
             TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService,
                 iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.NoMatchingKey);
+        assertEquals(tokenValidationResult, TokenValidationResult.NO_MATCHING_KEY);
     }
 
     @Test
@@ -206,7 +207,7 @@ public class TokenValidationTest
             TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService,
                 iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.InvalidSignature);
+        assertEquals(tokenValidationResult, TokenValidationResult.INVALID_SIGNATURE);
     }
 
     @Test
@@ -223,7 +224,7 @@ public class TokenValidationTest
             TokenValidation.validateIdTokenSignature(idToken, jwKeyset, jacksonJsonService,
                 iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.KeyMisformed);
+        assertEquals(tokenValidationResult, TokenValidationResult.KEY_MISFORMED);
 
     }
 
@@ -238,7 +239,7 @@ public class TokenValidationTest
             TokenValidation.validateIdTokenClaims(idToken, clientId, issuer, nonce, maxAge,
                 jacksonJsonService, iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.Valid);
+        assertEquals(tokenValidationResult, TokenValidationResult.VALID);
 
     }
 
@@ -254,7 +255,7 @@ public class TokenValidationTest
             TokenValidation.validateIdTokenClaims(idToken, clientId, issuer, invalidNonce, maxAge,
                 jacksonJsonService, iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.InvalidNonce);
+        assertEquals(tokenValidationResult, TokenValidationResult.INVALID_NONCE);
 
     }
 
@@ -270,7 +271,7 @@ public class TokenValidationTest
             TokenValidation.validateIdTokenClaims(idToken, clientId, invalidIssuer, nonce, maxAge,
                 jacksonJsonService, iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.InvalidIssuer);
+        assertEquals(tokenValidationResult, TokenValidationResult.INVALID_ISSUER);
     }
 
     @Test
@@ -284,7 +285,7 @@ public class TokenValidationTest
             TokenValidation.validateIdTokenClaims(idToken, invalid_clientid, issuer, nonce, maxAge,
                 jacksonJsonService, iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.InvalidAudAndAzp);
+        assertEquals(tokenValidationResult, TokenValidationResult.INVALID_AUD_AND_AZP);
     }
 
     @Test
@@ -299,7 +300,7 @@ public class TokenValidationTest
             TokenValidation.validateIdTokenClaims(idToken, clientId, issuer, nonce, maxAgeExpired,
                 jacksonJsonService, iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.MaxAgePassed);
+        assertEquals(tokenValidationResult, TokenValidationResult.MAX_AGE_PASSED);
 
     }
 
@@ -308,13 +309,13 @@ public class TokenValidationTest
     {
         RequestTokenResponseData requestTokenResponseData = new RequestTokenResponseData.Builder()
             .withAccessToken("accessToken")
-            .withExpiresIn(10000l)
+            .withExpiresIn(10000L)
             .build();
 
         final TokenValidationResult tokenValidationResultNull =
             TokenValidation.validateAccessToken(requestTokenResponseData);
 
-        assertEquals(tokenValidationResultNull, TokenValidationResult.Valid);
+        assertEquals(tokenValidationResultNull, TokenValidationResult.VALID);
 
     }
 
@@ -327,7 +328,7 @@ public class TokenValidationTest
         final TokenValidationResult tokenValidationResultNull =
             TokenValidation.validateAccessToken(rtrdNullAccessToken);
 
-        assertEquals(tokenValidationResultNull, TokenValidationResult.AccessTokenMissing);
+        assertEquals(tokenValidationResultNull, TokenValidationResult.ACCESS_TOKEN_MISSING);
 
         RequestTokenResponseData rtrdEmptyAccessToken =
             new RequestTokenResponseData.Builder().withAccessToken("").build();
@@ -335,7 +336,7 @@ public class TokenValidationTest
         final TokenValidationResult tokenValidationResultEmpty =
             TokenValidation.validateAccessToken(rtrdEmptyAccessToken);
 
-        assertEquals(tokenValidationResultEmpty, TokenValidationResult.AccessTokenMissing);
+        assertEquals(tokenValidationResultEmpty, TokenValidationResult.ACCESS_TOKEN_MISSING);
     }
 
     @Test
@@ -351,7 +352,7 @@ public class TokenValidationTest
         final TokenValidationResult tokenValidationResultNull =
             TokenValidation.validateAccessToken(requestTokenResponseData);
 
-        assertEquals(tokenValidationResultNull, TokenValidationResult.AccessTokenExpired);
+        assertEquals(tokenValidationResultNull, TokenValidationResult.ACCESS_TOKEN_EXPIRED);
 
     }
 }

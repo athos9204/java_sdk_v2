@@ -21,25 +21,32 @@ package com.gsma.mobileconnect.r2.constants;
  *
  * @since 2.0
  */
-public interface Headers
+public final class Headers
 {
     /**
      * Key for Source Ip Header
      */
-    String X_SOURCE_IP = "X-Source-IP";
+    public static final String X_SOURCE_IP = "X-Source-IP";
 
     /**
      * Key for Set Cookie Header
      */
-    String SET_COOKIE = "Set-Cookie";
+    public static final String SET_COOKIE = "Set-Cookie";
 
     /**
      * Key for Forwarded For Header
      */
-    String X_FORWARDED_FOR = "X-Forwarded-For";
+    public static final String X_FORWARDED_FOR = "X-Forwarded-For";
 
     /**
      * Key for cookie header.
      */
-    String COOKIE = "Cookie";
+    public static final String COOKIE = "Cookie";
+
+    private Headers()
+    {
+        /*
+        Private default constructor
+         */
+    }
 }

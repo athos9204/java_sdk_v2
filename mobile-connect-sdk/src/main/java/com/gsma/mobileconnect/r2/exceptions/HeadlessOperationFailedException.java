@@ -14,28 +14,43 @@
  * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE. YOU AGREE TO
  * INDEMNIFY AND HOLD HARMLESS THE AUTHORS AND COPYRIGHT HOLDERS FROM AND AGAINST ANY SUCH LIABILITY.
  */
-package com.gsma.mobileconnect.r2.constants;
+package com.gsma.mobileconnect.r2.exceptions;
+
+import com.gsma.mobileconnect.r2.MobileConnectStatus;
 
 /**
+ * Exception thrown when the headless operation fails due to too many redirects or when it times out
+ *
  * @since 2.0
  */
-public class Scope
+public class HeadlessOperationFailedException extends AbstractMobileConnectException
 {
-    public static final String OPENID = "openid";
-    public static final String AUTHN = "mc_authn";
-    public static final String AUTHZ = "mc_authz";
+    private final String message;
 
-    public static final String MCPREFIX = "mc_";
-
-    public static final String IDENTITYPHONE = "mc_identity_phonenumber";
-    public static final String IDENTITYSIGNUP = "mc_identity_signup";
-    public static final String IDENTITYSIGNUPPLUS = "mc_identity_signupplus";
-    public static final String IDENTITYNATIONALID = "mc_identity_nationalid";
-
-    private Scope()
+    /**
+     * Create an instance of this exception.
+     *
+     * @param message HTTP method of the request.
+     */
+    public HeadlessOperationFailedException(final String message)
     {
-        /*
-        Private default constructor
-         */
+        super(message);
+        this.message = message;
+    }
+
+    /**
+     * @return the message giving details of this exception
+     */
+    public String getMesage()
+    {
+        return this.message;
+    }
+
+    @Override
+    public MobileConnectStatus toMobileConnectStatus(final String task)
+    {
+        return MobileConnectStatus.error("http_failure",
+            String.format("%s headless operation either had too many redirects or it timed out",
+                task), this);
     }
 }
