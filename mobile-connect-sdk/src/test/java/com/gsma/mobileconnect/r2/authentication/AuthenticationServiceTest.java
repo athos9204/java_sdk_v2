@@ -27,6 +27,7 @@ import com.gsma.mobileconnect.r2.exceptions.InvalidResponseException;
 import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
+import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.json.JsonSerializationException;
 import com.gsma.mobileconnect.r2.rest.*;
 import com.gsma.mobileconnect.r2.utils.HttpUtils;
@@ -409,7 +410,8 @@ public class AuthenticationServiceTest
     @Test
     public void revokeTokenSuccessTest()
         throws RequestFailedException, HeadlessOperationFailedException, ExecutionException,
-        InterruptedException, URISyntaxException, InvalidResponseException
+        InterruptedException, URISyntaxException, InvalidResponseException,
+        JsonDeserializationException
     {
         // Given
         when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
@@ -429,14 +431,37 @@ public class AuthenticationServiceTest
 
     @SuppressWarnings("unchecked")
     @Test
-    public void revokeTokenFailureTest()
+    public void revokeTokenFailureTestWithError()
         throws RequestFailedException, HeadlessOperationFailedException, ExecutionException,
-        InterruptedException, URISyntaxException, InvalidResponseException
+        InterruptedException, URISyntaxException, InvalidResponseException,
+        JsonDeserializationException
     {
         // Given
         when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
             anyListOf(KeyValuePair.class), isNull(String.class),
             isNull(Iterable.class))).thenReturn(TestUtils.REVOKE_TOKEN_ERROR_RESPONSE);
+
+        // When
+        final String outcome =
+            this.authentication.revokeToken(this.config.getClientId(),
+                this.config.getClientSecret(), TOKEN_URL, "AccessToken", "xyz");
+
+        // Then
+        assertNotNull(outcome);
+        assertEquals(outcome, "unsupported_token_type");
+    }
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void revokeTokenFailureTestDefaultError()
+        throws RequestFailedException, HeadlessOperationFailedException, ExecutionException,
+        InterruptedException, URISyntaxException, InvalidResponseException,
+        JsonDeserializationException
+    {
+        // Given
+        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
+            anyListOf(KeyValuePair.class), isNull(String.class),
+            isNull(Iterable.class))).thenReturn(TestUtils.REVOKE_TOKEN_NON_ERROR_RESPONSE);
 
         // When
         final String outcome =
@@ -452,7 +477,8 @@ public class AuthenticationServiceTest
     @Test
     public void revokeTokenWithNoHintTest()
         throws RequestFailedException, HeadlessOperationFailedException, ExecutionException,
-        InterruptedException, URISyntaxException, InvalidResponseException
+        InterruptedException, URISyntaxException, InvalidResponseException,
+        JsonDeserializationException
     {
         // Given
         when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),

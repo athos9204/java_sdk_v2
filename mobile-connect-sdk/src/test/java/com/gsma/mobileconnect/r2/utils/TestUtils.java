@@ -121,6 +121,12 @@ public final class TestUtils
         .withContent("{\"error\": \"unsupported_token_type\"}")
         .build();
 
+    public static final RestResponse REVOKE_TOKEN_NON_ERROR_RESPONSE = new RestResponse.Builder()
+        .withStatusCode(HttpStatus.SC_MULTIPLE_CHOICES)
+        .withMethod(HttpUtils.HttpMethod.POST.name())
+        .withContent("{\"error\": \"unsupported_token_type\"}")
+        .build();
+
     private TestUtils()
     {
     }

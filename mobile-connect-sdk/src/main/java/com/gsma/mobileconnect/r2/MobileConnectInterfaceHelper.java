@@ -218,7 +218,8 @@ class MobileConnectInterfaceHelper
             final MobileConnectStatus status =
                 processRequestTokenResponse(requestTokenResponse, expectedState, expectedNonce,
                     config.getRedirectUrl(), iMobileConnectEncodeDecoder, jwKeysetService,
-                    discoveryResponse, clientId, issuer, maxAge, jsonService);
+                    discoveryResponse, clientId, issuer, maxAge, jsonService,
+                    discoveryResponse.getProviderMetadata().getVersion());
 
             if (status.getResponseType() == MobileConnectStatus.ResponseType.ERROR || (options
                 != null && !options.isAutoRetrieveIdentitySet()) || StringUtils.isNullOrEmpty(
@@ -297,7 +298,8 @@ class MobileConnectInterfaceHelper
 
                 return processRequestTokenResponse(requestTokenResponse, expectedState,
                     expectedNonce, redirectedUrl, iMobileConnectEncodeDecoder, jwKeysetService,
-                    discoveryResponse, clientId, issuer, maxAge, jsonService);
+                    discoveryResponse, clientId, issuer, maxAge, jsonService,
+                    discoveryResponse.getProviderMetadata().getVersion());
             }
             catch (final Exception e)
             {
@@ -324,9 +326,9 @@ class MobileConnectInterfaceHelper
     private static MobileConnectStatus processRequestTokenResponse( //NOSONAR
         final RequestTokenResponse requestTokenResponse, final String expectedState,
         final String expectedNonce, final URI redirectedUrl,
-        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder, IJWKeysetService jwks,
-        DiscoveryResponse discoveryResponse, String clientId, String issuer, long maxAge,
-        IJsonService jsonService)
+        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder, final IJWKeysetService jwks,
+        final DiscoveryResponse discoveryResponse, final String clientId, final String issuer,
+        final long maxAge, final IJsonService jsonService, final String version)
         throws CacheAccessException, RequestFailedException, JsonDeserializationException
     {
         final ErrorResponse errorResponse = requestTokenResponse.getErrorResponse();
@@ -354,39 +356,45 @@ class MobileConnectInterfaceHelper
         }
         else
         {
-            final JWKeyset jwKeyset =
-                jwks.retrieveJwks(discoveryResponse.getOperatorUrls().getJwksUri());
-
-            final TokenValidationResult accessTokenValidationResult =
-                TokenValidation.validateAccessToken(requestTokenResponse.getResponseData());
-            if (!TokenValidationResult.VALID.equals(accessTokenValidationResult))
+            if (version == null && discoveryResponse.getOperatorUrls().getJwksUri() != null)
             {
-                LOGGER.info("Access Token Validation Failure...");
-                return MobileConnectStatus.error("Invalid Access Token",
-                    "Access Token validation failed", null, requestTokenResponse);
-            }
+                final JWKeyset jwKeyset =
+                    jwks.retrieveJwks(discoveryResponse.getOperatorUrls().getJwksUri());
 
-            LOGGER.debug(
-                "Responding with responseType={} for requestToken for redirectedUrl={}, expectedState={}, expectedNonce={}",
-                MobileConnectStatus.ResponseType.COMPLETE,
-                LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
-                LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG));
+                final TokenValidationResult accessTokenValidationResult =
+                    TokenValidation.validateAccessToken(requestTokenResponse.getResponseData());
+                if (!TokenValidationResult.VALID.equals(accessTokenValidationResult))
+                {
+                    LOGGER.info("Access Token Validation Failure...");
+                    return MobileConnectStatus.error("Invalid Access Token",
+                        "Access Token validation failed", null, requestTokenResponse);
+                }
 
-            final TokenValidationResult tokenValidationResult =
-                TokenValidation.validateIdToken(requestTokenResponse.getResponseData().getIdToken(),
-                    clientId, issuer, expectedNonce, maxAge, jwKeyset, jsonService,
-                    iMobileConnectEncodeDecoder);
+                LOGGER.debug(
+                    "Responding with responseType={} for requestToken for redirectedUrl={}, expectedState={}, expectedNonce={}",
+                    MobileConnectStatus.ResponseType.COMPLETE,
+                    LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
+                    LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG));
 
-            if (TokenValidationResult.VALID.equals(tokenValidationResult))
-            {
-                LOGGER.info("Id Token Validation Success");
-                return MobileConnectStatus.complete(requestTokenResponse);
+                final TokenValidationResult tokenValidationResult = TokenValidation.validateIdToken(
+                    requestTokenResponse.getResponseData().getIdToken(), clientId, issuer,
+                    expectedNonce, maxAge, jwKeyset, jsonService, iMobileConnectEncodeDecoder);
+
+                if (TokenValidationResult.VALID.equals(tokenValidationResult))
+                {
+                    LOGGER.info("Id Token Validation Success");
+                    return MobileConnectStatus.complete(requestTokenResponse);
+                }
+                else
+                {
+                    LOGGER.info("Id Token Validation Failure");
+                    return MobileConnectStatus.error("Invalid Id Token", "Token validation failed",
+                        null, requestTokenResponse);
+                }
             }
             else
             {
-                LOGGER.info("Id Token Validation Failure");
-                return MobileConnectStatus.error("Invalid Id Token", "Token validation failed",
-                    null, requestTokenResponse);
+                return MobileConnectStatus.complete(requestTokenResponse);
             }
         }
     }
@@ -502,9 +510,9 @@ class MobileConnectInterfaceHelper
         }
     }
 
-    private static MobileConnectStatus processRequestInfoRequest(final IIdentityService identityService,
-        final String accessToken, final String infoUrl, final String method,
-        final MobileConnectStatus.ResponseType responseType,
+    private static MobileConnectStatus processRequestInfoRequest(
+        final IIdentityService identityService, final String accessToken, final String infoUrl,
+        final String method, final MobileConnectStatus.ResponseType responseType,
         final IMobileConnectEncodeDecoder mobileConnectEncodeDecoder)
     {
         try
@@ -633,8 +641,7 @@ class MobileConnectInterfaceHelper
             final ErrorResponse errorResponse = requestTokenResponse.getErrorResponse();
             if (errorResponse != null)
             {
-                LOGGER.warn(
-                    "Responding with responseType={} for refreshToken for "
+                LOGGER.warn("Responding with responseType={} for refreshToken for "
                         + "authentication service responded with error={}",
                     MobileConnectStatus.ResponseType.ERROR, errorResponse);
 
