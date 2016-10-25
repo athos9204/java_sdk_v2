@@ -20,6 +20,7 @@ import com.gsma.mobileconnect.r2.authentication.*;
 import com.gsma.mobileconnect.r2.cache.CacheAccessException;
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.constants.Parameters;
+import com.gsma.mobileconnect.r2.constants.Scope;
 import com.gsma.mobileconnect.r2.discovery.*;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.exceptions.AbstractMobileConnectException;
@@ -219,7 +220,7 @@ class MobileConnectInterfaceHelper
                 processRequestTokenResponse(requestTokenResponse, expectedState, expectedNonce,
                     config.getRedirectUrl(), iMobileConnectEncodeDecoder, jwKeysetService,
                     discoveryResponse, clientId, issuer, maxAge, jsonService,
-                    discoveryResponse.getProviderMetadata().getVersion());
+                    discoveryResponse.getProviderMetadata().getVersion(), options);
 
             if (status.getResponseType() == MobileConnectStatus.ResponseType.ERROR || (options
                 != null && !options.isAutoRetrieveIdentitySet()) || StringUtils.isNullOrEmpty(
@@ -299,7 +300,7 @@ class MobileConnectInterfaceHelper
                 return processRequestTokenResponse(requestTokenResponse, expectedState,
                     expectedNonce, redirectedUrl, iMobileConnectEncodeDecoder, jwKeysetService,
                     discoveryResponse, clientId, issuer, maxAge, jsonService,
-                    discoveryResponse.getProviderMetadata().getVersion());
+                    discoveryResponse.getProviderMetadata().getVersion(), options);
             }
             catch (final Exception e)
             {
@@ -328,7 +329,8 @@ class MobileConnectInterfaceHelper
         final String expectedNonce, final URI redirectedUrl,
         final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder, final IJWKeysetService jwks,
         final DiscoveryResponse discoveryResponse, final String clientId, final String issuer,
-        final long maxAge, final IJsonService jsonService, final String version)
+        final long maxAge, final IJsonService jsonService, final String version,
+        final MobileConnectRequestOptions options)
         throws CacheAccessException, RequestFailedException, JsonDeserializationException
     {
         final ErrorResponse errorResponse = requestTokenResponse.getErrorResponse();
@@ -356,7 +358,9 @@ class MobileConnectInterfaceHelper
         }
         else
         {
-            if (version == null && discoveryResponse.getOperatorUrls().getJwksUri() != null)
+            if ( (version == null)
+                && isAuthenticationRequest(options)
+                && discoveryResponse.getOperatorUrls().getJwksUri() != null)
             {
                 final JWKeyset jwKeyset =
                     jwks.retrieveJwks(discoveryResponse.getOperatorUrls().getJwksUri());
@@ -397,6 +401,16 @@ class MobileConnectInterfaceHelper
                 return MobileConnectStatus.complete(requestTokenResponse);
             }
         }
+    }
+
+    private static boolean isAuthenticationRequest(MobileConnectRequestOptions options)
+    {
+        String scope = options == null
+                       ? null
+                       : ObjectUtils
+                           .defaultIfNull(options.getAuthenticationOptions().getScope(), "")
+                           .toLowerCase();
+        return scope != null && Scope.AUTHN.equalsIgnoreCase(scope);
     }
 
     private static boolean isExpectedNonce(final String token, final String expectedNonce,
