@@ -16,20 +16,22 @@
  */
 package com.gsma.mobileconnect.r2;
 
-import com.gsma.mobileconnect.r2.authentication.*;
+import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
+import com.gsma.mobileconnect.r2.authentication.IAuthenticationService;
+import com.gsma.mobileconnect.r2.authentication.RequestTokenResponse;
+import com.gsma.mobileconnect.r2.authentication.StartAuthenticationResponse;
 import com.gsma.mobileconnect.r2.cache.CacheAccessException;
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.constants.Parameters;
-import com.gsma.mobileconnect.r2.constants.Scope;
 import com.gsma.mobileconnect.r2.discovery.*;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.exceptions.AbstractMobileConnectException;
 import com.gsma.mobileconnect.r2.exceptions.InvalidArgumentException;
+import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.identity.IdentityResponse;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
-import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.utils.*;
 import com.gsma.mobileconnect.r2.validation.IJWKeysetService;
 import com.gsma.mobileconnect.r2.validation.JWKeyset;
@@ -220,7 +222,7 @@ class MobileConnectInterfaceHelper
                 processRequestTokenResponse(requestTokenResponse, expectedState, expectedNonce,
                     config.getRedirectUrl(), iMobileConnectEncodeDecoder, jwKeysetService,
                     discoveryResponse, clientId, issuer, maxAge, jsonService,
-                    discoveryResponse.getProviderMetadata().getVersion(), options);
+                    discoveryResponse.getProviderMetadata().getVersion());
 
             if (status.getResponseType() == MobileConnectStatus.ResponseType.ERROR || (options
                 != null && !options.isAutoRetrieveIdentitySet()) || StringUtils.isNullOrEmpty(
@@ -300,7 +302,7 @@ class MobileConnectInterfaceHelper
                 return processRequestTokenResponse(requestTokenResponse, expectedState,
                     expectedNonce, redirectedUrl, iMobileConnectEncodeDecoder, jwKeysetService,
                     discoveryResponse, clientId, issuer, maxAge, jsonService,
-                    discoveryResponse.getProviderMetadata().getVersion(), options);
+                    discoveryResponse.getProviderMetadata().getVersion());
             }
             catch (final Exception e)
             {
@@ -329,8 +331,7 @@ class MobileConnectInterfaceHelper
         final String expectedNonce, final URI redirectedUrl,
         final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder, final IJWKeysetService jwks,
         final DiscoveryResponse discoveryResponse, final String clientId, final String issuer,
-        final long maxAge, final IJsonService jsonService, final String version,
-        final MobileConnectRequestOptions options)
+        final long maxAge, final IJsonService jsonService, final String version)
         throws CacheAccessException, RequestFailedException, JsonDeserializationException
     {
         final ErrorResponse errorResponse = requestTokenResponse.getErrorResponse();

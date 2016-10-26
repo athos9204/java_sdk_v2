@@ -256,7 +256,7 @@ public class MobileConnectWebInterfaceTest
     }
 
     @Test(dataProvider = "startAuthnData")
-    public void testHeadlessAuthenticationGetTokenInvalidToken(final AuthenticationOptions authnOptions,
+    public void testHeadlessAuthenticationGetTokenButValidationFails(final AuthenticationOptions authnOptions,
         final String[] includes, final String exclude)
         throws RequestFailedException, InvalidResponseException, URISyntaxException
     {
