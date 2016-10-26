@@ -359,6 +359,7 @@ class MobileConnectInterfaceHelper
         }
         else
         {
+            // MC v1.1 when version is null & JWKS was not mandatory in MC v1.1
             if ( version == null && discoveryResponse.getOperatorUrls().getJwksUri() == null)
             {
                 // TokenValidated set to 'false' by default

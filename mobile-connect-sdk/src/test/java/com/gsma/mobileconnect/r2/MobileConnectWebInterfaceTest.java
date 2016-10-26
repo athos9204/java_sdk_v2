@@ -276,6 +276,7 @@ public class MobileConnectWebInterfaceTest
 
         assertNotNull(status);
 
+        // Since the token validation fails as the token is an old token
         assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.ERROR);
 
         assertEquals(status.getErrorCode(), "Invalid Id Token");
