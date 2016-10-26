@@ -40,6 +40,7 @@ public class RequestTokenResponse
     private final RequestTokenResponseData responseData;
     private final String decodedIdTokenPayload;
     private final ErrorResponse errorResponse;
+    private final boolean tokenValidated;
 
     private RequestTokenResponse(Builder builder)
     {
@@ -48,6 +49,7 @@ public class RequestTokenResponse
         this.responseData = builder.responseData;
         this.decodedIdTokenPayload = builder.decodedIdTokenPayload;
         this.errorResponse = builder.errorResponse;
+        this.tokenValidated = builder.tokenValidated;
     }
 
     /**
@@ -138,6 +140,14 @@ public class RequestTokenResponse
         return this.errorResponse;
     }
 
+    /**
+     * @return the flag to indicate whether the token is validated or not
+     */
+    public boolean isTokenValidated()
+    {
+        return this.tokenValidated;
+    }
+
     public static final class Builder implements IBuilder<RequestTokenResponse>
     {
         private int responseCode;
@@ -145,6 +155,24 @@ public class RequestTokenResponse
         private RequestTokenResponseData responseData;
         private String decodedIdTokenPayload;
         private ErrorResponse errorResponse;
+        private boolean tokenValidated = false;
+
+        public Builder()
+        {
+            /*
+            Default Constructor with no parameters
+             */
+        }
+
+        public Builder(final RequestTokenResponse requestTokenResponse)
+        {
+            this.responseCode = requestTokenResponse.responseCode;
+            this.headers = requestTokenResponse.headers;
+            this.responseData = requestTokenResponse.responseData;
+            this.decodedIdTokenPayload = requestTokenResponse.decodedIdTokenPayload;
+            this.errorResponse = requestTokenResponse.errorResponse;
+            this.tokenValidated = requestTokenResponse.tokenValidated;
+        }
 
         public Builder withResponseCode(final int val)
         {
@@ -173,6 +201,12 @@ public class RequestTokenResponse
         public Builder withErrorResponse(final ErrorResponse val)
         {
             this.errorResponse = val;
+            return this;
+        }
+
+        public Builder withTokenValidated(final boolean val)
+        {
+            this.tokenValidated = val;
             return this;
         }
 

@@ -16,6 +16,7 @@
  */
 package com.gsma.mobileconnect.r2.authentication;
 
+import com.gsma.mobileconnect.r2.ErrorResponse;
 import com.gsma.mobileconnect.r2.exceptions.InvalidResponseException;
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.constants.Parameters;
@@ -25,6 +26,7 @@ import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.IJsonService;
+import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.json.JsonSerializationException;
 import com.gsma.mobileconnect.r2.rest.IRestClient;
 import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
@@ -318,7 +320,7 @@ public class AuthenticationService implements IAuthenticationService
     @Override
     public String revokeToken(final String clientId, final String clientSecret,
         final URI refreshTokenUrl, final String token, final String tokenTypeHint)
-        throws RequestFailedException, InvalidResponseException
+        throws RequestFailedException, InvalidResponseException, JsonDeserializationException
     {
 
         final KeyValuePair.ListBuilder formDataBuilder =
@@ -337,11 +339,19 @@ public class AuthenticationService implements IAuthenticationService
         final RestResponse restResponse =
             this.restClient.postFormData(refreshTokenUrl, authentication, formData, null, null);
 
+        ErrorResponse errorResponse = null;
+        if (HttpUtils.isHttpErrorCode(restResponse.getStatusCode()))
+        {
+            errorResponse =
+                this.jsonService.deserialize(restResponse.getContent(), ErrorResponse.class);
+        }
         // As per the OAuth2 spec an error (non-200 response code) should only be returned by the
         // endpoint for the error code unsupported_token_type
-        return restResponse.getStatusCode() == 200
+        return (restResponse.getStatusCode() == 200 && errorResponse == null)
                ? REVOKE_TOKEN_SUCCESS
-               : UNSUPPORTED_TOKEN_TYPE_ERROR;
+               : errorResponse != null
+                 ? errorResponse.getError()
+                 : UNSUPPORTED_TOKEN_TYPE_ERROR;
     }
 
     @Override

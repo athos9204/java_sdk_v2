@@ -21,6 +21,7 @@ import com.gsma.mobileconnect.r2.discovery.ProviderMetadata;
 import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
 import com.gsma.mobileconnect.r2.exceptions.HeadlessOperationFailedException;
 import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
+import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 
 import java.net.URI;
 import java.util.concurrent.Future;
@@ -143,5 +144,5 @@ public interface IAuthenticationService
      */
     String revokeToken(final String clientId, final String clientSecret, //NOSONAR
         final URI refreshTokenUrl, final String token, final String tokenTypeHint)
-        throws RequestFailedException, InvalidResponseException;
+        throws RequestFailedException, InvalidResponseException, JsonDeserializationException;
 }

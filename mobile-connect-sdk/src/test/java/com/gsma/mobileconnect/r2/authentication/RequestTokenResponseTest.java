@@ -89,4 +89,12 @@ public class RequestTokenResponseTest
         assertEquals(requestTokenResponse.getErrorResponse(), errorResponse);
     }
 
+    @Test
+    public void testIsTokenValidated() throws Exception
+    {
+        final RequestTokenResponse validatedTokenResponse =
+            new RequestTokenResponse.Builder(requestTokenResponse).withTokenValidated(true).build();
+        assertFalse(requestTokenResponse.isTokenValidated());
+        assertTrue(validatedTokenResponse.isTokenValidated());
+    }
 }

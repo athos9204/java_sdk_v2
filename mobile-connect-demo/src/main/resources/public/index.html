@@ -148,6 +148,7 @@
         <div id="value-access-token" class="display-value"></div>
         <div id="value-id-token" class="display-value"></div>
         <div id="value-time-received" class="display-value"></div>
+        <div id="value-token-validated" class="display-value outcome"></div>
         <div id="value-identity-prefetched" class="display-value pre-whitespace"></div>
         <div id="refresh-revoke-outcome" class="display-value outcome"></div>
         <div class="error"></div>
@@ -270,6 +271,11 @@
         var printInfo = function printInfo(response) {
             $('#value-application-name').html(api.currentAttempt.clientName);
             printTokenInfo(response.token);
+            if(response.tokenValidated) {
+                $('#value-token-validated').html("Token Validated");
+            } else {
+                $('#value-token-validated').html("Token Not Validated");
+            }
             if (response.identity) {
                 setContent('#value-identity-prefetched', JSON.stringify(response.identity, null, 2));
             }
