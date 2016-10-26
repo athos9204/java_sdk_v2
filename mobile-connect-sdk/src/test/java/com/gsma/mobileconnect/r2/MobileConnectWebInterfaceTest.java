@@ -256,12 +256,13 @@ public class MobileConnectWebInterfaceTest
     }
 
     @Test(dataProvider = "startAuthnData")
-    public void testHeadlessAuthenticationGetToken(final AuthenticationOptions authnOptions,
+    public void testHeadlessAuthenticationGetTokenInvalidToken(final AuthenticationOptions authnOptions,
         final String[] includes, final String exclude)
         throws RequestFailedException, InvalidResponseException, URISyntaxException
     {
          final DiscoveryResponse discoveryResponse = this.completeDiscovery();
          this.restClient.addResponse(TestUtils.VALIDATED_TOKEN_RESPONSE);
+         this.restClient.addResponse(TestUtils.JWKS_RESPONSE);
 
          final MobileConnectRequestOptions options = authnOptions == null
          ? null
@@ -275,10 +276,10 @@ public class MobileConnectWebInterfaceTest
 
         assertNotNull(status);
 
-        assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.COMPLETE);
+        assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.ERROR);
 
-        //assertEquals(status.getErrorCode(), "Invalid Id Token");
-        //assertEquals(status.getErrorMessage(), "Token validation failed");
+        assertEquals(status.getErrorCode(), "Invalid Id Token");
+        assertEquals(status.getErrorMessage(), "Token validation failed");
 
         assertEquals(status.getRequestTokenResponse().getResponseCode(), 202);
 
@@ -305,6 +306,7 @@ public class MobileConnectWebInterfaceTest
             discoveryResponse);
 
         this.restClient.addResponse(TestUtils.VALIDATED_TOKEN_RESPONSE);
+        this.restClient.addResponse(TestUtils.JWKS_RESPONSE);
 
         final MobileConnectRequestOptions options = authnOptions == null
                                                     ? null
@@ -320,7 +322,10 @@ public class MobileConnectWebInterfaceTest
         assertNotNull(status);
 
         // Since the token validation fails as the token is an old token
-        assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.COMPLETE);
+        assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.ERROR);
+
+        assertEquals(status.getErrorCode(), "Invalid Id Token");
+        assertEquals(status.getErrorMessage(), "Token validation failed");
 
         assertEquals(status.getRequestTokenResponse().getResponseCode(), 202);
 

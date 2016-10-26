@@ -27,8 +27,7 @@ import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
+import static org.testng.Assert.*;
 
 /**
  * Tests {@link MobileConnectWebResponse}
@@ -162,7 +161,7 @@ public class MobileConnectWebResponseTest
     }
 
     @Test
-    public void webResponseWithCompleteStatusWithToken()
+    public void webResponseWithCompleteStatusWithTokenNotValidated()
     {
         final RequestTokenResponse requestTokenResponse = new RequestTokenResponse.Builder().build();
         final MobileConnectStatus status = MobileConnectStatus.complete(requestTokenResponse);
@@ -171,6 +170,21 @@ public class MobileConnectWebResponseTest
         assertEquals(mobileConnectWebResponse.getToken(), null);
         assertEquals(mobileConnectWebResponse.getStatus(), "success");
         assertEquals(mobileConnectWebResponse.getAction(), "complete");
+        assertFalse(mobileConnectWebResponse.isTokenValidated());
+    }
+
+    @Test
+    public void webResponseWithCompleteStatusWithTokenValidated()
+    {
+        final RequestTokenResponse requestTokenResponse = new RequestTokenResponse.Builder()
+            .withTokenValidated(true).build();
+        final MobileConnectStatus status = MobileConnectStatus.complete(requestTokenResponse);
+        final MobileConnectWebResponse mobileConnectWebResponse = new MobileConnectWebResponse(status);
+
+        assertEquals(mobileConnectWebResponse.getToken(), null);
+        assertEquals(mobileConnectWebResponse.getStatus(), "success");
+        assertEquals(mobileConnectWebResponse.getAction(), "complete");
+        assertTrue(mobileConnectWebResponse.isTokenValidated());
     }
 
     @Test

@@ -41,6 +41,7 @@ public final class MobileConnectWebResponse
     private final String nonce;
     private final String subscriberId;
     private final RequestTokenResponseData token;
+    private final boolean tokenValidated;
     private final String identity;
     private final String error;
     private final String description;
@@ -91,6 +92,9 @@ public final class MobileConnectWebResponse
         this.token = status.getRequestTokenResponse() == null
                      ? null
                      : status.getRequestTokenResponse().getResponseData();
+        this.tokenValidated = status.getRequestTokenResponse() != null && status
+            .getRequestTokenResponse()
+            .isTokenValidated();
 
         this.identity = status.getIdentityResponse() == null
                         ? null
@@ -142,6 +146,11 @@ public final class MobileConnectWebResponse
     public RequestTokenResponseData getToken()
     {
         return this.token;
+    }
+
+    public boolean isTokenValidated()
+    {
+        return this.tokenValidated;
     }
 
     public String getOutcome()

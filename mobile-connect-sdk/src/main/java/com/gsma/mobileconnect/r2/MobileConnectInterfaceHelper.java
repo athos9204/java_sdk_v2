@@ -358,9 +358,12 @@ class MobileConnectInterfaceHelper
         }
         else
         {
-            if ( (version == null)
-                && isAuthenticationRequest(options)
-                && discoveryResponse.getOperatorUrls().getJwksUri() != null)
+            if ( version == null && discoveryResponse.getOperatorUrls().getJwksUri() == null)
+            {
+                // TokenValidated set to 'false' by default
+                return MobileConnectStatus.complete(requestTokenResponse);
+            }
+            else
             {
                 final JWKeyset jwKeyset =
                     jwks.retrieveJwks(discoveryResponse.getOperatorUrls().getJwksUri());
@@ -387,7 +390,12 @@ class MobileConnectInterfaceHelper
                 if (TokenValidationResult.VALID.equals(tokenValidationResult))
                 {
                     LOGGER.info("Id Token Validation Success");
-                    return MobileConnectStatus.complete(requestTokenResponse);
+                    RequestTokenResponse validatedResponse =
+                        new RequestTokenResponse.Builder(requestTokenResponse)
+                        .withTokenValidated(true)
+                        .build();
+                    // TokenValidated set to 'true'
+                    return MobileConnectStatus.complete(validatedResponse);
                 }
                 else
                 {
@@ -396,21 +404,8 @@ class MobileConnectInterfaceHelper
                         null, requestTokenResponse);
                 }
             }
-            else
-            {
-                return MobileConnectStatus.complete(requestTokenResponse);
-            }
-        }
-    }
 
-    private static boolean isAuthenticationRequest(MobileConnectRequestOptions options)
-    {
-        String scope = options == null
-                       ? null
-                       : ObjectUtils
-                           .defaultIfNull(options.getAuthenticationOptions().getScope(), "")
-                           .toLowerCase();
-        return scope != null && Scope.AUTHN.equalsIgnoreCase(scope);
+        }
     }
 
     private static boolean isExpectedNonce(final String token, final String expectedNonce,
