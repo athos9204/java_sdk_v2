@@ -360,7 +360,7 @@ class MobileConnectInterfaceHelper
         else
         {
             // MC v1.1 when version is null & JWKS was not mandatory in MC v1.1
-            if ( version == null && discoveryResponse.getOperatorUrls().getJwksUri() == null)
+            if (version == null && discoveryResponse.getOperatorUrls().getJwksUri() == null)
             {
                 // TokenValidated set to 'false' by default
                 return MobileConnectStatus.complete(requestTokenResponse);
@@ -394,8 +394,8 @@ class MobileConnectInterfaceHelper
                     LOGGER.info("Id Token Validation Success");
                     RequestTokenResponse validatedResponse =
                         new RequestTokenResponse.Builder(requestTokenResponse)
-                        .withTokenValidated(true)
-                        .build();
+                            .withTokenValidated(true)
+                            .build();
                     // TokenValidated set to 'true'
                     return MobileConnectStatus.complete(validatedResponse);
                 }
