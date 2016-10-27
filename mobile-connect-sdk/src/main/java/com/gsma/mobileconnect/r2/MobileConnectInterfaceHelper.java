@@ -55,7 +55,7 @@ class MobileConnectInterfaceHelper
 {
     private static final Logger LOGGER =
         LoggerFactory.getLogger(MobileConnectInterfaceHelper.class);
-    private static final Pattern NONCE_REGEX = Pattern.compile("\"?nonce\"?:\"(.*)\"");
+    private static final Pattern NONCE_REGEX = Pattern.compile("\"?nonce\"?:\"(.*?)\"");
     private static final String DISCOVERY_RESPONSE = "discoveryResponse";
 
     private MobileConnectInterfaceHelper()
@@ -345,7 +345,7 @@ class MobileConnectInterfaceHelper
             return MobileConnectStatus.error(errorResponse.getError(),
                 errorResponse.getErrorDescription(), null, requestTokenResponse);
         }
-        else if (isExpectedNonce(requestTokenResponse.getResponseData().getIdToken(), expectedNonce,
+        else if (!isExpectedNonce(requestTokenResponse.getResponseData().getIdToken(), expectedNonce,
             iMobileConnectEncodeDecoder))
         {
             LOGGER.warn(
@@ -413,12 +413,9 @@ class MobileConnectInterfaceHelper
     private static boolean isExpectedNonce(final String token, final String expectedNonce,
         final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
-
         final String decodedPayload =
             JsonWebTokens.Part.CLAIMS.decode(token, iMobileConnectEncodeDecoder);
-
         final Matcher matcher = NONCE_REGEX.matcher(decodedPayload);
-
         return matcher.find() && matcher.group(1).equals(expectedNonce);
     }
 
