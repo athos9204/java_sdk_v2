@@ -294,6 +294,71 @@ public class MobileConnectWebInterfaceTest
     }
 
     @Test(dataProvider = "startAuthnData")
+    public void testHeadlessAuthenticationGetTokenAccessTokenNull(final AuthenticationOptions authnOptions,
+        final String[] includes, final String exclude)
+        throws RequestFailedException, InvalidResponseException, URISyntaxException
+    {
+        final DiscoveryResponse discoveryResponse = this.completeDiscovery();
+        this.restClient.addResponse(TestUtils.INVALID_TOKEN_RESPONSE_ACCESS_TOKEN_MISSING);
+        this.restClient.addResponse(TestUtils.JWKS_RESPONSE);
+
+        final MobileConnectRequestOptions options = authnOptions == null
+                                                    ? null
+                                                    : new MobileConnectRequestOptions.Builder()
+                                                        .withAuthenticationOptions(authnOptions)
+                                                        .build();
+
+        final MobileConnectStatus status =
+            this.mcWebInterface.requestHeadlessAuthentication(this.request, discoveryResponse,
+                "1111222233334444", "state", "81991496-48bb-4d13-bd0c-117d994411a6", options);
+
+        assertNotNull(status);
+
+        // Since the token validation fails as the token is an old token
+        assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.ERROR);
+
+        assertEquals(status.getErrorCode(), "Invalid Access Token");
+        assertEquals(status.getErrorMessage(), "Access Token validation failed");
+
+        assertEquals(status.getRequestTokenResponse().getResponseCode(), 202);
+
+        assertNull(status.getRequestTokenResponse().getResponseData().getAccessToken());
+        assertEquals(status.getRequestTokenResponse().getResponseData().getIdToken(),
+            "eyJhbGciOiJSUzI1NiIsImtpZCI6IlBIUE9QLTAwIn0.eyJpc3MiOiJodHRwczpcL1wvcmVmZXJlbmNlLm1vYmlsZWNvbm5lY3QuaW9cL21vYmlsZWNvbm5lY3QiLCJzdWIiOiI0MTE0MjFCMC0zOEQ2LTY1NjgtQTUzQS1ERjk5NjkxQjdFQjYiLCJhdWQiOlsieC1aV1JoTmpVM09XSTNNR0l3WVRSaCJdLCJleHAiOjE0NzQ2MjYzMzAsImlhdCI6MTQ3NDYyNjAzMCwibm9uY2UiOiI4MTk5MTQ5Ni00OGJiLTRkMTMtYmQwYy0xMTdkOTk0NDExYTYiLCJhdF9oYXNoIjoiNTZGMXo3RjZ3eWhUYUhVY1ZGY0xJQSIsImF1dGhfdGltZSI6MTQ3NDYyNjAyMCwiYWNyIjoiMiIsImFtciI6WyJTSU1fUElOIl0sImF6cCI6IngtWldSaE5qVTNPV0kzTUdJd1lUUmgifQ.TYcvfIHeKigkvjYta6fy90EffiA6u6NFCSIPlPM2WxEUi8Kxc5JIrjXnM8l0rFJOLmgNFUBpSqIRhuxwZkUV52KWf8jzswi3jTI8wEjonbjgviz7c6WzlZdb0Pw5kUEWy2xMam7VprESphPaIkHCDor2yR2g6Uq3Wtqyg7MCqek");
+
+        assertEquals(status.getRequestTokenResponse().getDecodedIdTokenPayload(),
+            "{\"iss\":\"https:\\/\\/reference.mobileconnect.io\\/mobileconnect\",\"sub\":\"411421B0-38D6-6568-A53A-DF99691B7EB6\",\"aud\":[\"x-ZWRhNjU3OWI3MGIwYTRh\"],\"exp\":1474626330,\"iat\":1474626030,\"nonce\":\"81991496-48bb-4d13-bd0c-117d994411a6\",\"at_hash\":\"56F1z7F6wyhTaHUcVFcLIA\",\"auth_time\":1474626020,\"acr\":\"2\",\"amr\":[\"SIM_PIN\"],\"azp\":\"x-ZWRhNjU3OWI3MGIwYTRh\"}");
+    }
+
+    @Test(dataProvider = "startAuthnData")
+    public void testHeadlessAuthenticationGetTokenButNonceDoesNotMatch(final AuthenticationOptions authnOptions,
+        final String[] includes, final String exclude)
+        throws RequestFailedException, InvalidResponseException, URISyntaxException
+    {
+        final DiscoveryResponse discoveryResponse = this.completeDiscovery();
+        this.restClient.addResponse(TestUtils.VALIDATED_TOKEN_RESPONSE);
+
+        final MobileConnectRequestOptions options = authnOptions == null
+                                                    ? null
+                                                    : new MobileConnectRequestOptions.Builder()
+                                                        .withAuthenticationOptions(authnOptions)
+                                                        .build();
+
+        final MobileConnectStatus status =
+            this.mcWebInterface.requestHeadlessAuthentication(this.request, discoveryResponse,
+                "1111222233334444", "state", "81991496-48bb-4d13-bd0c-117d994411a7", options);
+
+        assertNotNull(status);
+
+        // Since the token validation fails as the token is an old token
+        assertEquals(status.getResponseType(), MobileConnectStatus.ResponseType.ERROR);
+
+        assertEquals(status.getErrorCode(), "invalid_nonce");
+        assertEquals(status.getErrorMessage(), "nonce values do not match, possible replay attack");
+
+    }
+
+    @Test(dataProvider = "startAuthnData")
     public void testHeadlessAuthenticationWithoutDiscoveryResponse(final AuthenticationOptions authnOptions,
         final String[] includes, final String exclude)
         throws RequestFailedException, InvalidResponseException, URISyntaxException
