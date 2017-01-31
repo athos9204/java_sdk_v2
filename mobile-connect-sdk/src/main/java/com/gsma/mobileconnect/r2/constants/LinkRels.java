@@ -72,6 +72,11 @@ public final class LinkRels
      */
     public static final String OPERATOR_SELECTION = "operatorSelection";
 
+    /**
+     * Key for scope
+     */
+    public static final String SCOPE = "scope";
+
     private LinkRels()
     {
         /*

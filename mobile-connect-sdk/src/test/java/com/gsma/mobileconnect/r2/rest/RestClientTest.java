@@ -110,39 +110,6 @@ public class RestClientTest
     }
 
     @Test
-    public void get() throws RequestFailedException, IOException
-    {
-        final List<KeyValuePair> queryParams =
-            new KeyValuePair.ListBuilder().add("test-param", "test-param-value").build();
-
-        restClient.get(TEST_URI, AUTHENTICATION, SOURCE_IP, queryParams, COOKIES);
-
-        verify(httpClient).execute(requestCaptor.capture(),
-            isA(RestClient.RestResponseHandler.class));
-
-        verifyRequest("GET", URI.create("http://test?test-param=test-param-value"),
-            HttpUriRequest.class);
-    }
-
-    @Test
-    public void postFormData() throws RequestFailedException, IOException
-    {
-        final List<KeyValuePair> formData =
-            new KeyValuePair.ListBuilder().add("test-param", "test-param-value").build();
-
-        restClient.postFormData(TEST_URI, AUTHENTICATION, formData, SOURCE_IP, COOKIES);
-
-        final HttpEntityEnclosingRequest request =
-            verifyRequest("POST", TEST_URI, HttpEntityEnclosingRequest.class);
-
-        final StringEntity entity = (StringEntity) request.getEntity();
-
-        assertEquals(getStringContent(entity), "test-param=test-param-value");
-        assertEquals(entity.getContentType().getValue(),
-            ContentType.APPLICATION_FORM_URLENCODED.withCharset("UTF-8").toString());
-    }
-
-    @Test
     public void postJsonContent() throws RequestFailedException, IOException
     {
         final Object objContent = new KeyValuePair("test", "testvalue");

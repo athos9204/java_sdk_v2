@@ -25,6 +25,7 @@ import com.gsma.mobileconnect.r2.utils.ListUtils;
 import com.gsma.mobileconnect.r2.utils.ObjectUtils;
 import com.gsma.mobileconnect.r2.utils.Predicate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.gsma.mobileconnect.r2.utils.ObjectUtils.defaultIfNull;
@@ -44,7 +45,8 @@ public class OperatorUrls
     private String jwksUri;
     private String revokeTokenUrl;
     private String refreshTokenUrl;
-    private final String providerMetadataUri;
+    private String scopeUrl;
+    private String providerMetadataUri;
 
     private OperatorUrls(Builder builder)
     {
@@ -55,9 +57,39 @@ public class OperatorUrls
         this.jwksUri = builder.jwksUri;
         this.revokeTokenUrl = builder.revokeTokenUrl;
         this.refreshTokenUrl = builder.refreshTokenUrl;
+        this.scopeUrl = builder.scopeUrl;
         this.providerMetadataUri = builder.providerMetadataUri;
     }
 
+    public List<String> getOperatorsUrls() {
+        List<String> urls = new ArrayList<String>();
+        urls.add(getAuthorizationUrl());
+        urls.add(getRequestTokenUrl());
+        urls.add(getUserInfoUrl());
+        urls.add(getPremiumInfoUri());
+        urls.add(getJwksUri());
+        urls.add(getRevokeTokenUrl());
+        urls.add(getRefreshTokenUrl());
+        urls.add(getScopeUrl());
+        urls.add(getProviderMetadataUri());
+
+        return urls;
+    }
+
+    public List<String> getOperatorsRel() {
+        List<String> rel = new ArrayList<String>();
+        rel.add(LinkRels.AUTHORIZATION);
+        rel.add(LinkRels.TOKEN);
+        rel.add(LinkRels.USERINFO);
+        rel.add(LinkRels.PREMIUMINFO);
+        rel.add(LinkRels.JWKS);
+        rel.add(LinkRels.TOKENREVOKE);
+        rel.add(LinkRels.TOKENREFRESH);
+        rel.add(LinkRels.SCOPE);
+        rel.add(LinkRels.OPENID_CONFIGURATION);
+
+        return rel;
+    }
     /**
      * Create instance of operator urls extracting each from the list of links supplied within the
      * response data.
@@ -75,14 +107,15 @@ public class OperatorUrls
         if (links != null)
         {
             builder
-                .withAuthorizationUrl(getUrl(LinkRels.AUTHORIZATION, links))
-                .withRequestTokenUrl(getUrl(LinkRels.TOKEN, links))
-                .withUserInfoUrl(getUrl(LinkRels.USERINFO, links))
-                .withPremiumInfoUri(getUrl(LinkRels.PREMIUMINFO, links))
-                .withJwksUri(getUrl(LinkRels.JWKS, links))
-                .withRefershTokenUrl(getUrl(LinkRels.TOKENREFRESH, links))
-                .withRevokeTokenUrl(getUrl(LinkRels.TOKENREVOKE, links))
-                .withProviderMetadataUri(getUrl(LinkRels.OPENID_CONFIGURATION, links));
+                    .withAuthorizationUrl(getUrl(LinkRels.AUTHORIZATION, links))
+                    .withRequestTokenUrl(getUrl(LinkRels.TOKEN, links))
+                    .withUserInfoUrl(getUrl(LinkRels.USERINFO, links))
+                    .withPremiumInfoUri(getUrl(LinkRels.PREMIUMINFO, links))
+                    .withJwksUri(getUrl(LinkRels.JWKS, links))
+                    .withRefershTokenUrl(getUrl(LinkRels.TOKENREFRESH, links))
+                    .withRevokeTokenUrl(getUrl(LinkRels.TOKENREVOKE, links))
+                    .withScopeUri(getUrl(LinkRels.SCOPE, links))
+                    .withProviderMetadataUri(getUrl(LinkRels.OPENID_CONFIGURATION, links));
 
         }
 
@@ -178,6 +211,10 @@ public class OperatorUrls
     }
 
     /**
+     * @return Url for scopes call
+     */
+    public String getScopeUrl() {return  this.scopeUrl;}
+    /**
      * Replaces URLs from the discovery response with URLs from the provider metadata.
      * This allows providers to use temporary urls while the main url is down for maintenance.
      *
@@ -188,16 +225,16 @@ public class OperatorUrls
         if (metadata != null)
         {
             this.authorizationUrl =
-                defaultIfNull(metadata.getAuthorizationEndpoint(), this.authorizationUrl);
+                    defaultIfNull(metadata.getAuthorizationEndpoint(), this.authorizationUrl);
             this.requestTokenUrl = defaultIfNull(metadata.getTokenEndpoint(), this.requestTokenUrl);
             this.userInfoUrl = defaultIfNull(metadata.getUserinfoEndpoint(), this.userInfoUrl);
             this.premiumInfoUri =
-                defaultIfNull(metadata.getPremiuminfoEndpoint(), this.premiumInfoUri);
+                    defaultIfNull(metadata.getPremiuminfoEndpoint(), this.premiumInfoUri);
             this.jwksUri = defaultIfNull(metadata.getJwksUri(), this.jwksUri);
             this.revokeTokenUrl =
-                defaultIfNull(metadata.getRevocationEndpoint(), this.revokeTokenUrl);
+                    defaultIfNull(metadata.getRevocationEndpoint(), this.revokeTokenUrl);
             this.refreshTokenUrl =
-                defaultIfNull(metadata.getRefreshEndpoint(), this.refreshTokenUrl);
+                    defaultIfNull(metadata.getRefreshEndpoint(), this.refreshTokenUrl);
         }
     }
 
@@ -210,6 +247,7 @@ public class OperatorUrls
         private String jwksUri;
         private String revokeTokenUrl;
         private String refreshTokenUrl;
+        private String scopeUrl;
         private String providerMetadataUri;
 
         public Builder withAuthorizationUrl(final String val)
@@ -260,6 +298,11 @@ public class OperatorUrls
             return this;
         }
 
+        public Builder withScopeUri(final String val)
+        {
+            this.scopeUrl = val;
+            return this;
+        }
         @Override
         public OperatorUrls build()
         {

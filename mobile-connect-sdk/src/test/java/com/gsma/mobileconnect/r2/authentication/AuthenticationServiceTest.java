@@ -17,10 +17,13 @@
 package com.gsma.mobileconnect.r2.authentication;
 
 import com.gsma.mobileconnect.r2.MobileConnectConfig;
+import com.gsma.mobileconnect.r2.MobileConnectRequestOptions;
+import com.gsma.mobileconnect.r2.cache.ConcurrentCache;
+import com.gsma.mobileconnect.r2.cache.ICache;
 import com.gsma.mobileconnect.r2.claims.Claims;
 import com.gsma.mobileconnect.r2.claims.ClaimsParameter;
 import com.gsma.mobileconnect.r2.constants.Parameters;
-import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
+import com.gsma.mobileconnect.r2.discovery.*;
 import com.gsma.mobileconnect.r2.exceptions.HeadlessOperationFailedException;
 import com.gsma.mobileconnect.r2.exceptions.InvalidArgumentException;
 import com.gsma.mobileconnect.r2.exceptions.InvalidResponseException;
@@ -34,18 +37,20 @@ import com.gsma.mobileconnect.r2.utils.HttpUtils;
 import com.gsma.mobileconnect.r2.utils.KeyValuePair;
 import com.gsma.mobileconnect.r2.utils.TestUtils;
 import org.apache.http.HttpStatus;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultHttpClient;
 import org.mockito.Mockito;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.List;
+import java.util.concurrent.*;
 
 import static org.mockito.Matchers.*;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
 
@@ -60,7 +65,6 @@ public class AuthenticationServiceTest
     private final static URI REDIRECT_URL = URI.create("http://localhost:8080/");
     private final static URI AUTHORIZE_URL = URI.create("http://localhost:8080/authorize");
     private final static URI TOKEN_URL = URI.create("http://localhost:8080/token");
-
     private final IJsonService jsonService = new JacksonJsonService();
     private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final IRestClient restClient = Mockito.mock(RestClient.class);
@@ -69,10 +73,10 @@ public class AuthenticationServiceTest
         new SupportedVersions.Builder().addSupportedVersion("openid", "mc_v1.2").build();
 
     private final IAuthenticationService authentication = new AuthenticationService.Builder()
-        .withRestClient(this.restClient)
-        .withJsonService(this.jsonService)
-        .withExecutorService(this.executorService)
-        .build();
+            .withRestClient(this.restClient)
+            .withJsonService(this.jsonService)
+            .withExecutorService(this.executorService)
+            .build();
 
     private final MobileConnectConfig config = new MobileConnectConfig.Builder()
         .withClientId("1234567890")
@@ -190,13 +194,13 @@ public class AuthenticationServiceTest
     @Test
     public void startAuthenticationWithClaimsShouldEncodeAndIncludeClaimsJson()
     {
-        final String claims = "{\"user_info\":{\"test1\":{\"value\":\"test\"}}}";
+        final String claims = null;
         final AuthenticationOptions options =
-            new AuthenticationOptions.Builder().withClaimsJson(claims).build();
+                new AuthenticationOptions.Builder().withClaimsJson(claims).build();
 
         final StartAuthenticationResponse response =
-            this.authentication.startAuthentication(this.config.getClientId(), AUTHORIZE_URL,
-                REDIRECT_URL, "state", "nonce", null, this.defaultVersions, options);
+                this.authentication.startAuthentication(this.config.getClientId(), AUTHORIZE_URL,
+                        REDIRECT_URL, "state", "nonce", null, this.defaultVersions, options);
 
         assertEquals(HttpUtils.extractQueryValue(response.getUrl(), "claims"), claims);
     }
@@ -493,5 +497,41 @@ public class AuthenticationServiceTest
         // Then
         assertNotNull(outcome);
         assertEquals(outcome, AuthenticationService.REVOKE_TOKEN_SUCCESS);
+    }
+    @Test
+    public void makeDiscoveryForAuthenticationTest() throws JsonDeserializationException, RequestFailedException {
+
+        // Given
+        String secretKey = "secret";
+        String subscriberId = "subid";
+        String name = "AppShortName";
+        String clientKey = "clientKey";
+
+        OperatorUrls operatorUrls = new OperatorUrls.Builder()
+                .withAuthorizationUrl("https://authorize")
+                .withRequestTokenUrl("https://accesstoken")
+                .withUserInfoUrl("https://userinfo")
+                .withRevokeTokenUrl("https://revoke")
+                .withPremiumInfoUri("https://premiuminfo")
+                .withScopeUri("openid profile email")
+                .withProviderMetadataUri("https://providemetadata")
+                .withJwksUri("https://jwks").build();
+
+        String providerMetadata = "{}";
+
+        RestResponse response = new RestResponse.Builder()
+                .withStatusCode(200)
+                .withMethod("GET")
+                .withContent(providerMetadata).build();
+
+        when(restClient.get(any(URI.class), (RestAuthentication) eq(null), (String) eq(null), (List<KeyValuePair>) eq(null), (Iterable<KeyValuePair>) eq(null))).thenReturn(response).thenReturn(response);
+
+        //When
+        final DiscoveryResponse discoveryResponse =
+                this.authentication.makeDiscoveryForAuthorization(secretKey, clientKey,
+                        subscriberId, name, operatorUrls);
+
+        //Then
+        assertNotNull(discoveryResponse.getResponseData(), "response data is null");
     }
 }

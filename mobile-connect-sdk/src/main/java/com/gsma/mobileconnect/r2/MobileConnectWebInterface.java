@@ -16,16 +16,14 @@
  */
 package com.gsma.mobileconnect.r2;
 
-import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
-import com.gsma.mobileconnect.r2.authentication.IAuthenticationService;
+import com.gsma.mobileconnect.r2.authentication.*;
 import com.gsma.mobileconnect.r2.cache.CacheAccessException;
-import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
-import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
-import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
+import com.gsma.mobileconnect.r2.discovery.*;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
 import com.gsma.mobileconnect.r2.json.IJsonService;
+import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.utils.*;
 import com.gsma.mobileconnect.r2.validation.IJWKeysetService;
 import org.slf4j.Logger;
@@ -34,6 +32,7 @@ import org.slf4j.event.Level;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.UUID;
 
 /**
@@ -115,6 +114,19 @@ public class MobileConnectWebInterface
         final MobileConnectStatus status =
             MobileConnectInterfaceHelper.attemptDiscovery(this.discoveryService, msisdn, mcc, mnc,
                 cookies, this.config, builder);
+
+        return this.cacheIfRequired(status);
+    }
+
+    /**
+     * Attempt manually discovery using the supplied parameters.
+     * @param response The response returned by the generateDiscoveryManually
+     * @return MobileConnectStatus Object with required information for continuing the mobile
+     * connect process
+     */
+    public MobileConnectStatus attemptManuallyDiscovery(DiscoveryResponse response) {
+
+        MobileConnectStatus status = MobileConnectInterfaceHelper.extractStatus(response, this.discoveryService, "discovery manually");
 
         return this.cacheIfRequired(status);
     }
@@ -814,5 +826,19 @@ public class MobileConnectWebInterface
 
             return new MobileConnectWebInterface(this);
         }
+    }
+
+    /** Allows an application to create discovery object manually without call to discovery service
+     *
+     * @param clientSecret The registered application secretKey (Required)
+     * @param clientKey The registered application clientKey (consumer key) (Required)
+     * @param subscriberId subscriber id (Required)
+     * @param name application name (Required)
+     * @param operatorUrls operator specific urls returned from a successful discovery process call
+     * @throws JsonDeserializationException on failure to process response from DiscoveryResponse, ProviderMetadata
+     */
+    public DiscoveryResponse generateDiscoveryManually(String clientSecret, String clientKey, String subscriberId,
+                                                                  String name, OperatorUrls operatorUrls) throws JsonDeserializationException {
+        return authnService.makeDiscoveryForAuthorization(clientSecret, clientKey, subscriberId, name, operatorUrls);
     }
 }

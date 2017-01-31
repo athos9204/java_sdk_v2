@@ -576,7 +576,7 @@ class MobileConnectInterfaceHelper
         return e.toMobileConnectStatus(String.format("request %s", responseType));
     }
 
-    private static MobileConnectStatus extractStatus(final DiscoveryResponse response,
+    public static MobileConnectStatus extractStatus(final DiscoveryResponse response,
         final IDiscoveryService service, final String task)
     {
         if (!response.isCached() && response.getErrorResponse() != null)

@@ -16,6 +16,7 @@
  */
 package com.gsma.mobileconnect.r2;
 
+import com.gsma.mobileconnect.r2.authentication.DiscoveryResponseGenerateOptions;
 import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
 import com.gsma.mobileconnect.r2.validation.TokenValidationOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
@@ -31,15 +32,24 @@ public class MobileConnectRequestOptions
     private final DiscoveryOptions discoveryOptions;
     private final AuthenticationOptions authenticationOptions;
     private final TokenValidationOptions validationOptions;
-
+    private final DiscoveryResponseGenerateOptions discoveryResponseGenerateOptions;
     private final boolean autoRetrieveIdentitySet;
 
     private MobileConnectRequestOptions(final Builder builder)
     {
         this.discoveryOptions = builder.discoveryOptions;
         this.authenticationOptions = builder.authenticationOptions;
+        this.discoveryResponseGenerateOptions = builder.discoveryResponseGenerateOptions;
         this.autoRetrieveIdentitySet = builder.autoRetrieveIdentitySet;
         this.validationOptions = builder.validationOptions;
+    }
+
+    public DiscoveryResponseGenerateOptions getDiscoveryResponseGenerateOptions() {
+        return this.discoveryResponseGenerateOptions;
+    }
+
+    DiscoveryResponseGenerateOptions.BuilderResponse getAuthOptionDiscoveryResponseBuilder() {
+        return new DiscoveryResponseGenerateOptions.BuilderResponse(this.discoveryResponseGenerateOptions);
     }
 
     public DiscoveryOptions getDiscoveryOptions()
@@ -81,6 +91,7 @@ public class MobileConnectRequestOptions
     {
         private DiscoveryOptions discoveryOptions;
         private AuthenticationOptions authenticationOptions;
+        private DiscoveryResponseGenerateOptions discoveryResponseGenerateOptions;
         private boolean autoRetrieveIdentitySet = false;
         private TokenValidationOptions validationOptions;
 
@@ -93,6 +104,12 @@ public class MobileConnectRequestOptions
         public Builder withAuthenticationOptions(final AuthenticationOptions val)
         {
             this.authenticationOptions = val;
+            return this;
+        }
+
+        public Builder withAuthOptionDiscoveryResponse(final DiscoveryResponseGenerateOptions val)
+        {
+            this.discoveryResponseGenerateOptions = val;
             return this;
         }
 
@@ -126,6 +143,10 @@ public class MobileConnectRequestOptions
                 this.validationOptions = new TokenValidationOptions.Builder().build();
             }
 
+
+            if (this.discoveryResponseGenerateOptions == null) {
+                this.discoveryResponseGenerateOptions = new DiscoveryResponseGenerateOptions.BuilderResponse().build();
+            }
             return new MobileConnectRequestOptions(this);
         }
     }

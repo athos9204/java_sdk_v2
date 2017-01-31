@@ -16,23 +16,23 @@
  */
 package com.gsma.mobileconnect.r2;
 
-import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
-import com.gsma.mobileconnect.r2.authentication.AuthenticationService;
+import com.gsma.mobileconnect.r2.authentication.*;
 import com.gsma.mobileconnect.r2.cache.CacheAccessException;
 import com.gsma.mobileconnect.r2.constants.Parameters;
-import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
-import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
-import com.gsma.mobileconnect.r2.discovery.DiscoveryService;
-import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
+import com.gsma.mobileconnect.r2.discovery.*;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.exceptions.InvalidResponseException;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
-import com.gsma.mobileconnect.r2.rest.MockRestClient;
+import com.gsma.mobileconnect.r2.rest.*;
 import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.utils.HttpUtils;
+import com.gsma.mobileconnect.r2.utils.KeyValuePair;
 import com.gsma.mobileconnect.r2.utils.TestUtils;
+
+import junit.framework.Assert;
+import org.mockito.Mockito;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
@@ -41,8 +41,12 @@ import org.testng.annotations.Test;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
 
 /**
@@ -60,7 +64,6 @@ public class MobileConnectWebInterfaceTest
         .withRedirectUrl(URI.create("http://redirect/test"))
         .build();
     private final MockRestClient restClient = new MockRestClient();
-
     private final MobileConnect mobileConnect = MobileConnect
         .builder(this.config, new DefaultEncodeDecoder())
         .withRestClient(this.restClient)
@@ -489,4 +492,46 @@ public class MobileConnectWebInterfaceTest
         assertEquals(status.getOutcome(), AuthenticationService.REVOKE_TOKEN_SUCCESS);
     }
 
+    @Test
+    private void attemptDiscoveryManuallyTest() throws JsonDeserializationException, RequestFailedException {
+        IRestClient restClientLocal = Mockito.mock(RestClient.class);
+
+        MobileConnect mobileConnectLocal = MobileConnect
+                .builder(this.config, new DefaultEncodeDecoder())
+                .withRestClient(restClientLocal)
+                .build();
+
+        MobileConnectWebInterface mobileConnectWebInterface =
+                mobileConnectLocal.getMobileConnectWebInterface();
+
+        String secretKey = "secret";
+        String subscriberId = "subid";
+        String name = "AppShortName";
+        String clientKey = "clientKey";
+
+        OperatorUrls operatorUrls = new OperatorUrls.Builder()
+                .withAuthorizationUrl("https://authorize")
+                .withRequestTokenUrl("https://accesstoken")
+                .withUserInfoUrl("https://userinfo")
+                .withRevokeTokenUrl("https://revoke")
+                .withPremiumInfoUri("https://premiuminfo")
+                .withScopeUri("openid profile email")
+                .withProviderMetadataUri("https://providemetadata")
+                .withJwksUri("https://jwks").build();
+
+        String providerMetadata = "{}";
+        RestResponse response = new RestResponse.Builder()
+                .withStatusCode(200)
+                .withMethod("GET")
+                .withContent(providerMetadata).build();
+
+        when(restClientLocal.get(any(URI.class), (RestAuthentication) eq(null), (String) eq(null),
+                (List<KeyValuePair>) eq(null), (Iterable<KeyValuePair>) eq(null)))
+                .thenReturn(response).thenReturn(response);
+
+        DiscoveryResponse discoveryResponse = mobileConnectWebInterface.generateDiscoveryManually(secretKey, clientKey, subscriberId, name, operatorUrls);
+        MobileConnectStatus status = mobileConnectWebInterface.attemptManuallyDiscovery(discoveryResponse);
+
+        Assert.assertNotNull(status.getSdkSession(), "sdk session is null");
+    }
 }
