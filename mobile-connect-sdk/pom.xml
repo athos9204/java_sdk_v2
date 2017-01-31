@@ -13,21 +13,6 @@
 
     <build>
         <plugins>
-
-
-            <plugin>
-                <groupId>org.fusesource.mvnplugins</groupId>
-                <artifactId>maven-uberize-plugin</artifactId>
-                <version>1.14</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>uberize</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
