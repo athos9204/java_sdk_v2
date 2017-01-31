@@ -49,8 +49,8 @@ import java.util.concurrent.Future;
 public class DiscoveryService implements IDiscoveryService
 {
     private static final List<String> REQUIRED_COOKIES =
-        Arrays.asList("ENUM_NONCE", "MOST_RECENT_SELECTED_OPERATOR",
-            "MOST_RECENT_SELECTED_OPERATOR_EXPIRY");
+            Arrays.asList("ENUM_NONCE", "MOST_RECENT_SELECTED_OPERATOR",
+                    "MOST_RECENT_SELECTED_OPERATOR_EXPIRY");
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DiscoveryService.class);
     private static final String ARG_PREFERENCES = "preferences";
@@ -99,34 +99,34 @@ public class DiscoveryService implements IDiscoveryService
 
     @Override
     public DiscoveryResponse startAutomatedOperatorDiscovery(final String clientId,
-        final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
-        final DiscoveryOptions options, final Iterable<KeyValuePair> currentCookies)
-        throws RequestFailedException, InvalidResponseException
+                                                             final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
+                                                             final DiscoveryOptions options, final Iterable<KeyValuePair> currentCookies)
+            throws RequestFailedException, InvalidResponseException
     {
         final DiscoveryOptions.Builder builder =
-            new DiscoveryOptions.Builder(options).withRedirectUrl(redirectUrl);
+                new DiscoveryOptions.Builder(options).withRedirectUrl(redirectUrl);
 
         return this.callDiscoveryEndpoint(clientId, clientSecret, discoveryUrl, builder.build(),
-            currentCookies, true);
+                currentCookies, true);
     }
 
     @Override
     public DiscoveryResponse startAutomatedOperatorDiscovery(final IPreferences preferences,
-        final URI redirectUrl, final DiscoveryOptions options,
-        final Iterable<KeyValuePair> currentCookies)
-        throws RequestFailedException, InvalidResponseException
+                                                             final URI redirectUrl, final DiscoveryOptions options,
+                                                             final Iterable<KeyValuePair> currentCookies)
+            throws RequestFailedException, InvalidResponseException
     {
         ObjectUtils.requireNonNull(preferences, ARG_PREFERENCES);
 
         return this.startAutomatedOperatorDiscovery(preferences.getClientId(),
-            preferences.getClientSecret(), preferences.getDiscoveryUrl(), redirectUrl, options,
-            currentCookies);
+                preferences.getClientSecret(), preferences.getDiscoveryUrl(), redirectUrl, options,
+                currentCookies);
     }
 
     @Override
     public Future<DiscoveryResponse> startAutomatedOperatorDiscoveryAsync(final String clientId,
-        final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
-        final DiscoveryOptions options, final Iterable<KeyValuePair> currentCookies)
+                                                                          final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
+                                                                          final DiscoveryOptions options, final Iterable<KeyValuePair> currentCookies)
     {
         return this.executorService.submit(new Callable<DiscoveryResponse>()
         {
@@ -134,27 +134,27 @@ public class DiscoveryService implements IDiscoveryService
             public DiscoveryResponse call() throws Exception
             {
                 return DiscoveryService.this.startAutomatedOperatorDiscovery(clientId, clientSecret,
-                    discoveryUrl, redirectUrl, options, currentCookies);
+                        discoveryUrl, redirectUrl, options, currentCookies);
             }
         });
     }
 
     @Override
     public Future<DiscoveryResponse> startAutomatedOperatorDiscoveryAsync(
-        final IPreferences preferences, final URI redirectUrl, final DiscoveryOptions options,
-        final Iterable<KeyValuePair> currentCookies)
+            final IPreferences preferences, final URI redirectUrl, final DiscoveryOptions options,
+            final Iterable<KeyValuePair> currentCookies)
     {
         ObjectUtils.requireNonNull(preferences, ARG_PREFERENCES);
 
         return this.startAutomatedOperatorDiscoveryAsync(preferences.getClientId(),
-            preferences.getClientSecret(), preferences.getDiscoveryUrl(), redirectUrl, options,
-            currentCookies);
+                preferences.getClientSecret(), preferences.getDiscoveryUrl(), redirectUrl, options,
+                currentCookies);
     }
 
     private DiscoveryResponse callDiscoveryEndpoint(final String clientId,
-        final String clientSecret, final URI discoveryUrl, final DiscoveryOptions options,
-        final Iterable<KeyValuePair> currentCookies, final boolean useCache)
-        throws RequestFailedException, InvalidResponseException
+                                                    final String clientSecret, final URI discoveryUrl, final DiscoveryOptions options,
+                                                    final Iterable<KeyValuePair> currentCookies, final boolean useCache)
+            throws RequestFailedException, InvalidResponseException
     {
         StringUtils.requireNonEmpty(clientId, "clientId");
         StringUtils.requireNonEmpty(clientSecret, "clientSecret");
@@ -173,9 +173,9 @@ public class DiscoveryService implements IDiscoveryService
         else
         {
             final Iterable<KeyValuePair> cookies =
-                HttpUtils.proxyRequired(REQUIRED_COOKIES, currentCookies);
+                    HttpUtils.proxyRequired(REQUIRED_COOKIES, currentCookies);
             final RestAuthentication authentication =
-                RestAuthentication.basic(clientId, clientSecret, iMobileConnectEncodeDecoder);
+                    RestAuthentication.basic(clientId, clientSecret, iMobileConnectEncodeDecoder);
             final List<KeyValuePair> queryParams = this.extractQueryParams(options);
 
             RestResponse restResponse = null;
@@ -183,10 +183,10 @@ public class DiscoveryService implements IDiscoveryService
             try
             {
                 restResponse = StringUtils.isNullOrEmpty(options.getMsisdn())
-                               ? this.restClient.get(discoveryUrl, authentication,
-                    options.getClientIp(), queryParams, cookies)
-                               : this.restClient.postFormData(discoveryUrl, authentication,
-                                   queryParams, options.getClientIp(), cookies);
+                        ? this.restClient.get(discoveryUrl, authentication,
+                        options.getClientIp(), queryParams, cookies)
+                        : this.restClient.postFormData(discoveryUrl, authentication,
+                        queryParams, options.getClientIp(), cookies);
             }
             catch (final RequestFailedException e)
             {
@@ -204,7 +204,7 @@ public class DiscoveryService implements IDiscoveryService
         if (discoveryResponse == null && cachedDiscoveryResponse != null)
         {
             LOGGER.warn(
-                "Falling back to expired cached instance of discovery response due to previous error");
+                    "Falling back to expired cached instance of discovery response due to previous error");
             discoveryResponse = cachedDiscoveryResponse;
         }
 
@@ -214,13 +214,13 @@ public class DiscoveryService implements IDiscoveryService
     }
 
     private DiscoveryResponse convertFromRestResponse(RestResponse restResponse,
-        DiscoveryResponse cachedDiscoveryResponse) throws InvalidResponseException
+                                                      DiscoveryResponse cachedDiscoveryResponse) throws InvalidResponseException
     {
         DiscoveryResponse discoveryResponse = null;
         try
         {
             discoveryResponse =
-                DiscoveryResponse.fromRestResponse(restResponse, this.jsonService);
+                    DiscoveryResponse.fromRestResponse(restResponse, this.jsonService);
         }
         catch (final JsonDeserializationException jde)
         {
@@ -234,7 +234,7 @@ public class DiscoveryService implements IDiscoveryService
     }
 
     private void updateWithProviderMetadata(final DiscoveryResponse discoveryResponse,
-        final boolean useCache)
+                                            final boolean useCache)
     {
         if (discoveryResponse != null)
         {
@@ -244,7 +244,7 @@ public class DiscoveryService implements IDiscoveryService
     }
 
     private DiscoveryResponse fetchCachedDiscoveryResponse(final DiscoveryOptions options,
-        final boolean useCache)
+                                                           final boolean useCache)
     {
         DiscoveryResponse cachedDiscoveryResponse = null;
         if (useCache)
@@ -262,24 +262,24 @@ public class DiscoveryService implements IDiscoveryService
     }
 
     private DiscoveryResponse getCachedDiscoveryResponse(final DiscoveryOptions options)
-        throws CacheAccessException
+            throws CacheAccessException
     {
         final String mcc =
-            ObjectUtils.defaultIfNull(options.getIdentifiedMcc(), options.getSelectedMcc());
+                ObjectUtils.defaultIfNull(options.getIdentifiedMcc(), options.getSelectedMcc());
         final String mnc =
-            ObjectUtils.defaultIfNull(options.getIdentifiedMnc(), options.getSelectedMnc());
+                ObjectUtils.defaultIfNull(options.getIdentifiedMnc(), options.getSelectedMnc());
         return this.cache != null
-               ? this.cache.get(concatKey(mcc, mnc), DiscoveryResponse.class)
-               : null;
+                ? this.cache.get(concatKey(mcc, mnc), DiscoveryResponse.class)
+                : null;
     }
 
     public void addCachedDiscoveryResponse(final DiscoveryOptions options,
-        final DiscoveryResponse response)
+                                           final DiscoveryResponse response)
     {
         final String mcc =
-            ObjectUtils.defaultIfNull(options.getIdentifiedMcc(), options.getSelectedMcc());
+                ObjectUtils.defaultIfNull(options.getIdentifiedMcc(), options.getSelectedMcc());
         final String mnc =
-            ObjectUtils.defaultIfNull(options.getIdentifiedMnc(), options.getSelectedMnc());
+                ObjectUtils.defaultIfNull(options.getIdentifiedMnc(), options.getSelectedMnc());
 
         final String key = concatKey(mcc, mnc);
 
@@ -299,13 +299,13 @@ public class DiscoveryService implements IDiscoveryService
     private List<KeyValuePair> extractQueryParams(final DiscoveryOptions options)
     {
         KeyValuePair.ListBuilder listBuilder = new KeyValuePair.ListBuilder()
-            .add(Parameters.REDIRECT_URL, options.getRedirectUrl().toString())
-            .add(Parameters.IDENTIFIED_MCC, options.getIdentifiedMcc())
-            .add(Parameters.IDENTIFIED_MNC, options.getIdentifiedMnc())
-            .add(Parameters.SELECTED_MCC, options.getSelectedMcc())
-            .add(Parameters.SELECTED_MNC, options.getSelectedMnc())
-            .add(Parameters.LOCAL_CLIENT_IP, options.getLocalClientIp())
-            .add(Parameters.USING_MOBILE_DATA, options.isUsingMobileData() ? "1" : "0");
+                .add(Parameters.REDIRECT_URL, options.getRedirectUrl().toString())
+                .add(Parameters.IDENTIFIED_MCC, options.getIdentifiedMcc())
+                .add(Parameters.IDENTIFIED_MNC, options.getIdentifiedMnc())
+                .add(Parameters.SELECTED_MCC, options.getSelectedMcc())
+                .add(Parameters.SELECTED_MNC, options.getSelectedMnc())
+                .add(Parameters.LOCAL_CLIENT_IP, options.getLocalClientIp())
+                .add(Parameters.USING_MOBILE_DATA, options.isUsingMobileData() ? "1" : "0");
 
         if (options.getMsisdn() != null)
         {
@@ -317,30 +317,30 @@ public class DiscoveryService implements IDiscoveryService
 
     @Override
     public DiscoveryResponse getOperatorSelectionURL(final String clientId,
-        final String clientSecret, final URI discoveryUrl, final URI redirectUrl)
-        throws RequestFailedException, InvalidResponseException
+                                                     final String clientSecret, final URI discoveryUrl, final URI redirectUrl)
+            throws RequestFailedException, InvalidResponseException
     {
         ObjectUtils.requireNonNull(redirectUrl, "redirectUrl");
 
         final DiscoveryOptions options =
-            new DiscoveryOptions.Builder().withRedirectUrl(redirectUrl).build();
+                new DiscoveryOptions.Builder().withRedirectUrl(redirectUrl).build();
         return this.callDiscoveryEndpoint(clientId, clientSecret, discoveryUrl, options, null,
-            false);
+                false);
     }
 
     @Override
     public DiscoveryResponse getOperatorSelectionURL(final IPreferences preferences,
-        final URI redirectUrl) throws RequestFailedException, InvalidResponseException
+                                                     final URI redirectUrl) throws RequestFailedException, InvalidResponseException
     {
         ObjectUtils.requireNonNull(preferences, ARG_PREFERENCES);
 
         return this.getOperatorSelectionURL(preferences.getClientId(),
-            preferences.getClientSecret(), preferences.getDiscoveryUrl(), redirectUrl);
+                preferences.getClientSecret(), preferences.getDiscoveryUrl(), redirectUrl);
     }
 
     @Override
     public Future<DiscoveryResponse> getOperatorSelectionURLAsync(final String clientId,
-        final String clientSecret, final URI discoveryUrl, final URI redirectUrl)
+                                                                  final String clientSecret, final URI discoveryUrl, final URI redirectUrl)
     {
         StringUtils.requireNonEmpty(clientId, "clientId");
         StringUtils.requireNonEmpty(clientSecret, "clientSecret");
@@ -353,19 +353,19 @@ public class DiscoveryService implements IDiscoveryService
             public DiscoveryResponse call() throws Exception
             {
                 return DiscoveryService.this.getOperatorSelectionURL(clientId, clientSecret,
-                    discoveryUrl, redirectUrl);
+                        discoveryUrl, redirectUrl);
             }
         });
     }
 
     @Override
     public Future<DiscoveryResponse> getOperatorSelectionURLAsync(final IPreferences preferences,
-        final URI redirectUrl)
+                                                                  final URI redirectUrl)
     {
         ObjectUtils.requireNonNull(preferences, ARG_PREFERENCES);
 
         return this.getOperatorSelectionURLAsync(preferences.getClientId(),
-            preferences.getClientSecret(), preferences.getDiscoveryUrl(), redirectUrl);
+                preferences.getClientSecret(), preferences.getDiscoveryUrl(), redirectUrl);
     }
 
     @Override
@@ -389,7 +389,7 @@ public class DiscoveryService implements IDiscoveryService
             }
 
             builder.withEncryptedMsisdn(
-                HttpUtils.extractQueryValue(redirectedUrl, Parameters.SUBSCRIBER_ID));
+                    HttpUtils.extractQueryValue(redirectedUrl, Parameters.SUBSCRIBER_ID));
         }
 
         return builder.build();
@@ -397,39 +397,39 @@ public class DiscoveryService implements IDiscoveryService
 
     @Override
     public DiscoveryResponse completeSelectedOperatorDiscovery(final String clientId,
-        final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
-        final String selectedMCC, final String selectedMNC)
-        throws RequestFailedException, InvalidResponseException
+                                                               final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
+                                                               final String selectedMCC, final String selectedMNC)
+            throws RequestFailedException, InvalidResponseException
     {
         StringUtils.requireNonEmpty(selectedMCC, "selectedMCC");
         StringUtils.requireNonEmpty(selectedMNC, "selectedMNC");
 
         final DiscoveryOptions discoveryOptions = new DiscoveryOptions.Builder()
-            .withRedirectUrl(redirectUrl)
-            .withSelectedMcc(selectedMCC)
-            .withSelectedMnc(selectedMNC)
-            .build();
+                .withRedirectUrl(redirectUrl)
+                .withSelectedMcc(selectedMCC)
+                .withSelectedMnc(selectedMNC)
+                .build();
 
         return this.callDiscoveryEndpoint(clientId, clientSecret, discoveryUrl, discoveryOptions,
-            null, true);
+                null, true);
     }
 
     @Override
     public DiscoveryResponse completeSelectedOperatorDiscovery(final IPreferences preferences,
-        final URI redirectUrl, final String selectedMCC, final String selectedMNC)
-        throws RequestFailedException, InvalidResponseException
+                                                               final URI redirectUrl, final String selectedMCC, final String selectedMNC)
+            throws RequestFailedException, InvalidResponseException
     {
         ObjectUtils.requireNonNull(preferences, ARG_PREFERENCES);
 
         return this.completeSelectedOperatorDiscovery(preferences.getClientId(),
-            preferences.getClientSecret(), preferences.getDiscoveryUrl(), redirectUrl, selectedMCC,
-            selectedMNC);
+                preferences.getClientSecret(), preferences.getDiscoveryUrl(), redirectUrl, selectedMCC,
+                selectedMNC);
     }
 
     @Override
     public Future<DiscoveryResponse> completeSelectedOperatorDiscoveryAsync(final String clientId,
-        final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
-        final String selectedMCC, final String selectedMNC)
+                                                                            final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
+                                                                            final String selectedMCC, final String selectedMNC)
     {
         return this.executorService.submit(new Callable<DiscoveryResponse>()
         {
@@ -437,15 +437,15 @@ public class DiscoveryService implements IDiscoveryService
             public DiscoveryResponse call() throws Exception
             {
                 return DiscoveryService.this.completeSelectedOperatorDiscovery(clientId,
-                    clientSecret, discoveryUrl, redirectUrl, selectedMCC, selectedMNC);
+                        clientSecret, discoveryUrl, redirectUrl, selectedMCC, selectedMNC);
             }
         });
     }
 
     @Override
     public Future<DiscoveryResponse> completeSelectedOperatorDiscoveryAsync(
-        final IPreferences preferences, final URI redirectUrl, final String selectedMCC,
-        final String selectedMNC)
+            final IPreferences preferences, final URI redirectUrl, final String selectedMCC,
+            final String selectedMNC)
     {
         return this.executorService.submit(new Callable<DiscoveryResponse>()
         {
@@ -453,7 +453,7 @@ public class DiscoveryService implements IDiscoveryService
             public DiscoveryResponse call() throws Exception
             {
                 return DiscoveryService.this.completeSelectedOperatorDiscovery(preferences,
-                    redirectUrl, selectedMCC, selectedMNC);
+                        redirectUrl, selectedMCC, selectedMNC);
             }
         });
     }
@@ -468,14 +468,14 @@ public class DiscoveryService implements IDiscoveryService
         if (result.getResponseData() != null)
         {
             final Link link =
-                ListUtils.firstMatch(result.getResponseData().getLinks(), new Predicate<Link>()
-                {
-                    @Override
-                    public boolean apply(final Link input)
+                    ListUtils.firstMatch(result.getResponseData().getLinks(), new Predicate<Link>()
                     {
-                        return LinkRels.OPERATOR_SELECTION.equalsIgnoreCase(input.getRel());
-                    }
-                });
+                        @Override
+                        public boolean apply(final Link input)
+                        {
+                            return LinkRels.OPERATOR_SELECTION.equalsIgnoreCase(input.getRel());
+                        }
+                    });
 
             if (link != null)
             {
@@ -488,19 +488,19 @@ public class DiscoveryService implements IDiscoveryService
 
     @Override
     public DiscoveryResponse getCachedDiscoveryResponse(final String mcc, final String mnc)
-        throws CacheAccessException
+            throws CacheAccessException
     {
         final DiscoveryResponse discoveryResponse = this.cache != null
-                                                    ? this.cache.get(concatKey(mcc, mnc),
-            DiscoveryResponse.class)
-                                                    : null;
+                ? this.cache.get(concatKey(mcc, mnc),
+                DiscoveryResponse.class)
+                : null;
         if (discoveryResponse != null)
         {
             final URI providerMetadataUrl = this.extractProviderMetadataUrl(discoveryResponse);
             if (providerMetadataUrl != null)
             {
                 discoveryResponse.setProviderMetadata(
-                    this.cache.get(providerMetadataUrl.toString(), ProviderMetadata.class));
+                        this.cache.get(providerMetadataUrl.toString(), ProviderMetadata.class));
             }
         }
         return discoveryResponse;
@@ -528,7 +528,7 @@ public class DiscoveryService implements IDiscoveryService
 
     @Override
     public Future<ProviderMetadata> getProviderMetadata(final DiscoveryResponse response,
-        final boolean forceCacheBypass)
+                                                        final boolean forceCacheBypass)
     {
         final URI providerMetadataUrl = this.extractProviderMetadataUrl(response);
 
@@ -538,8 +538,8 @@ public class DiscoveryService implements IDiscoveryService
             public ProviderMetadata call() throws Exception
             {
                 final ProviderMetadata providerMetadata =
-                    DiscoveryService.this.retrieveProviderMetadata(providerMetadataUrl,
-                        !forceCacheBypass);
+                        DiscoveryService.this.retrieveProviderMetadata(providerMetadataUrl,
+                                !forceCacheBypass);
                 response.setProviderMetadata(providerMetadata);
                 return providerMetadata;
             }
@@ -552,11 +552,11 @@ public class DiscoveryService implements IDiscoveryService
 
         final OperatorUrls operatorUrls = response.getOperatorUrls();
         return operatorUrls == null || operatorUrls.getProviderMetadataUri() == null
-               ? null
-               : URI.create(operatorUrls.getProviderMetadataUri());
+                ? null
+                : URI.create(operatorUrls.getProviderMetadataUri());
     }
 
-    private ProviderMetadata retrieveProviderMetadata(final URI url, final boolean useCache)
+    public ProviderMetadata retrieveProviderMetadata(final URI url, final boolean useCache)
     {
         ProviderMetadata providerMetadata = null;
 
@@ -580,7 +580,7 @@ public class DiscoveryService implements IDiscoveryService
                 try
                 {
                     final RestResponse restResponse =
-                        this.restClient.get(url, null, null, null, null);
+                            this.restClient.get(url, null, null, null, null);
 
                     providerMetadata = processRestResponse(restResponse, url);
                 }
@@ -594,7 +594,7 @@ public class DiscoveryService implements IDiscoveryService
             if (providerMetadata == null && cached != null)
             {
                 LOGGER.warn(
-                    "Falling back to expired cached provider metadata due to previous error");
+                        "Falling back to expired cached provider metadata due to previous error");
                 providerMetadata = cached;
             }
         }
@@ -620,15 +620,15 @@ public class DiscoveryService implements IDiscoveryService
             if (!HttpUtils.isHttpErrorCode(restResponse.getStatusCode()))
             {
                 providerMetadata =
-                    this.jsonService.deserialize(restResponse.getContent(), ProviderMetadata.class);
+                        this.jsonService.deserialize(restResponse.getContent(), ProviderMetadata.class);
 
                 this.cache.add(url.toString(), providerMetadata);
             }
             else
             {
                 LOGGER.warn(
-                    "Received an error response with HTTP status {} for provider metadata from {}",
-                    restResponse.getStatusCode(), url);
+                        "Received an error response with HTTP status {} for provider metadata from {}",
+                        restResponse.getStatusCode(), url);
             }
         }
         catch (final JsonDeserializationException jde)

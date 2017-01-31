@@ -16,6 +16,9 @@
  */
 package com.gsma.mobileconnect.r2.authentication;
 
+import com.gsma.mobileconnect.r2.MobileConnectRequestOptions;
+import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
+import com.gsma.mobileconnect.r2.discovery.OperatorUrls;
 import com.gsma.mobileconnect.r2.exceptions.InvalidResponseException;
 import com.gsma.mobileconnect.r2.discovery.ProviderMetadata;
 import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
@@ -24,6 +27,7 @@ import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.concurrent.Future;
 
 /**
@@ -145,4 +149,17 @@ public interface IAuthenticationService
     String revokeToken(final String clientId, final String clientSecret, //NOSONAR
         final URI refreshTokenUrl, final String token, final String tokenTypeHint)
         throws RequestFailedException, InvalidResponseException, JsonDeserializationException;
+
+    /** Allows an application to create discovery object manually without call to discovery service
+     *
+     * @param clientSecret The registered application secretKey (Required)
+     * @param clientKey The registered application clientKey (consumer key) (Required)
+     * @param subscriberId subscriber id (Required)
+     * @param name application name (Required)
+     * @param operatorUrls operator specific urls returned from a successful discovery process call
+     * @throws JsonDeserializationException on failure to process response from DiscoveryResponse, ProviderMetadata
+     */
+    DiscoveryResponse makeDiscoveryForAuthorization(String clientSecret, String clientKey,
+                                                    String subscriberId, String name, OperatorUrls operatorUrls)
+            throws JsonDeserializationException;
 }

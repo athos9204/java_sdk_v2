@@ -36,6 +36,9 @@ import java.util.concurrent.Future;
  */
 public interface IDiscoveryService
 {
+
+    ProviderMetadata retrieveProviderMetadata(final URI url, final boolean useCache);
+
     /**
      * @return the discovery response cache.
      */
@@ -57,9 +60,9 @@ public interface IDiscoveryService
      * @throws InvalidResponseException if there is a failure processing the HTTP response.
      */
     DiscoveryResponse startAutomatedOperatorDiscovery(final String clientId,
-        final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
-        final DiscoveryOptions options, final Iterable<KeyValuePair> currentCookies)
-        throws RequestFailedException, InvalidResponseException;
+                                                      final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
+                                                      final DiscoveryOptions options, final Iterable<KeyValuePair> currentCookies)
+            throws RequestFailedException, InvalidResponseException;
 
     /**
      * Synchronous wrapper for {@link IDiscoveryService#startAutomatedOperatorDiscoveryAsync(
@@ -76,9 +79,9 @@ public interface IDiscoveryService
      * @throws InvalidResponseException if there is a failure processing the HTTP response.
      */
     DiscoveryResponse startAutomatedOperatorDiscovery(final IPreferences preferences,
-        final URI redirectUrl, final DiscoveryOptions options,
-        final Iterable<KeyValuePair> currentCookies)
-        throws RequestFailedException, InvalidResponseException;
+                                                      final URI redirectUrl, final DiscoveryOptions options,
+                                                      final Iterable<KeyValuePair> currentCookies)
+            throws RequestFailedException, InvalidResponseException;
 
     /**
      * Allows an application to conduct discovery based on the predetermined operator/network
@@ -100,8 +103,8 @@ public interface IDiscoveryService
      * @return the discovery response.
      */
     Future<DiscoveryResponse> startAutomatedOperatorDiscoveryAsync(final String clientId,
-        final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
-        final DiscoveryOptions options, final Iterable<KeyValuePair> currentCookies);
+                                                                   final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
+                                                                   final DiscoveryOptions options, final Iterable<KeyValuePair> currentCookies);
 
     /**
      * Convenience version of {@link IDiscoveryService#startAutomatedOperatorDiscoveryAsync(
@@ -117,8 +120,10 @@ public interface IDiscoveryService
      * @return the discovery response.
      */
     Future<DiscoveryResponse> startAutomatedOperatorDiscoveryAsync(final IPreferences preferences,
-        final URI redirectUrl, final DiscoveryOptions options,
-        final Iterable<KeyValuePair> currentCookies);
+                                                                   final URI redirectUrl, final DiscoveryOptions options,
+                                                                   final Iterable<KeyValuePair> currentCookies);
+
+
 
     /**
      * Synchronous wrapper for {@link IDiscoveryService#getOperatorSelectionURLAsync(
@@ -133,8 +138,8 @@ public interface IDiscoveryService
      * @throws InvalidResponseException if a failure occurred processing the HTTP response.
      */
     DiscoveryResponse getOperatorSelectionURL(final String clientId, final String clientSecret,
-        final URI discoveryUrl, final URI redirectUrl)
-        throws RequestFailedException, InvalidResponseException;
+                                              final URI discoveryUrl, final URI redirectUrl)
+            throws RequestFailedException, InvalidResponseException;
 
     /**
      * Synchronous wrapper for
@@ -147,7 +152,7 @@ public interface IDiscoveryService
      * @throws InvalidResponseException if a failure occurred processing the HTTP response.
      */
     DiscoveryResponse getOperatorSelectionURL(final IPreferences preferences, final URI redirectUrl)
-        throws RequestFailedException, InvalidResponseException;
+            throws RequestFailedException, InvalidResponseException;
 
     /**
      * Allows an application to get the URL for the operator selection UI of the discovery service.
@@ -161,7 +166,7 @@ public interface IDiscoveryService
      * @return the discovery response.
      */
     Future<DiscoveryResponse> getOperatorSelectionURLAsync(final String clientId,
-        final String clientSecret, final URI discoveryUrl, final URI redirectUrl);
+                                                           final String clientSecret, final URI discoveryUrl, final URI redirectUrl);
 
     /**
      * Convenience wrapper for {@link IDiscoveryService#getOperatorSelectionURLAsync(
@@ -174,7 +179,7 @@ public interface IDiscoveryService
      * @return the discovery response.
      */
     Future<DiscoveryResponse> getOperatorSelectionURLAsync(final IPreferences preferences,
-        final URI redirectUrl);
+                                                           final URI redirectUrl);
 
     /**
      * Allows an application to obtain parameters which have been passed within a discovery redirect
@@ -206,9 +211,9 @@ public interface IDiscoveryService
      * @throws InvalidResponseException if a failure occurred processing the HTTP response.
      */
     DiscoveryResponse completeSelectedOperatorDiscovery(final String clientId,
-        final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
-        final String selectedMCC, final String selectedMNC)
-        throws RequestFailedException, InvalidResponseException;
+                                                        final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
+                                                        final String selectedMCC, final String selectedMNC)
+            throws RequestFailedException, InvalidResponseException;
 
     /**
      * Allows an application to use the selected operator MCC and MNC to obtain the discovery
@@ -228,8 +233,8 @@ public interface IDiscoveryService
      * @throws InvalidResponseException if a failure occurred processing the HTTP response.
      */
     DiscoveryResponse completeSelectedOperatorDiscovery(final IPreferences preferences,
-        final URI redirectUrl, final String selectedMCC, final String selectedMNC)
-        throws RequestFailedException, InvalidResponseException;
+                                                        final URI redirectUrl, final String selectedMCC, final String selectedMNC)
+            throws RequestFailedException, InvalidResponseException;
 
     /**
      * Asynchronous wrapper for {@link IDiscoveryService#completeSelectedOperatorDiscovery(
@@ -244,8 +249,8 @@ public interface IDiscoveryService
      * @return the discovery response.
      */
     Future<DiscoveryResponse> completeSelectedOperatorDiscoveryAsync(final String clientId,
-        final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
-        final String selectedMCC, final String selectedMNC);
+                                                                     final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
+                                                                     final String selectedMCC, final String selectedMNC);
 
     /**
      * Convenience version of {@link IDiscoveryService#completeSelectedOperatorDiscovery(
@@ -260,7 +265,7 @@ public interface IDiscoveryService
      * @return the discovery response.
      */
     Future<DiscoveryResponse> completeSelectedOperatorDiscoveryAsync(final IPreferences preferences,
-        final URI redirectUrl, final String selectedMCC, final String selectedMNC);
+                                                                     final URI redirectUrl, final String selectedMCC, final String selectedMNC);
 
     /**
      * Helper function to extract operator selection URL from the discovery reponse
@@ -280,7 +285,7 @@ public interface IDiscoveryService
      * @throws CacheAccessException if an error was encountered fetching the cache entry.
      */
     DiscoveryResponse getCachedDiscoveryResponse(final String mcc, final String mnc)
-        throws CacheAccessException;
+            throws CacheAccessException;
 
     /**
      * Helper function which clears the cache.  Note that this will clear everything from the cache,
@@ -315,5 +320,5 @@ public interface IDiscoveryService
      * @return An updated ProviderMetadata object
      */
     Future<ProviderMetadata> getProviderMetadata(final DiscoveryResponse response,
-        final boolean forceCacheBypass);
+                                                 final boolean forceCacheBypass);
 }

@@ -17,7 +17,10 @@
 package com.gsma.mobileconnect.r2.discovery;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.gsma.mobileconnect.r2.cache.AbstractCacheable;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
 import com.gsma.mobileconnect.r2.utils.ListUtils;
@@ -33,6 +36,7 @@ import java.util.List;
 public class ProviderMetadata extends AbstractCacheable
 {
     private final String version;
+    private final String subscriberId;
     private final String issuer;
     private final String authorizationEndpoint;
     private final String tokenEndpoint;
@@ -80,6 +84,7 @@ public class ProviderMetadata extends AbstractCacheable
     {
         this.version = builder.version;
         this.issuer = builder.issuer;
+        this.subscriberId = builder.subscriberId;
         this.authorizationEndpoint = builder.authorizationEndpoint;
         this.tokenEndpoint = builder.tokenEndpoint;
         this.userinfoEndpoint = builder.userinfoEndpoint;
@@ -133,6 +138,13 @@ public class ProviderMetadata extends AbstractCacheable
     public String getVersion()
     {
         return this.version;
+    }
+
+    /**
+     * @return the subscriber id
+     */
+    public String getSubscriberId() {
+        return subscriberId;
     }
 
     /**
@@ -500,6 +512,7 @@ public class ProviderMetadata extends AbstractCacheable
     public static final class Builder implements IBuilder<ProviderMetadata>
     {
         private String version;
+        private String subscriberId;
         private String issuer;
         private String authorizationEndpoint;
         private String tokenEndpoint;
@@ -543,9 +556,23 @@ public class ProviderMetadata extends AbstractCacheable
         private SupportedVersions mobileConnectVersionSupported;
         private List<String> loginHintMethodsSupported;
 
+        public Builder(ProviderMetadata providerMetadata) {
+            //default constructor
+        }
+
+        public Builder() {
+
+        }
+
+
         public Builder withVersion(final String val)
         {
             this.version = val;
+            return this;
+        }
+
+        public Builder withSubscriberId(final String val) {
+            this.subscriberId = val;
             return this;
         }
 
@@ -808,5 +835,49 @@ public class ProviderMetadata extends AbstractCacheable
         {
             return new ProviderMetadata(this);
         }
+    }
+
+    public ObjectNode providerToJson() {
+        ObjectMapper mapper = new ObjectMapper();
+        ObjectNode root = mapper.createObjectNode();
+        ObjectNode openId = mapper.createObjectNode();
+
+        root.put("issuer", issuer);
+        ArrayNode loginHint = mapper.createArrayNode();
+
+        for (String nextLogintHint : loginHintMethodsSupported) {
+            loginHint.add(nextLogintHint);
+        }
+
+        root.putPOJO("login_hint_methods_supported", loginHint);
+
+        ArrayNode claimsSupportedNode = mapper.createArrayNode();
+        for (String claims : claimsSupported) {
+            claimsSupportedNode.add(claims);
+        }
+
+        ArrayNode idToken = mapper.createArrayNode();
+        for (String token : idTokenEncryptionAlgValuesSupported) {
+            idToken.add(token);
+        }
+
+        ArrayNode acrValuesSupportedNode = mapper.createArrayNode();
+        for (String acrValue : acrValuesSupported) {
+            acrValuesSupportedNode.add(acrValue);
+        }
+
+        ArrayNode scopes = mapper.createArrayNode();
+        for(String arrScopes : scopesSupported) {
+            scopes.add(arrScopes);
+        }
+
+        root.putPOJO("claims_supported", claimsSupportedNode);
+        root.putPOJO("id_token_signing_alg_values_supported", idToken);
+        root.putPOJO("acr_values_supported", acrValuesSupportedNode);
+        root.putPOJO("scopes_supported", scopes);
+        openId.put("openid", "mc_v1.1");
+        root.putPOJO("mobile_connect_version_supported", openId);
+
+        return root;
     }
 }

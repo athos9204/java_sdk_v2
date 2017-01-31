@@ -16,13 +16,18 @@
  */
 package com.gsma.mobileconnect.r2.authentication;
 
-import com.gsma.mobileconnect.r2.ErrorResponse;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.gsma.mobileconnect.r2.*;
+import com.gsma.mobileconnect.r2.cache.ConcurrentCache;
+import com.gsma.mobileconnect.r2.cache.ICache;
+import com.gsma.mobileconnect.r2.discovery.*;
 import com.gsma.mobileconnect.r2.exceptions.InvalidResponseException;
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.constants.Parameters;
 import com.gsma.mobileconnect.r2.constants.Scope;
 import com.gsma.mobileconnect.r2.constants.Scopes;
-import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.IJsonService;
@@ -33,18 +38,18 @@ import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.rest.RestAuthentication;
 import com.gsma.mobileconnect.r2.rest.RestResponse;
 import com.gsma.mobileconnect.r2.utils.*;
+import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 /**
  * Concrete implementation of {@link IAuthenticationService}
@@ -56,10 +61,11 @@ public class AuthenticationService implements IAuthenticationService
     private static final Logger LOGGER = LoggerFactory.getLogger(AuthenticationService.class);
     public static final String REVOKE_TOKEN_SUCCESS = "Revoke token successful";
     static final String UNSUPPORTED_TOKEN_TYPE_ERROR = "Unsupported token type";
-
-    private final IJsonService jsonService;
-    private final ExecutorService executorService;
-    private final IRestClient restClient;
+    private static IJsonService jsonService;
+    private static ExecutorService executorService;
+    private IDiscoveryService discoveryService;
+    private ICache discoveryCache;
+    private IRestClient restClient;
     private final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
     private AuthenticationService(final Builder builder)
@@ -435,5 +441,74 @@ public class AuthenticationService implements IAuthenticationService
 
             return new AuthenticationService(this);
         }
+    }
+
+    @Override
+    public DiscoveryResponse makeDiscoveryForAuthorization(final String clientSecret, final String clientKey,
+                                                           final String subscriberId, final String name, OperatorUrls operatorUrls)
+            throws JsonDeserializationException
+    {
+        ObjectUtils.requireNonNull(clientSecret, "clientSecret");
+        ObjectUtils.requireNonNull(clientKey, "clientKey");
+        ObjectUtils.requireNonNull(name, "appName");
+        ObjectUtils.requireNonNull(operatorUrls, "operator urls");
+
+        discoveryCache = new ConcurrentCache.Builder().withJsonService(jsonService).build();
+        discoveryService = new DiscoveryService.Builder()
+                .withExecutorService(executorService)
+                .withJsonService(jsonService)
+                .withCache(discoveryCache)
+                .withRestClient(restClient)
+                .build();
+        ProviderMetadata providerMetadata = new ProviderMetadata.Builder().build();
+        DiscoveryResponseGenerateOptions discoveryResponseGenerateOptions = new DiscoveryResponseGenerateOptions.BuilderResponse()
+                .withClientKey(clientKey)
+                .withSecretKey(clientSecret)
+                .withName(name)
+                .withSubscriberId(subscriberId)
+                .withLinks(operatorUrls.getOperatorsUrls())
+                .withRel(operatorUrls.getOperatorsRel()).build();
+
+        MobileConnectRequestOptions mobileConnectRequestOptions = new MobileConnectRequestOptions.Builder()
+                .withAuthOptionDiscoveryResponse(discoveryResponseGenerateOptions)
+                .build();
+
+        ObjectNode discoveryResponseWithoutRequest = mobileConnectRequestOptions.getDiscoveryResponseGenerateOptions().responseToJson();
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode discoveryResponseJSONTree;
+        JsonNode linkToProviderMetadata = null;
+
+        try {
+            discoveryResponseJSONTree = mapper.readTree(discoveryResponseWithoutRequest.toString());
+            int openIdIndex = 0;
+
+            int max = discoveryResponseJSONTree.path("response").path("apis").path("operatorid").path("link").size();
+            for (int index = 0; index < max; index++) {
+                JsonNode openIdLink = discoveryResponseJSONTree.path("response").path("apis").path("operatorid").path("link").get(index).findValue("rel");
+                String providerMetadataText = openIdLink.textValue();
+                if (providerMetadataText.contains("openid-configuration")) {
+                    openIdIndex = index;
+                    break;
+                }
+            }
+            linkToProviderMetadata = discoveryResponseJSONTree.path("response").path("apis").path("operatorid").path("link").get(openIdIndex).findValue("href");
+
+            if (!linkToProviderMetadata.isNull()) {
+                providerMetadata = discoveryService.retrieveProviderMetadata(URI.create(linkToProviderMetadata.asText()), true);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        final RestResponse post_response = new RestResponse.Builder()
+                .withStatusCode(HttpStatus.SC_OK)
+                .withContent(discoveryResponseWithoutRequest.toString())
+                .build();
+
+        DiscoveryResponse discoveryResponse = DiscoveryResponse.fromRestResponse(post_response, this.jsonService);
+        discoveryResponse.setProviderMetadata(providerMetadata);
+
+        return discoveryResponse;
     }
 }

@@ -33,7 +33,6 @@ public class Response
     private final Apis apis;
     private final String clientId;
     private final String clientSecret;
-    private final String subscriberId;
     private final String clientName;
 
     private Response(Builder builder)
@@ -44,7 +43,6 @@ public class Response
         this.apis = builder.apis;
         this.clientId = builder.clientId;
         this.clientSecret = builder.clientSecret;
-        this.subscriberId = builder.subscriberId;
         this.clientName = builder.clientName;
     }
 
@@ -76,11 +74,6 @@ public class Response
     public String getClientSecret()
     {
         return this.clientSecret;
-    }
-
-    public String getSubscriberId()
-    {
-        return this.subscriberId;
     }
 
     public String getClientName()

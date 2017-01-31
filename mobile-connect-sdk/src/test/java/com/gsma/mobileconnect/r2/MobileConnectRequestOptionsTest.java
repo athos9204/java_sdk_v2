@@ -1,6 +1,8 @@
 package com.gsma.mobileconnect.r2;
 
+import com.gsma.mobileconnect.r2.authentication.DiscoveryResponseGenerateOptions;
 import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
+import com.gsma.mobileconnect.r2.discovery.ProviderMetadata;
 import com.gsma.mobileconnect.r2.validation.TokenValidationOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
 import org.testng.annotations.AfterMethod;
@@ -14,20 +16,25 @@ public class MobileConnectRequestOptionsTest
     private MobileConnectRequestOptions requestOptions;
     private DiscoveryOptions discoveryOptions;
     private AuthenticationOptions authenticationOptions;
+    private ProviderMetadata providerMetadata;
+    private DiscoveryResponseGenerateOptions discoveryResponseGenerateOptions;
     private TokenValidationOptions validationOptions;
 
     @BeforeMethod
     public void setUp() throws Exception
     {
         discoveryOptions = new DiscoveryOptions.Builder().build();
+        providerMetadata = new ProviderMetadata.Builder().build();
+        discoveryResponseGenerateOptions = new DiscoveryResponseGenerateOptions.BuilderResponse().build();
         authenticationOptions = new AuthenticationOptions.Builder().build();
         validationOptions = new TokenValidationOptions.Builder().build();
         requestOptions = new MobileConnectRequestOptions.Builder()
-            .withDiscoveryOptions(discoveryOptions)
-            .withAuthenticationOptions(authenticationOptions)
-            .withValidationOptions(validationOptions)
-            .witAutoRetrieveIdentitySet(true)
-            .build();
+                .withDiscoveryOptions(discoveryOptions)
+                .withAuthOptionDiscoveryResponse(discoveryResponseGenerateOptions)
+                .withAuthenticationOptions(authenticationOptions)
+                .withValidationOptions(validationOptions)
+                .witAutoRetrieveIdentitySet(true)
+                .build();
     }
 
     @AfterMethod
@@ -41,6 +48,13 @@ public class MobileConnectRequestOptionsTest
     {
         assertEquals(requestOptions.getDiscoveryOptions(), discoveryOptions,
             "Check discovery options");
+    }
+
+    @Test
+    public void testGetAuthOptionWithoutDiscoveryResponse() throws Exception
+    {
+        assertEquals(requestOptions.getDiscoveryResponseGenerateOptions(), discoveryResponseGenerateOptions,
+                "Check authentication discovery response options");
     }
 
     @Test
@@ -73,6 +87,12 @@ public class MobileConnectRequestOptionsTest
     public void testGetAuthenticationOptionsBuilder() throws Exception
     {
         assertTrue(requestOptions.getAuthenticationOptionsBuilder() != null);
+    }
+
+    @Test
+    public void testGetAuthOptionWithoutDiscoveryResponseBuilder() throws Exception
+    {
+        assertTrue(requestOptions.getAuthOptionDiscoveryResponseBuilder() != null);
     }
 
     @Test
