@@ -138,9 +138,6 @@ public class MobileConnectConfig implements IPreferences
         @Override
         public MobileConnectConfig build()
         {
-            StringUtils.requireNonEmpty(this.clientId, "clientId");
-            StringUtils.requireNonEmpty(this.clientSecret, "clientSecret");
-            ObjectUtils.requireNonNull(this.discoveryUrl, "discoveryUrl");
             ObjectUtils.requireNonNull(this.redirectUrl, "redirectUrl");
 
             return new MobileConnectConfig(this);

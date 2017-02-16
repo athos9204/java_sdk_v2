@@ -89,6 +89,7 @@ public class MobileConnectStatus
             .withException(e)
             .withResponseType(ResponseType.ERROR)
             .build();
+
     }
 
     /**

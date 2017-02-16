@@ -16,6 +16,7 @@
         <module>mobile-connect-example-nationalid</module>
         <module>mobile-connect-example-phonenumber</module>
         <module>mobile-connect-example-signup</module>
+        <module>mobile-connect-example-without-discovery</module>
     </modules>
 
     <name>mobile-connect</name>
