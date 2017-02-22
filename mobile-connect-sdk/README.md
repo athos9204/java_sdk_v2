@@ -13,17 +13,15 @@ You must have first registered an account on the [MobileConnect Developer Site](
 
 ## Using The SDK
 
-To ensure compatibility, the SDK is built using Java 6.  You must therefore specify an environment variable `JAVA_1_6_HOME` which points to the installation location of the Java 6 SDK.  If you'd
-prefer to build using a later JDK, point it to that instead.
-
 Build the SDK using [Maven](https://maven.apache.org/) repository.
 
 ```posh
 cd r2-java-sdk
+cd mobile-connect-sdk
 mvn clean install
 ```
 
-Import the generated mobile-connect-sdk-1.0.0-jar into your java project.
+Import the generated mobile-connect-sdk-2.3.7.jar into your java project.
 
 To enable logging import an appropriate binding to your project, see [SLF4J](http://www.slf4j.org/) for more information.
 
