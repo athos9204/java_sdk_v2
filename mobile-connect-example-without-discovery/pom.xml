@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>mobile-connect-example-authentication</artifactId>
+    <artifactId>mobile-connect-example-without-discovery</artifactId>
 
     <properties>
         <config_path>./src/main/resources/config</config_path>
