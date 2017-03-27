@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Java Mobile Connect</title>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta charset="utf-8">
+    <link type="text/css" rel="stylesheet" href="static/css_lQaZfjVpwP_oGNqdtWCSpJT1EMqXdMiU84ekLLxQnc4.css" media="all">
+    <link type="text/css" rel="stylesheet" href="static/css_DYe_1JonltoQ6a-GpQIyMotPE3mlkNHdMVmrxAyBKhs.css" media="all">
+    <link type="text/css" rel="stylesheet" href="static/css_4EdcYlFgkbbe32481-xaTpDOUehe24a5YqWiiBGpDKU.css" media="all">
+    <link type="text/css" rel="stylesheet" href="static/css_nfGenlHMoeln4Ok2hlGh8u-vfwxI5aLXjt-hYHC9ND4.css" media="all">
+    <link type="text/css" rel="stylesheet" href="static/css_-hItoF0GNdM1rgvKJ29G9HmWmInez2P6owReBVzkKNY.css" media="all">
+    <link type="text/css" rel="stylesheet" href="static/bootstrap.css" media="all">
+    <link type="text/css" rel="stylesheet" href="static/css_7WL4QZibO0B4tL_e29vz4Y0cIGSdmOc--NepVuZ6oTw.css" media="all">
+    <link type="text/css" rel="stylesheet" href="static/css_FnMkwZyThuUwB4ql573nrCmx-ShTi0b_YDOzymWdPUE.css" media="all">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: sans-serif;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 100px;
+            margin: 0 auto;
+        }
+
+        .responsive {
+            width: 100%;
+            max-width: 400px;
+            padding: 16px;
+            margin: 0 auto;
+            overflow: hidden;
+        }
+
+        .login {
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .login::after {
+            clear: both;
+        }
+
+        .login-input {
+            display: block;
+            width: 100%;
+            margin: 8px 2px;
+        }
+
+        .login-button {
+            height: 41px;
+            width: 156px;
+            text-indent: -9999px;
+            float: right;
+            border: 0;
+            cursor: pointer;
+            background: transparent url(/static/mc-button-2x.png) no-repeat top left;
+            background-size: 156px 41px;
+        }
+
+        .login-check {
+            float: left;
+            cursor: pointer;
+            line-height: 41px;
+        }
+
+        .logged-in {
+            text-align: center;
+            position: relative;
+        }
+
+        .display-value {
+            word-wrap: break-word;
+            max-width: 1600px;
+            margin: 6px 0;
+        }
+
+        .display-id {
+            word-wrap: break-word;
+            width: 200px;
+            margin: 6px 0;
+        }
+
+        .permissions-check {
+            display: block;
+        }
+
+        .subheader {
+            font-size: 1.1em;
+            margin: 0.5em 0;
+        }
+
+        .pre-whitespace {
+            white-space: pre-wrap;
+        }
+
+        .error {
+            width: 100%;
+            max-width: 400px;
+            padding: 16px;
+            margin: 0 auto;
+            color: red;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .token-table{
+            padding: 16px;
+            margin: 6px;
+            border-bottom: 2px solid black;
+        }
+
+        tr{
+            padding: 16px;
+            margin: 2px;
+            border: 2px solid black;
+        }
+
+        td{
+            padding: 16px;
+            margin: 2px;
+            border: 2px solid black;
+        }
+
+    </style>
+    <script src="//code.jquery.com/jquery-2.2.3.min.js"></script>
+</head>
+<body>
+<table class="container">
+    <div id="pre-login" class="responsive pre-login">
+        <h2 class="subheader">Demo without discovery</h2>
+        <div id="isProviderMetadataSupported" class="navbar-collapse collapse">
+            <ul class="secondary navbar-nav nav desktop-only">
+                <li class="login-reg last" style="width: 100%;">
+                    <a type="button" id="withProviderMetaData" name="withProviderMetaData"
+                           value="withProviderMetaData" class="login-reg last">withProviderMetaData</a>
+                </li>
+                <li class="login-reg last" style="width: 100%;">
+                    <a type="button" id="withoutProviderMetaData" name="withoutProviderMetaData"
+                           value="withoutProviderMetaData" class="login-reg last">withoutProviderMetaData</a>
+                </li>
+            </ul>
+        </div>
+        <div id="login" class="login">
+            <div id="noProviderMetadata" class="hidden">
+                <label for="subId">Subscriber Id</label>
+                <input class="text-full form-control form-text required" name="subId" id="subId"
+                       placeholder="Enter Subscriber Id" type="text" style="color: black;"/>
+                <label for="subId">Operator clientId</label>
+                <input class="text-full form-control form-text required" name="clientId" id="clientId"
+                       placeholder="Enter Operator clientId" type="text" style="color: black;"/>
+                <label for="subId">Operator clientSecret</label>
+                <input class="text-full form-control form-text required" name="clientSecret" id="clientSecret"
+                       placeholder="Enter Operator clientSecret" type="text" style="color: black;"/>
+            </div>
+            <div id="providerMetadata" class="hidden">
+                <label for="subId">Operator clientName</label>
+                <input class="text-full form-control form-text required" name="clientName" id="clientName"
+                   placeholder="Enter Operator clientName" type="text" style="color: black;"/>
+            </div>
+            <input class="login-button hidden" type="button" id="mobileConnect" name="mobileConnect"
+                   value="MobileConnect"/>
+        </div>
+        <div class="error hidden"></div>
+    </div>
+    <div id="logged-in" class="responsive logged-in hidden">
+        <div id="logged-in-message">Succesfully Logged In</div>
+        <div id="value-application-name" class="display-value"></div>
+        <table id="token-table" class="token-table hidden">
+            <tr>
+                <td><div class="display-id">Access token:</div></td>
+                <td><div id="value-access-token" class="display-value"></div></td>
+            </tr>
+            <tr>
+                <td><div class="display-id">Id token:</div></td>
+                <td><div id="value-id-token" class="display-value"></div></div></td>
+            </tr>
+            <tr>
+                <td style="border-bottom: 2px solid black;"><div class="display-id">Time received:</div></td>
+                <td style="border-bottom: 2px solid black;"><div id="value-time-received" class="display-value"></div></td>
+            </tr>
+        </table>
+        <div id="value-identity-prefetched" class="display-value pre-whitespace"></div>
+    </div>
+</div>
+<script>
+        var discoveryUrl = '/api/mobileconnect/start_manual_discovery';
+        var noProviderMetadataUrl = '/api/mobileconnect/start_manual_discovery_no_metadata'
+        var authorizationUrl = '/api/mobileconnect/start_authentication';
+        var authorizationR1 = '/api/mobileconnect/start_authentication_r1';
+
+        var openWindow = function openWindow(url) {
+            var width = 400,
+                height = 585,
+                position_x = (screen.width / 2) - (width / 2),
+                position_y = (screen.height / 2) - (height / 2);
+
+            if (window.child && !window.child.closed) {
+                window.child.location.href = url;
+            }
+            else {
+                window.child = window.open(url, 'Java Mobile Connect', 'width=' + width + ',height=' + height + ',menubar=0,toolbar=0,directories=0,scrollbars=no,resizable=no,left=' + position_x + ',top=' + position_y);
+            }
+        }
+
+        var hide = function hide(selector) {
+            var el = $(selector);
+            el.addClass('hidden');
+            return el;
+        }
+
+        var show = function show(selector) {
+            var el = $(selector);
+            el.removeClass('hidden');
+            return el;
+        }
+
+        var setContent = function setContent(selector, content) {
+            var el = $(selector);
+            el.html(content);
+            return el;
+        }
+
+        var generateParams = function generateParams(params) {
+            var query = '';
+            var first = true;
+            for (var key in params) {
+                if (params.hasOwnProperty(key) && params[key]) {
+                    query = query + (first ? '' : '&') + key + '=' + params[key];
+                    first = false;
+                }
+            }
+
+            return query;
+        }
+
+        var getPermissionsRequested = function getPermissionsRequested() {
+            var scope = '';
+            $('.permissions-check input').each(function (i, el) {
+                var $el = $(el);
+                if ($el.prop('checked')) {
+                    scope = scope + ' ' + $el.attr('data-scope');
+                }
+            });
+            return scope;
+        }
+
+        var clearAttempt = function clearAttempt() {
+            api.currentAttempt = {};
+            closeChildWindow();
+        }
+
+        var closeChildWindow = function closeChildWindow() {
+            if (window.child) {
+                window.child.close();
+            }
+        }
+
+        var hideLogin = function hideLogin() {
+            hide('#no');
+            show('#logged-in');
+        }
+
+        var printTokenInfo = function printTokenInfo(token) {
+            show('#token-table');
+            show('#value-access-token');
+            show('#value-id-token');
+            show('#value-time-received');
+            hide('.error');
+            $('#value-access-token').html(token.access_token);
+            $('#value-id-token').html(token.id_token);
+            $('#value-time-received').html(token.time_received);
+        }
+
+        var printInfo = function printInfo(response) {
+            show('#value-application-name');
+            $('#value-application-name').html(api.currentAttempt.applicationShortName);
+            printTokenInfo(response.token);
+            if (response.identity) {
+                setContent('#value-identity-prefetched', JSON.stringify(response.identity, null, 2));
+            }
+        }
+
+        var api = {
+            providerMetadata: true,
+            currentAttempt: {},
+            httpCallback: function handleResponse(data) {
+                console.log(data);
+                api[data.action](data);
+            },
+            discovery: function discovery(subId, clientId, clientName, clientSecret, providerMetadata) {
+                var queryString = '?';
+
+                if (typeof subId === "string") {
+                    queryString += ('subId=' + encodeURIComponent(subId)+"&");
+                }
+
+                if (typeof clientId === "string") {
+                    queryString += ('clientId=' + encodeURIComponent(clientId)+"&");
+                }
+
+                if (typeof clientName === "string" && providerMetadata) {
+                    queryString += ('clientName=' + encodeURIComponent(clientName)+"&");
+                }
+
+                if (typeof clientSecret === "string") {
+                    queryString += ('clientSecret=' + encodeURIComponent(clientSecret)+"&");
+                }
+
+                if (providerMetadata) {
+                    $.get(discoveryUrl + queryString, api.httpCallback);
+                }
+                else{
+                    $.get(noProviderMetadataUrl + queryString, api.httpCallback);
+                }
+            },
+            start_authentication: function start_authentication(response) {
+                var queryString = '?' + generateParams({
+                    subscriberId: response.subscriberId,
+                    sdkSession: response.sdkSession
+                });
+
+                api.currentAttempt.session = response.sdkSession;
+                if(typeof response.applicationShortName !== 'undefined') {
+                    api.currentAttempt.applicationShortName = response.applicationShortName;
+                }
+
+                var url = authorizationUrl;
+                if(!api.providerMetadata){
+                    url = authorizationR1;
+                }
+                if ($('#headless-toggle').prop('checked')) {
+                    url = headlessUrl;
+                }
+                $.get(url + queryString, api.httpCallback);
+            },
+            authentication: function authentication(response) {
+                api.currentAttempt.expectedState = response.state;
+                api.currentAttempt.expectedNonce = response.nonce;
+                openWindow(response.url);
+            },
+            operator_selection: function operator_selection(response) {
+                openWindow(response.url);
+            },
+            handle_redirect: function handle_redirect(url) {
+                var queryString = '&' + generateParams({
+                    expectedState: api.currentAttempt.expectedState,
+                    expectedNonce: api.currentAttempt.expectedNonce,
+                    sdkSession: api.currentAttempt.session
+                });
+
+                $.get(url + queryString, api.httpCallback);
+            },
+            complete: function complete(response) {
+                if (response.token) {
+                    closeChildWindow();
+                    api.currentAttempt.token = response.token;
+                    hideLogin();
+                    printInfo(response);
+                } else {
+                    api.error({ description: 'Authentication not returned, user not logged in' });
+                }
+            },
+            error: function error(response) {
+                clearAttempt();
+                show('.error');
+                hide('#token-table');
+                hide('#value-access-token');
+                hide('#value-id-token');
+                hide('#value-time-received');
+                $('.error').html(response.description);
+            }
+        }
+
+        $('#msisdn-toggle').change(function (e) {
+            if ($(this).prop('checked')) {
+                show('#mobile')
+            } else {
+                hide('#mobile');
+            }
+        });
+
+        $('#mobileConnect').click(function (e) {
+            var input = $('#clientName');
+            var clientName = '';
+            var providerMetadata = false;
+            if (!$('#providerMetadata').hasClass('hidden')) {
+                clientName = input.val();
+                providerMetadata = true;
+            }
+            var clientId = $('#clientId').val();
+            var clientSecret = $('#clientSecret').val();
+            var subId = $('#subId').val();
+            api.discovery(subId, clientId, clientName, clientSecret, providerMetadata);
+        });
+
+        $('#withProviderMetaData').click(function (e) {
+            api.providerMetadata = true;
+            show('#noProviderMetadata');
+            show('#providerMetadata');
+            show('#mobileConnect');
+           // api.discovery(msisdn);
+        });
+
+        $('#withoutProviderMetaData').click(function (e) {
+            api.providerMetadata = false;
+            hide('#providerMetadata');
+            show('#noProviderMetadata');
+            show('#mobileConnect');
+         //   api.discovery(msisdn);
+        });
+
+</script>
+</body>
+</html>
