@@ -84,7 +84,7 @@ public class JWKeysetService implements IJWKeysetService
         {
             return cachedJWKeyset;
         }
-        final RestResponse response = this.restClient.get(URI.create(url), null, null, null, null);
+        final RestResponse response = this.restClient.get(URI.create(url), null, null,null, null, null);
         final JWKeyset jwKeyset =
             this.jacksonJsonService.deserialize(response.getContent(), JWKeyset.class);
 

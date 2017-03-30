@@ -335,12 +335,14 @@ public class DiscoveryResponse extends AbstractCacheable
             if (!StringUtils.isNullOrEmpty(this.responseData.getError()))
             {
                 this.errorResponse = new ErrorResponse.Builder()
-                    .withError(this.responseData.getError())
-                    .withErrorDescription(this.responseData.getDescription())
-                    .build();
+                        .withError(this.responseData.getError())
+                        .withErrorDescription(this.responseData.getDescription())
+                        .build();
             }
-
             return new DiscoveryResponse(this);
         }
+
     }
+
+
 }

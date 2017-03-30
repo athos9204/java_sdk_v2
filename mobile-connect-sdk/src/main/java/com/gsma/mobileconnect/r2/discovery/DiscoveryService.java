@@ -183,9 +183,9 @@ public class DiscoveryService implements IDiscoveryService
             try
             {
                 restResponse = StringUtils.isNullOrEmpty(options.getMsisdn())
-                        ? this.restClient.get(discoveryUrl, authentication,
+                        ? this.restClient.get(discoveryUrl, authentication, options.getXRedirect(),
                         options.getClientIp(), queryParams, cookies)
-                        : this.restClient.postFormData(discoveryUrl, authentication,
+                        : this.restClient.postFormData(discoveryUrl, authentication, options.getXRedirect(),
                         queryParams, options.getClientIp(), cookies);
             }
             catch (final RequestFailedException e)
@@ -311,7 +311,6 @@ public class DiscoveryService implements IDiscoveryService
         {
             listBuilder.add(Parameters.MSISDN, StringUtils.trimLeading(options.getMsisdn(), '+'));
         }
-
         return listBuilder.build();
     }
 
@@ -580,7 +579,7 @@ public class DiscoveryService implements IDiscoveryService
                 try
                 {
                     final RestResponse restResponse =
-                            this.restClient.get(url, null, null, null, null);
+                            this.restClient.get(url, null, null, null,null, null);
 
                     providerMetadata = processRestResponse(restResponse, url);
                 }

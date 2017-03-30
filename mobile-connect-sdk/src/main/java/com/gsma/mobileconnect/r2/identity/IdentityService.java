@@ -64,7 +64,7 @@ public class IdentityService implements IIdentityService
 
         final RestAuthentication authentication = RestAuthentication.bearer(accessToken);
         final RestResponse response =
-            this.restClient.get(infoUrl, authentication, null, null, null);
+            this.restClient.get(infoUrl, authentication, null, null, null, null);
 
         return IdentityResponse.fromRestResponse(response, this.jsonService,
             iMobileConnectEncodeDecoder);

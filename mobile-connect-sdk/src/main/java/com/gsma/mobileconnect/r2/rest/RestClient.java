@@ -18,6 +18,7 @@ package com.gsma.mobileconnect.r2.rest;
 
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.constants.Headers;
+import com.gsma.mobileconnect.r2.constants.Parameters;
 import com.gsma.mobileconnect.r2.exceptions.HeadlessOperationFailedException;
 import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.json.IJsonService;
@@ -86,7 +87,7 @@ public class RestClient implements IRestClient
     }
 
     @Override
-    public RestResponse get(final URI uri, final RestAuthentication authentication,
+    public RestResponse get(final URI uri, final RestAuthentication authentication, final String xRedirect,
         final String sourceIp, final List<KeyValuePair> queryParams,
         final Iterable<KeyValuePair> cookies) throws RequestFailedException
     {
@@ -102,7 +103,7 @@ public class RestClient implements IRestClient
         try
         {
             final HttpUriRequest request = this
-                .createRequest(HttpUtils.HttpMethod.GET, uriBuilder.build(), authentication,
+                .createRequest(HttpUtils.HttpMethod.GET, uriBuilder.build(), xRedirect, authentication,
                     sourceIp, cookies)
                 .build();
 
@@ -117,7 +118,7 @@ public class RestClient implements IRestClient
     }
 
     @Override
-    public RestResponse postFormData(final URI uri, final RestAuthentication authentication,
+    public RestResponse postFormData(final URI uri, final RestAuthentication authentication, final String xRedirect,
         final List<KeyValuePair> formData, final String sourceIp,
         final Iterable<KeyValuePair> cookies) throws RequestFailedException
     {
@@ -125,7 +126,7 @@ public class RestClient implements IRestClient
             LogUtils.maskUri(uri, LOGGER, Level.DEBUG), sourceIp);
 
         final HttpUriRequest request = this
-            .createRequest(HttpUtils.HttpMethod.POST, uri, authentication, sourceIp, cookies)
+            .createRequest(HttpUtils.HttpMethod.POST, uri, xRedirect, authentication, sourceIp, cookies)
             .addParameters(
                 ObjectUtils.requireNonNull(formData, "formData").toArray(new NameValuePair[] {}))
             .build();
@@ -319,6 +320,52 @@ public class RestClient implements IRestClient
         return builder;
     }
 
+
+    private RequestBuilder createRequest(final HttpUtils.HttpMethod method, final URI uri, final String xRedirect,
+                                         final RestAuthentication authentication, final String sourceIp,
+                                         final Iterable<KeyValuePair> cookies)
+    {
+        LOGGER.debug(
+                "Creating request with httpMethod={}, uri={}, authentication={} for sourceIp={}",
+                method, LogUtils.maskUri(uri, LOGGER, Level.DEBUG), authentication, sourceIp);
+
+        final RequestBuilder builder = RequestBuilder
+                .create(ObjectUtils.requireNonNull(method, "method").name())
+                .setUri(ObjectUtils.requireNonNull(uri, "uri"))
+                .setConfig(this.requestConfig);
+
+
+        if (cookies != null)
+        {
+            final StringBuilder cookieBuilder = new StringBuilder();
+            for (final KeyValuePair cookie : cookies)
+            {
+                cookieBuilder
+                        .append(cookie.getKey())
+                        .append('=')
+                        .append(cookie.getValue())
+                        .append(';');
+            }
+            builder.addHeader(Headers.COOKIE, cookieBuilder.toString());
+        }
+
+        if (!StringUtils.isNullOrEmpty(sourceIp))
+        {
+            builder.addHeader(Headers.X_SOURCE_IP, sourceIp);
+        }
+
+        if (authentication != null)
+        {
+            builder.addHeader(HttpHeaders.AUTHORIZATION,
+                    authentication.getScheme() + " " + authentication.getParameter());
+        }
+        System.out.println("Redirect: " + xRedirect);
+        if (xRedirect != null) {
+            builder.addHeader(Parameters.X_REDIRECT, xRedirect);
+            System.out.println("Redirect 1: " + xRedirect);
+        }
+        return builder;
+    }
     /**
      * Submits a request to the executor.  When the request runs, an additional task is scheduled in
      * the future which will abort the request after the configured timeout period.

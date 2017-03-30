@@ -73,7 +73,8 @@ class MobileConnectInterfaceHelper
                 .withMsisdn(msisdn)
                 .withIdentifiedMcc(mcc)
                 .withIdentifiedMnc(mnc)
-                .withRedirectUrl(config.getRedirectUrl());
+                .withRedirectUrl(config.getRedirectUrl())
+                .withXRedirect(config.getXRedirect());
 
             final DiscoveryResponse response =
                 discoveryService.startAutomatedOperatorDiscovery(config, config.getRedirectUrl(),
