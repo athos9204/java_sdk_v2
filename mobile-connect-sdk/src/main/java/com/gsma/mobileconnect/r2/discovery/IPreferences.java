@@ -36,6 +36,11 @@ public interface IPreferences
     String getClientSecret();
 
     /**
+     * @return The application X-Redirect value.
+     */
+    String getXRedirect();
+
+    /**
      * @return The URL of the discovery service endpoint
      */
     URI getDiscoveryUrl();

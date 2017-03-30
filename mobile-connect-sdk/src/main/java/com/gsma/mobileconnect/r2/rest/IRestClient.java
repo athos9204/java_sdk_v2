@@ -43,7 +43,7 @@ public interface IRestClient
      * @return future RestResponse.
      * @throws RequestFailedException if there is a failure issuing the request.
      */
-    RestResponse get(final URI uri, final RestAuthentication authentication, final String sourceIp,
+    RestResponse get(final URI uri, final RestAuthentication authentication, final String xRedirect, final String sourceIp,
         final List<KeyValuePair> queryParams, final Iterable<KeyValuePair> cookies)
         throws RequestFailedException;
 
@@ -59,8 +59,8 @@ public interface IRestClient
      * @return future RestResponse.
      * @throws RequestFailedException if there is a failure issuing the request.
      */
-    RestResponse postFormData(final URI uri, final RestAuthentication authentication,
-        final List<KeyValuePair> formData, final String sourceIp,
+    RestResponse postFormData(final URI uri, final RestAuthentication authentication,  final String xRedirect,
+                              final List<KeyValuePair> formData, final String sourceIp,
         final Iterable<KeyValuePair> cookies) throws RequestFailedException;
 
     /**

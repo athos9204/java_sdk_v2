@@ -42,6 +42,7 @@ public class DiscoveryOptions
     private final boolean usingMobileData;
     private final String localClientIp;
     private final String clientIp;
+    private final String xRedirect;
 
     private DiscoveryOptions(final Builder builder)
     {
@@ -55,6 +56,7 @@ public class DiscoveryOptions
         this.usingMobileData = builder.usingMobileData;
         this.localClientIp = builder.localClientIp;
         this.clientIp = builder.clientIp;
+        this.xRedirect = builder.xRedirect;
     }
 
     /**
@@ -155,6 +157,16 @@ public class DiscoveryOptions
         return this.clientIp;
     }
 
+    /**
+     *
+     * @return
+     */
+    @JsonIgnore
+    public String getXRedirect()
+    {
+        return this.xRedirect;
+    }
+
     public static final class Builder implements IBuilder<DiscoveryOptions>
     {
         private String msisdn = null;
@@ -167,6 +179,7 @@ public class DiscoveryOptions
         private boolean usingMobileData = false;
         private String localClientIp = null;
         private String clientIp = null;
+        private String xRedirect = null;
 
         public Builder()
         {
@@ -187,6 +200,7 @@ public class DiscoveryOptions
                 this.usingMobileData = options.isUsingMobileData();
                 this.localClientIp = options.getLocalClientIp();
                 this.clientIp = options.getClientIp();
+                this.xRedirect = options.getXRedirect();
             }
         }
 
@@ -247,6 +261,12 @@ public class DiscoveryOptions
         public Builder withClientIp(String val)
         {
             this.clientIp = val;
+            return this;
+        }
+
+        public Builder withXRedirect(String val)
+        {
+            this.xRedirect = val;
             return this;
         }
 

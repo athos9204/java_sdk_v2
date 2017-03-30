@@ -49,6 +49,7 @@ public class DemoAppConfiguration
             .withClientSecret(env.getProperty("clientSecret"))
             .withDiscoveryUrl(env.getProperty("discoveryUrl", URI.class))
             .withRedirectUrl(env.getProperty("redirectUrl", URI.class))
+            .withXRedirect(env.getProperty("xRedirect"))
             .build();
     }
 

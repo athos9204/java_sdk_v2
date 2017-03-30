@@ -37,6 +37,7 @@ public class MobileConnectConfig implements IPreferences
     // required
     private final String clientId;
     private final String clientSecret;
+    private final String xRedirect;
     private final URI discoveryUrl;
     private final URI redirectUrl;
 
@@ -47,6 +48,7 @@ public class MobileConnectConfig implements IPreferences
     {
         this.clientId = builder.clientId;
         this.clientSecret = builder.clientSecret;
+        this.xRedirect = builder.xRedirect;
         this.discoveryUrl = builder.discoveryUrl;
         this.redirectUrl = builder.redirectUrl;
         this.cacheResponsesWithSessionId = builder.cacheResponsesWithSessionId;
@@ -64,6 +66,11 @@ public class MobileConnectConfig implements IPreferences
         return this.clientSecret;
     }
 
+    @Override
+    public String getXRedirect()
+    {
+        return this.xRedirect;
+    }
     @Override
     public URI getDiscoveryUrl()
     {
@@ -101,6 +108,7 @@ public class MobileConnectConfig implements IPreferences
     {
         private String clientId;
         private String clientSecret;
+        private String xRedirect;
         private URI discoveryUrl;
         private URI redirectUrl;
         private boolean cacheResponsesWithSessionId = true;
@@ -132,6 +140,12 @@ public class MobileConnectConfig implements IPreferences
         public Builder withCacheResponsesWithSessionId(boolean val)
         {
             this.cacheResponsesWithSessionId = val;
+            return this;
+        }
+
+        public Builder withXRedirect(String val)
+        {
+            this.xRedirect = val;
             return this;
         }
 

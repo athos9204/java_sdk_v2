@@ -21,6 +21,7 @@ import com.gsma.mobileconnect.r2.MobileConnectStatus;
 import com.gsma.mobileconnect.r2.MobileConnectWebInterface;
 import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
 import com.gsma.mobileconnect.r2.constants.Scopes;
+import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.discovery.OperatorUrls;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
@@ -116,6 +117,9 @@ public class WithoutDiscoveryExampleAppController
                 .withScope(Scopes.MOBILECONNECTAUTHORIZATION)
                 .withContext("demo")
                 .withBindingMessage("demo auth")
+                .build())
+            .withDiscoveryOptions(new DiscoveryOptions.Builder()
+                .withXRedirect("APP")
                 .build())
             .build();
 
