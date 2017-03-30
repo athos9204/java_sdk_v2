@@ -317,7 +317,7 @@ public class AuthenticationService implements IAuthenticationService
         final RestAuthentication authentication =
             RestAuthentication.basic(clientId, clientSecret, this.iMobileConnectEncodeDecoder);
         final RestResponse restResponse =
-            this.restClient.postFormData(refreshTokenUrl, authentication, formData, null, null);
+            this.restClient.postFormData(refreshTokenUrl, authentication,null, formData, null, null);
 
         return RequestTokenResponse.fromRestResponse(restResponse, this.jsonService,
             this.iMobileConnectEncodeDecoder);
@@ -343,7 +343,7 @@ public class AuthenticationService implements IAuthenticationService
         final RestAuthentication authentication =
             RestAuthentication.basic(clientId, clientSecret, this.iMobileConnectEncodeDecoder);
         final RestResponse restResponse =
-            this.restClient.postFormData(refreshTokenUrl, authentication, formData, null, null);
+            this.restClient.postFormData(refreshTokenUrl, authentication, null, formData, null, null);
 
         ErrorResponse errorResponse = null;
         if (HttpUtils.isHttpErrorCode(restResponse.getStatusCode()))
@@ -375,7 +375,7 @@ public class AuthenticationService implements IAuthenticationService
         final RestAuthentication authentication =
             RestAuthentication.basic(clientId, clientSecret, this.iMobileConnectEncodeDecoder);
         final RestResponse restResponse =
-            this.restClient.postFormData(requestTokenUrl, authentication, formData, null, null);
+            this.restClient.postFormData(requestTokenUrl, authentication, null, formData, null, null);
 
         return RequestTokenResponse.fromRestResponse(restResponse, this.jsonService,
             this.iMobileConnectEncodeDecoder);

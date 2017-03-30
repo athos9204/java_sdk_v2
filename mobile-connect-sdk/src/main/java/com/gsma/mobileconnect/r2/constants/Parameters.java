@@ -33,6 +33,7 @@ public final class Parameters
     public static final String USING_MOBILE_DATA = "Using-Mobile-Data";
     public static final String LOCAL_CLIENT_IP = "Local-Client-IP";
     public static final String MSISDN = "MSISDN";
+    public static final String X_REDIRECT = "X-Redirect";
 
     public static final String MCC_MNC = "mcc_mnc";
     public static final String SUBSCRIBER_ID = "subscriber_id";
@@ -78,6 +79,7 @@ public final class Parameters
 
     public static final String ACCESS_TOKEN_HINT = "access_token";
     public static final String REFRESH_TOKEN_HINT = "refresh_token";
+
 
     private Parameters()
     {
