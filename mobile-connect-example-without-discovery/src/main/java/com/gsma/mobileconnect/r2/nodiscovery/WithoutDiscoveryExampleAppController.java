@@ -118,9 +118,6 @@ public class WithoutDiscoveryExampleAppController
                 .withContext("demo")
                 .withBindingMessage("demo auth")
                 .build())
-            .withDiscoveryOptions(new DiscoveryOptions.Builder()
-                .withXRedirect("APP")
-                .build())
             .build();
 
         final MobileConnectStatus status =
