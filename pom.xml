@@ -6,7 +6,7 @@
 
     <groupId>com.gsma.mobileconnect</groupId>
     <artifactId>mobile-connect</artifactId>
-    <version>2.3.8</version>
+    <version>2.3.9</version>
     <packaging>pom</packaging>
     <modules>
         <module>mobile-connect-sdk</module>
