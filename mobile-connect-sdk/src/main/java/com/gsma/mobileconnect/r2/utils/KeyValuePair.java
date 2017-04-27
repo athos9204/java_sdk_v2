@@ -143,6 +143,13 @@ public class KeyValuePair extends Tuple<String, String> implements NameValuePair
             return this;
         }
 
+        public ListBuilder addIfNotEmpty(final String key, final String value)
+        {
+            if (StringUtils.isNullOrEmpty(value))
+                this.list.add(new KeyValuePair(key, value));
+            return this;
+        }
+
         @Override
         public List<KeyValuePair> build()
         {
