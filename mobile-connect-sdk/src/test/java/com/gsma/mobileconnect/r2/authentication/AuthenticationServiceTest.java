@@ -17,13 +17,12 @@
 package com.gsma.mobileconnect.r2.authentication;
 
 import com.gsma.mobileconnect.r2.MobileConnectConfig;
-import com.gsma.mobileconnect.r2.MobileConnectRequestOptions;
-import com.gsma.mobileconnect.r2.cache.ConcurrentCache;
-import com.gsma.mobileconnect.r2.cache.ICache;
 import com.gsma.mobileconnect.r2.claims.Claims;
 import com.gsma.mobileconnect.r2.claims.ClaimsParameter;
 import com.gsma.mobileconnect.r2.constants.Parameters;
-import com.gsma.mobileconnect.r2.discovery.*;
+import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
+import com.gsma.mobileconnect.r2.discovery.OperatorUrls;
+import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
 import com.gsma.mobileconnect.r2.exceptions.HeadlessOperationFailedException;
 import com.gsma.mobileconnect.r2.exceptions.InvalidArgumentException;
 import com.gsma.mobileconnect.r2.exceptions.InvalidResponseException;
@@ -32,25 +31,27 @@ import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.json.JacksonJsonService;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.json.JsonSerializationException;
-import com.gsma.mobileconnect.r2.rest.*;
+import com.gsma.mobileconnect.r2.rest.IRestClient;
+import com.gsma.mobileconnect.r2.rest.RestAuthentication;
+import com.gsma.mobileconnect.r2.rest.RestClient;
+import com.gsma.mobileconnect.r2.rest.RestResponse;
 import com.gsma.mobileconnect.r2.utils.HttpUtils;
 import com.gsma.mobileconnect.r2.utils.KeyValuePair;
 import com.gsma.mobileconnect.r2.utils.TestUtils;
 import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.mockito.Mockito;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.mockito.Matchers.*;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.*;
 
@@ -209,7 +210,7 @@ public class AuthenticationServiceTest
     public void requestTokenShouldHandleTokenResponse()
         throws RequestFailedException, InvalidResponseException
     {
-        when(this.restClient.postFormData(eq(TOKEN_URL), isA(RestAuthentication.class),
+        when(this.restClient.postFormData(eq(TOKEN_URL), isA(RestAuthentication.class), anyString(),
             anyListOf(KeyValuePair.class), isNull(String.class),
             isNull(Iterable.class))).thenReturn(TestUtils.TOKEN_RESPONSE);
 
@@ -228,7 +229,7 @@ public class AuthenticationServiceTest
     public void requestTokenShouldHandleInvalidCodeResponse()
         throws RequestFailedException, InvalidResponseException
     {
-        when(this.restClient.postFormData(eq(TOKEN_URL), isA(RestAuthentication.class),
+        when(this.restClient.postFormData(eq(TOKEN_URL), isA(RestAuthentication.class),anyString(),
             anyListOf(KeyValuePair.class), isNull(String.class),
             isNull(Iterable.class))).thenReturn(TestUtils.INVALID_CODE_RESPONSE);
 
@@ -248,7 +249,7 @@ public class AuthenticationServiceTest
     public void requestTokenShouldHandleHttpRequestException()
         throws RequestFailedException, InvalidResponseException
     {
-        when(this.restClient.postFormData(eq(TOKEN_URL), isA(RestAuthentication.class),
+        when(this.restClient.postFormData(eq(TOKEN_URL), isA(RestAuthentication.class), anyString(),
             anyListOf(KeyValuePair.class), isNull(String.class), isNull(Iterable.class))).thenThrow(
             new RequestFailedException(HttpUtils.HttpMethod.POST, TOKEN_URL,
                 new Exception("test")));
@@ -322,7 +323,7 @@ public class AuthenticationServiceTest
         InterruptedException, URISyntaxException
     {
         // Given
-        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
+        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class), anyString(),
             anyListOf(KeyValuePair.class), isNull(String.class),
             isNull(Iterable.class))).thenReturn(TestUtils.TOKEN_RESPONSE);
 
@@ -354,7 +355,7 @@ public class AuthenticationServiceTest
         InterruptedException, URISyntaxException
     {
         // Given
-        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
+        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class), anyString(),
             anyListOf(KeyValuePair.class), isNull(String.class),
             isNull(Iterable.class))).thenReturn(TestUtils.TOKEN_RESPONSE);
 
@@ -393,7 +394,7 @@ public class AuthenticationServiceTest
         InterruptedException, URISyntaxException, InvalidResponseException
     {
         // Given
-        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
+        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class), anyString(),
             anyListOf(KeyValuePair.class), isNull(String.class),
             isNull(Iterable.class))).thenReturn(TestUtils.TOKEN_RESPONSE);
 
@@ -418,7 +419,7 @@ public class AuthenticationServiceTest
         JsonDeserializationException
     {
         // Given
-        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
+        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class), anyString(),
             anyListOf(KeyValuePair.class), isNull(String.class),
             isNull(Iterable.class))).thenReturn(TestUtils.REVOKE_TOKEN_SUCCESS_RESPONSE);
 
@@ -441,7 +442,7 @@ public class AuthenticationServiceTest
         JsonDeserializationException
     {
         // Given
-        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
+        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class), anyString(),
             anyListOf(KeyValuePair.class), isNull(String.class),
             isNull(Iterable.class))).thenReturn(TestUtils.REVOKE_TOKEN_ERROR_RESPONSE);
 
@@ -463,7 +464,7 @@ public class AuthenticationServiceTest
         JsonDeserializationException
     {
         // Given
-        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
+        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class), anyString(),
             anyListOf(KeyValuePair.class), isNull(String.class),
             isNull(Iterable.class))).thenReturn(TestUtils.REVOKE_TOKEN_NON_ERROR_RESPONSE);
 
@@ -485,7 +486,7 @@ public class AuthenticationServiceTest
         JsonDeserializationException
     {
         // Given
-        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class),
+        when(this.restClient.postFormData(isA(URI.class), isA(RestAuthentication.class), anyString(),
             anyListOf(KeyValuePair.class), isNull(String.class),
             isNull(Iterable.class))).thenReturn(TestUtils.REVOKE_TOKEN_SUCCESS_RESPONSE);
 
@@ -524,7 +525,7 @@ public class AuthenticationServiceTest
                 .withMethod("GET")
                 .withContent(providerMetadata).build();
 
-        when(restClient.get(any(URI.class), (RestAuthentication) eq(null), (String) eq(null), (List<KeyValuePair>) eq(null), (Iterable<KeyValuePair>) eq(null))).thenReturn(response).thenReturn(response);
+        when(restClient.get(any(URI.class), (RestAuthentication) eq(null), anyString(), (String) eq(null), (List<KeyValuePair>) eq(null), (Iterable<KeyValuePair>) eq(null))).thenReturn(response).thenReturn(response);
 
         //When
         final DiscoveryResponse discoveryResponse =

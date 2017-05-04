@@ -97,7 +97,7 @@ public class MockRestClient implements IRestClient
     }
 
     @Override
-    public RestResponse get(URI uri, RestAuthentication authentication, String sourceIp,
+    public RestResponse get(URI uri, RestAuthentication authentication, String xRedirect, String sourceIp,
         List<KeyValuePair> queryParams, Iterable<KeyValuePair> cookies)
         throws RequestFailedException
     {
@@ -105,8 +105,8 @@ public class MockRestClient implements IRestClient
     }
 
     @Override
-    public RestResponse postFormData(URI uri, RestAuthentication authentication,
-        List<KeyValuePair> formData, String sourceIp, Iterable<KeyValuePair> cookies)
+    public RestResponse postFormData(URI uri, RestAuthentication authentication, String xRedirect,
+                                     List<KeyValuePair> formData, String sourceIp, Iterable<KeyValuePair> cookies)
         throws RequestFailedException
     {
         return this.getNext();

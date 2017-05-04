@@ -44,6 +44,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -525,7 +526,7 @@ public class MobileConnectWebInterfaceTest
                 .withMethod("GET")
                 .withContent(providerMetadata).build();
 
-        when(restClientLocal.get(any(URI.class), (RestAuthentication) eq(null), (String) eq(null),
+        when(restClientLocal.get(any(URI.class), (RestAuthentication) eq(null), anyString(), (String) eq(null),
                 (List<KeyValuePair>) eq(null), (Iterable<KeyValuePair>) eq(null)))
                 .thenReturn(response).thenReturn(response);
 

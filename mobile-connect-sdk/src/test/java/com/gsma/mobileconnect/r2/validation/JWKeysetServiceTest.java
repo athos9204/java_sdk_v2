@@ -81,7 +81,7 @@ public class JWKeysetServiceTest
     public void retrieveJWKSAsyncReturnsJWKS()
         throws RequestFailedException, ExecutionException, InterruptedException
     {
-        when(mockRestClient.get(any(URI.class), any(RestAuthentication.class), anyString(),
+        when(mockRestClient.get(any(URI.class), any(RestAuthentication.class), anyString(), anyString(),
             anyListOf(KeyValuePair.class), any(Iterable.class))).thenReturn(
             responses.get("single"));
 
@@ -106,7 +106,7 @@ public class JWKeysetServiceTest
     public void retrieveJWKSAsyncUsesCache()
         throws RequestFailedException, ExecutionException, InterruptedException
     {
-        when(mockRestClient.get(any(URI.class), any(RestAuthentication.class), anyString(),
+        when(mockRestClient.get(any(URI.class), any(RestAuthentication.class), anyString(),anyString(),
             anyListOf(KeyValuePair.class), any(Iterable.class))).thenReturn(
             responses.get("single"));
 
@@ -134,7 +134,7 @@ public class JWKeysetServiceTest
     public void retrieveJWKSAsyncReturnsJWKSWithoutCache()
         throws RequestFailedException, ExecutionException, InterruptedException
     {
-        when(mockRestClient.get(any(URI.class), any(RestAuthentication.class), anyString(),
+        when(mockRestClient.get(any(URI.class), any(RestAuthentication.class), anyString(),anyString(),
             anyListOf(KeyValuePair.class), any(Iterable.class))).thenReturn(
             responses.get("single"));
 
@@ -159,7 +159,7 @@ public class JWKeysetServiceTest
     public void retrieveJWKSAsyncWithoutCachee()
         throws RequestFailedException, ExecutionException, InterruptedException
     {
-        when(mockRestClient.get(any(URI.class), any(RestAuthentication.class), anyString(),
+        when(mockRestClient.get(any(URI.class), any(RestAuthentication.class), anyString(), anyString(),
             anyListOf(KeyValuePair.class), any(Iterable.class))).thenReturn(
             responses.get("single"));
 
