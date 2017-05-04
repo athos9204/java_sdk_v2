@@ -56,6 +56,7 @@ public final class Parameters
     public static final String CLAIMS_LOCALES = "claims_locales";
     public static final String ID_TOKEN_HINT = "id_token_hint";
     public static final String LOGIN_HINT = "login_hint";
+    public static final String LOGIN_HINT_TOKEN = "login_hint_token";
     public static final String DTBS = "dtbs";
     public static final String CLAIMS = "claims";
 

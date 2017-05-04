@@ -45,6 +45,7 @@ public class AuthenticationOptions
     private final String claimsLocales;
     private final String idTokenHint;
     private final String loginHint;
+    private final String loginHintToken;
     private final String dbts;
     private final String clientName;
     private final String context;
@@ -67,6 +68,7 @@ public class AuthenticationOptions
         this.claimsLocales = builder.claimsLocales;
         this.idTokenHint = builder.idTokenHint;
         this.loginHint = builder.loginHint;
+        this.loginHintToken = builder.loginHintToken;
         this.dbts = builder.dbts;
         this.clientName = builder.clientName;
         this.context = builder.context;
@@ -140,6 +142,10 @@ public class AuthenticationOptions
         return this.loginHint;
     }
 
+    public String getLoginHintToken() {
+        return this.loginHintToken;
+    }
+
     public String getDbts()
     {
         return this.dbts;
@@ -186,6 +192,7 @@ public class AuthenticationOptions
         private String claimsLocales;
         private String idTokenHint;
         private String loginHint;
+        private String loginHintToken;
         private String dbts;
         private String clientName;
         private String context;
@@ -215,6 +222,7 @@ public class AuthenticationOptions
                 this.claimsLocales = options.claimsLocales;
                 this.idTokenHint = options.idTokenHint;
                 this.loginHint = options.loginHint;
+                this.loginHintToken = options.loginHintToken;
                 this.dbts = options.dbts;
                 this.clientName = options.clientName;
                 this.context = options.context;
@@ -299,6 +307,12 @@ public class AuthenticationOptions
         public Builder withLoginHint(final String val)
         {
             this.loginHint = val;
+            return this;
+        }
+
+        public Builder withLoginHintToken(final String val)
+        {
+            this.loginHintToken = val;
             return this;
         }
 

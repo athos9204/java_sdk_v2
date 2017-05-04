@@ -80,19 +80,19 @@ public class AuthenticationService implements IAuthenticationService
 
     @Override
     public StartAuthenticationResponse startAuthentication(final String clientId,
-        final URI authorizeUrl, final URI redirectUrl, final String state, final String nonce,
-        final String encryptedMSISDN, final SupportedVersions versions,
-        final AuthenticationOptions options)
+                                                           final URI authorizeUrl, final URI redirectUrl, final String state, final String nonce,
+                                                           final String encryptedMSISDN, final SupportedVersions versions,
+                                                           final AuthenticationOptions options)
     {
         final String loginHint = extractLoginHint(options, encryptedMSISDN);
 
         final AuthenticationOptions.Builder optionsBuilder =
-            new AuthenticationOptions.Builder(options)
-                .withState(StringUtils.requireNonEmpty(state, "state"))
-                .withNonce(StringUtils.requireNonEmpty(nonce, "nonce"))
-                .withLoginHint(loginHint)
-                .withRedirectUrl(ObjectUtils.requireNonNull(redirectUrl, "redirectUrl"))
-                .withClientId(StringUtils.requireNonEmpty(clientId, "clientId"));
+                new AuthenticationOptions.Builder(options)
+                        .withState(StringUtils.requireNonEmpty(state, "state"))
+                        .withNonce(StringUtils.requireNonEmpty(nonce, "nonce"))
+                        .   withLoginHint(loginHint)
+                        .withRedirectUrl(ObjectUtils.requireNonNull(redirectUrl, "redirectUrl"))
+                        .withClientId(StringUtils.requireNonEmpty(clientId, "clientId"));
 
         final String scope;
         final String context;
@@ -113,27 +113,26 @@ public class AuthenticationService implements IAuthenticationService
         {
             StringUtils.requireNonEmpty(options == null ? null : options.getContext(), "context");
             StringUtils.requireNonEmpty(options == null ? null : options.getClientName(),
-                "clientName");
+                    "clientName");
         }
 
         final String version =
-            this.coerceAuthenticationScope(scope, optionsBuilder, versions, useAuthorize);
+                this.coerceAuthenticationScope(scope, optionsBuilder, versions, useAuthorize);
 
         try
         {
             final URI uri = new URIBuilder(ObjectUtils.requireNonNull(authorizeUrl, "authorizeUrl"))
-                .addParameters(
-                    this.getAuthenticationQueryParams(optionsBuilder.build(), useAuthorize,
-                        version))
-                .build();
-
+                    .addParameters(
+                            this.getAuthenticationQueryParams(optionsBuilder.build(), useAuthorize,
+                                    version, loginHint))
+                    .build();
             return new StartAuthenticationResponse(uri);
         }
         catch (final URISyntaxException use)
         {
             LOGGER.warn("Failed to construct uri for startAuthentication", use);
             throw new IllegalArgumentException("Failed to construct uri for startAuthentication",
-                use);
+                    use);
         }
     }
 
@@ -160,7 +159,7 @@ public class AuthenticationService implements IAuthenticationService
         final int authnIndex = scope.indexOf(Scope.AUTHN.toLowerCase());
         final boolean authnRequested = authnIndex > -1;
         final boolean mcProductRequested =
-            scope.lastIndexOf(Scope.MCPREFIX.toLowerCase()) != authnIndex;
+                scope.lastIndexOf(Scope.MCPREFIX.toLowerCase()) != authnIndex;
 
         return mcProductRequested || (!authnRequested && !StringUtils.isNullOrEmpty(context));
     }
@@ -177,18 +176,18 @@ public class AuthenticationService implements IAuthenticationService
      * optionsBuilder.
      */
     private String coerceAuthenticationScope(final String scope,
-        final AuthenticationOptions.Builder optionsBuilder, final SupportedVersions versions,
-        final boolean useAuthorize)
+                                             final AuthenticationOptions.Builder optionsBuilder, final SupportedVersions versions,
+                                             final boolean useAuthorize)
     {
         final String requiredScope =
-            useAuthorize ? Scopes.MOBILECONNECTAUTHORIZATION : Scopes.MOBILECONNECTAUTHENTICATION;
+                useAuthorize ? Scopes.MOBILECONNECTAUTHORIZATION : Scopes.MOBILECONNECTAUTHENTICATION;
         final String disallowedScope = useAuthorize ? Scope.AUTHN : Scope.AUTHZ;
 
         final String version =
-            new SupportedVersions.Builder(versions).build().getSupportedVersion(requiredScope);
+                new SupportedVersions.Builder(versions).build().getSupportedVersion(requiredScope);
 
         final List<String> scopes =
-            Scopes.coerceOpenIdScope(Arrays.asList(scope.split("\\s")), requiredScope);
+                Scopes.coerceOpenIdScope(Arrays.asList(scope.split("\\s")), requiredScope);
 
         ListUtils.removeIgnoreCase(scopes, disallowedScope);
 
@@ -203,7 +202,7 @@ public class AuthenticationService implements IAuthenticationService
     }
 
     private List<NameValuePair> getAuthenticationQueryParams(final AuthenticationOptions options,
-        final boolean useAuthorize, final String version)
+                                                             final boolean useAuthorize, final String version, final String encryptedMSISDN)
     {
         String claimsJson = options.getClaimsJson();
         if (StringUtils.isNullOrEmpty(claimsJson) && options.getClaims() != null)
@@ -215,39 +214,51 @@ public class AuthenticationService implements IAuthenticationService
             catch (final JsonSerializationException jse)
             {
                 LOGGER.warn(
-                    "Failed to serialize claims into JSON for authentication query parameters",
-                    jse);
+                        "Failed to serialize claims into JSON for authentication query parameters",
+                        jse);
                 throw new IllegalArgumentException(
-                    "Failed to serialize claims into JSON for authentication query parameters",
-                    jse);
+                        "Failed to serialize claims into JSON for authentication query parameters",
+                        jse);
             }
         }
 
         final KeyValuePair.ListBuilder builder = new KeyValuePair.ListBuilder()
-            .addIfNotEmpty(Parameters.AUTHENTICATION_REDIRECT_URI, options.getRedirectUrl().toString())
-            .addIfNotEmpty(Parameters.CLIENT_ID, options.getClientId())
-            .addIfNotEmpty(Parameters.RESPONSE_TYPE, DefaultOptions.AUTHENTICATION_RESPONSE_TYPE)
-            .addIfNotEmpty(Parameters.SCOPE, options.getScope())
-            .addIfNotEmpty(Parameters.ACR_VALUES, options.getAcrValues())
-            .addIfNotEmpty(Parameters.STATE, options.getState())
-            .addIfNotEmpty(Parameters.NONCE, options.getNonce())
-            .addIfNotEmpty(Parameters.DISPLAY, options.getDisplay())
-            .addIfNotEmpty(Parameters.PROMPT, options.getPrompt())
-            .addIfNotEmpty(Parameters.MAX_AGE, String.valueOf(options.getMaxAge()))
-            .addIfNotEmpty(Parameters.UI_LOCALES, options.getUiLocales())
-            .addIfNotEmpty(Parameters.CLAIMS_LOCALES, options.getClaimsLocales())
-            .addIfNotEmpty(Parameters.ID_TOKEN_HINT, options.getIdTokenHint())
-            .addIfNotEmpty(Parameters.LOGIN_HINT, options.getLoginHint())
-            .addIfNotEmpty(Parameters.DTBS, options.getDbts())
-            .addIfNotEmpty(Parameters.CLAIMS, claimsJson)
-            .addIfNotEmpty(Parameters.VERSION, version);
+                .addIfNotEmpty(Parameters.AUTHENTICATION_REDIRECT_URI, options.getRedirectUrl().toString())
+                .addIfNotEmpty(Parameters.CLIENT_ID, options.getClientId())
+                .addIfNotEmpty(Parameters.RESPONSE_TYPE, DefaultOptions.AUTHENTICATION_RESPONSE_TYPE)
+                .addIfNotEmpty(Parameters.SCOPE, options.getScope())
+                .addIfNotEmpty(Parameters.ACR_VALUES, options.getAcrValues())
+                .addIfNotEmpty(Parameters.STATE, options.getState())
+                .addIfNotEmpty(Parameters.NONCE, options.getNonce())
+                .addIfNotEmpty(Parameters.DISPLAY, options.getDisplay())
+                .addIfNotEmpty(Parameters.PROMPT, options.getPrompt())
+                .addIfNotEmpty(Parameters.MAX_AGE, String.valueOf(options.getMaxAge()))
+                .addIfNotEmpty(Parameters.UI_LOCALES, options.getUiLocales())
+                .addIfNotEmpty(Parameters.CLAIMS_LOCALES, options.getClaimsLocales())
+                .addIfNotEmpty(Parameters.ID_TOKEN_HINT, options.getIdTokenHint())
+                .addIfNotEmpty(Parameters.DTBS, options.getDbts())
+                .addIfNotEmpty(Parameters.CLAIMS, claimsJson)
+                .addIfNotEmpty(Parameters.VERSION, version);
+
+        if (!StringUtils.isNullOrEmpty(options.getLoginHint()) && !StringUtils.isNullOrEmpty(options.getLoginHintToken()))
+        {
+            builder.add(Parameters.LOGIN_HINT_TOKEN, extractLoginHint(options, encryptedMSISDN));
+        }
+        else if (StringUtils.isNullOrEmpty(options.getLoginHint()) && !StringUtils.isNullOrEmpty(options.getLoginHintToken()))
+        {
+            builder.add(Parameters.LOGIN_HINT_TOKEN, options.getLoginHintToken());
+        }
+        else
+        {
+            builder.add(Parameters.LOGIN_HINT, extractLoginHint(options, encryptedMSISDN));
+        }
 
         if (useAuthorize)
         {
             builder
-                .add(Parameters.CLIENT_NAME, options.getClientName())
-                .add(Parameters.CONTEXT, options.getContext())
-                .add(Parameters.BINDING_MESSAGE, options.getBindingMessage());
+                    .add(Parameters.CLIENT_NAME, options.getClientName())
+                    .add(Parameters.CONTEXT, options.getContext())
+                    .add(Parameters.BINDING_MESSAGE, options.getBindingMessage());
         }
 
         return builder.buildAsNameValuePairList();
@@ -255,10 +266,10 @@ public class AuthenticationService implements IAuthenticationService
 
     @Override
     public Future<RequestTokenResponse> requestHeadlessAuthentication(final String clientId,
-        final String clientSecret, final URI authorizationUrl, final URI requestTokenUrl,
-        final URI redirectUrl, final String state, final String nonce, final String encryptedMsisdn,
-        final SupportedVersions versions, final AuthenticationOptions options)
-        throws RequestFailedException
+                                                                      final String clientSecret, final URI authorizationUrl, final URI requestTokenUrl,
+                                                                      final URI redirectUrl, final String state, final String nonce, final String encryptedMsisdn,
+                                                                      final SupportedVersions versions, final AuthenticationOptions options)
+            throws RequestFailedException
     {
         final String scope;
         final String context;
@@ -282,10 +293,10 @@ public class AuthenticationService implements IAuthenticationService
         }
 
         StartAuthenticationResponse startAuthenticationResponse =
-            startAuthentication(clientId, authorizationUrl, redirectUrl, state, nonce,
-                encryptedMsisdn, versions, optionsBuilder.build());
+                startAuthentication(clientId, authorizationUrl, redirectUrl, state, nonce,
+                        encryptedMsisdn, versions, optionsBuilder.build());
         final RestAuthentication authentication =
-            RestAuthentication.basic(clientId, clientSecret, iMobileConnectEncodeDecoder);
+                RestAuthentication.basic(clientId, clientSecret, iMobileConnectEncodeDecoder);
 
         URI authUrl = startAuthenticationResponse.getUrl();
         URI finalRedirectUrl = restClient.getFinalRedirect(authUrl, redirectUrl, authentication);
@@ -298,40 +309,40 @@ public class AuthenticationService implements IAuthenticationService
             public RequestTokenResponse call() throws Exception
             {
                 return AuthenticationService.this.requestToken(clientId, clientSecret,
-                    requestTokenUrl, redirectUrl, code);
+                        requestTokenUrl, redirectUrl, code);
             }
         });
     }
 
     @Override
     public RequestTokenResponse refreshToken(final String clientId, final String clientSecret,
-        final URI refreshTokenUrl, final String refreshToken) throws RequestFailedException,
-        InvalidResponseException
+                                             final URI refreshTokenUrl, final String refreshToken) throws RequestFailedException,
+            InvalidResponseException
     {
         final List<KeyValuePair> formData = new KeyValuePair.ListBuilder()
-            .add(Parameters.REFRESH_TOKEN,
-                StringUtils.requireNonEmpty(refreshToken, "refreshToken"))
-            .add(Parameters.GRANT_TYPE, DefaultOptions.GRANT_TYPE_REFRESH_TOKEN)
-            .build();
+                .add(Parameters.REFRESH_TOKEN,
+                        StringUtils.requireNonEmpty(refreshToken, "refreshToken"))
+                .add(Parameters.GRANT_TYPE, DefaultOptions.GRANT_TYPE_REFRESH_TOKEN)
+                .build();
 
         final RestAuthentication authentication =
-            RestAuthentication.basic(clientId, clientSecret, this.iMobileConnectEncodeDecoder);
+                RestAuthentication.basic(clientId, clientSecret, this.iMobileConnectEncodeDecoder);
         final RestResponse restResponse =
-            this.restClient.postFormData(refreshTokenUrl, authentication,null, formData, null, null);
+                this.restClient.postFormData(refreshTokenUrl, authentication,null, formData, null, null);
 
         return RequestTokenResponse.fromRestResponse(restResponse, this.jsonService,
-            this.iMobileConnectEncodeDecoder);
+                this.iMobileConnectEncodeDecoder);
     }
 
     @Override
     public String revokeToken(final String clientId, final String clientSecret,
-        final URI refreshTokenUrl, final String token, final String tokenTypeHint)
-        throws RequestFailedException, InvalidResponseException, JsonDeserializationException
+                              final URI refreshTokenUrl, final String token, final String tokenTypeHint)
+            throws RequestFailedException, InvalidResponseException, JsonDeserializationException
     {
 
         final KeyValuePair.ListBuilder formDataBuilder =
-            new KeyValuePair.ListBuilder().add(Parameters.TOKEN,
-                StringUtils.requireNonEmpty(token, "token"));
+                new KeyValuePair.ListBuilder().add(Parameters.TOKEN,
+                        StringUtils.requireNonEmpty(token, "token"));
 
         if (tokenTypeHint != null)
         {
@@ -341,50 +352,50 @@ public class AuthenticationService implements IAuthenticationService
         final List<KeyValuePair> formData = formDataBuilder.build();
 
         final RestAuthentication authentication =
-            RestAuthentication.basic(clientId, clientSecret, this.iMobileConnectEncodeDecoder);
+                RestAuthentication.basic(clientId, clientSecret, this.iMobileConnectEncodeDecoder);
         final RestResponse restResponse =
-            this.restClient.postFormData(refreshTokenUrl, authentication, null, formData, null, null);
+                this.restClient.postFormData(refreshTokenUrl, authentication, null, formData, null, null);
 
         ErrorResponse errorResponse = null;
         if (HttpUtils.isHttpErrorCode(restResponse.getStatusCode()))
         {
             errorResponse =
-                this.jsonService.deserialize(restResponse.getContent(), ErrorResponse.class);
+                    this.jsonService.deserialize(restResponse.getContent(), ErrorResponse.class);
         }
         // As per the OAuth2 spec an error (non-200 response code) should only be returned by the
         // endpoint for the error code unsupported_token_type
         return (restResponse.getStatusCode() == 200 && errorResponse == null)
-               ? REVOKE_TOKEN_SUCCESS
-               : errorResponse != null
-                 ? errorResponse.getError()
-                 : UNSUPPORTED_TOKEN_TYPE_ERROR;
+                ? REVOKE_TOKEN_SUCCESS
+                : errorResponse != null
+                ? errorResponse.getError()
+                : UNSUPPORTED_TOKEN_TYPE_ERROR;
     }
 
     @Override
     public RequestTokenResponse requestToken(final String clientId, final String clientSecret,
-        final URI requestTokenUrl, final URI redirectUrl, final String code)
-        throws RequestFailedException, InvalidResponseException
+                                             final URI requestTokenUrl, final URI redirectUrl, final String code)
+            throws RequestFailedException, InvalidResponseException
     {
         final List<KeyValuePair> formData = new KeyValuePair.ListBuilder()
-            .add(Parameters.AUTHENTICATION_REDIRECT_URI,
-                ObjectUtils.requireNonNull(redirectUrl, "redirectUrl").toString())
-            .add(Parameters.CODE, StringUtils.requireNonEmpty(code, "code"))
-            .add(Parameters.GRANT_TYPE, DefaultOptions.GRANT_TYPE_AUTH_CODE)
-            .build();
+                .add(Parameters.AUTHENTICATION_REDIRECT_URI,
+                        ObjectUtils.requireNonNull(redirectUrl, "redirectUrl").toString())
+                .add(Parameters.CODE, StringUtils.requireNonEmpty(code, "code"))
+                .add(Parameters.GRANT_TYPE, DefaultOptions.GRANT_TYPE_AUTH_CODE)
+                .build();
 
         final RestAuthentication authentication =
-            RestAuthentication.basic(clientId, clientSecret, this.iMobileConnectEncodeDecoder);
+                RestAuthentication.basic(clientId, clientSecret, this.iMobileConnectEncodeDecoder);
         final RestResponse restResponse =
-            this.restClient.postFormData(requestTokenUrl, authentication, null, formData, null, null);
+                this.restClient.postFormData(requestTokenUrl, authentication, null, formData, null, null);
 
         return RequestTokenResponse.fromRestResponse(restResponse, this.jsonService,
-            this.iMobileConnectEncodeDecoder);
+                this.iMobileConnectEncodeDecoder);
     }
 
     @Override
     public Future<RequestTokenResponse> requestTokenAsync(final String clientId,
-        final String clientSecret, final URI requestTokenUrl, final URI redirectUrl,
-        final String code)
+                                                          final String clientSecret, final URI requestTokenUrl, final URI redirectUrl,
+                                                          final String code)
     {
         return this.executorService.submit(new Callable<RequestTokenResponse>()
         {
@@ -392,7 +403,7 @@ public class AuthenticationService implements IAuthenticationService
             public RequestTokenResponse call() throws Exception
             {
                 return AuthenticationService.this.requestToken(clientId, clientSecret,
-                    requestTokenUrl, redirectUrl, code);
+                        requestTokenUrl, redirectUrl, code);
             }
         });
     }
