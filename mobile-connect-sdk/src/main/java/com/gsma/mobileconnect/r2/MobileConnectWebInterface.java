@@ -16,9 +16,13 @@
  */
 package com.gsma.mobileconnect.r2;
 
-import com.gsma.mobileconnect.r2.authentication.*;
+import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
+import com.gsma.mobileconnect.r2.authentication.IAuthenticationService;
 import com.gsma.mobileconnect.r2.cache.CacheAccessException;
-import com.gsma.mobileconnect.r2.discovery.*;
+import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
+import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
+import com.gsma.mobileconnect.r2.discovery.IDiscoveryService;
+import com.gsma.mobileconnect.r2.discovery.OperatorUrls;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.identity.IIdentityService;
@@ -32,7 +36,6 @@ import org.slf4j.event.Level;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.UUID;
 
 /**
@@ -101,8 +104,7 @@ public class MobileConnectWebInterface
         final DiscoveryOptions.Builder builder =
             options == null ? new DiscoveryOptions.Builder() : options.getDiscoveryOptionsBuilder();
 
-        builder.withClientIp(
-            StringUtils.isNullOrEmpty(clientIp) ? HttpUtils.extractClientIp(request) : clientIp);
+        builder.withClientIp(clientIp);
 
         final Iterable<KeyValuePair> cookies =
             shouldProxyCookies ? HttpUtils.extractCookiesFromRequest(request) : null;
