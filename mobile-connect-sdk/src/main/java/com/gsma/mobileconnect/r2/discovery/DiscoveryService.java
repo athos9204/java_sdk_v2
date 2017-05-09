@@ -299,13 +299,13 @@ public class DiscoveryService implements IDiscoveryService
     private List<KeyValuePair> extractQueryParams(final DiscoveryOptions options)
     {
         KeyValuePair.ListBuilder listBuilder = new KeyValuePair.ListBuilder()
-                .add(Parameters.REDIRECT_URL, options.getRedirectUrl().toString())
-                .add(Parameters.IDENTIFIED_MCC, options.getIdentifiedMcc())
-                .add(Parameters.IDENTIFIED_MNC, options.getIdentifiedMnc())
-                .add(Parameters.SELECTED_MCC, options.getSelectedMcc())
-                .add(Parameters.SELECTED_MNC, options.getSelectedMnc())
-                .add(Parameters.LOCAL_CLIENT_IP, options.getLocalClientIp())
-                .add(Parameters.USING_MOBILE_DATA, options.isUsingMobileData() ? "1" : "0");
+                .addIfNotEmpty(Parameters.REDIRECT_URL, options.getRedirectUrl().toString())
+                .addIfNotEmpty(Parameters.IDENTIFIED_MCC, options.getIdentifiedMcc())
+                .addIfNotEmpty(Parameters.IDENTIFIED_MNC, options.getIdentifiedMnc())
+                .addIfNotEmpty(Parameters.SELECTED_MCC, options.getSelectedMcc())
+                .addIfNotEmpty(Parameters.SELECTED_MNC, options.getSelectedMnc())
+                .addIfNotEmpty(Parameters.LOCAL_CLIENT_IP, options.getLocalClientIp())
+                .addIfNotEmpty(Parameters.USING_MOBILE_DATA, options.isUsingMobileData() ? "1" : "0");
 
         if (options.getMsisdn() != null)
         {
