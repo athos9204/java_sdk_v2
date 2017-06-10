@@ -50,6 +50,7 @@ public class DiscoveryResponse extends AbstractCacheable
     private final String clientName;
     private ProviderMetadata providerMetadata;
 
+
     private DiscoveryResponse(Builder builder)
     {
         this.ttl = builder.ttl;
@@ -171,7 +172,7 @@ public class DiscoveryResponse extends AbstractCacheable
      */
     public DiscoveryResponse withSubscriberId(final String subscriberId)
     {
-        return new DiscoveryResponse.Builder(this)
+        return new Builder(this)
             .withResponseData(new DiscoveryResponseData.Builder(this.responseData)
                 .withSubscriberId(subscriberId)
                 .build())
@@ -337,6 +338,7 @@ public class DiscoveryResponse extends AbstractCacheable
                 this.errorResponse = new ErrorResponse.Builder()
                         .withError(this.responseData.getError())
                         .withErrorDescription(this.responseData.getDescription())
+                        .withCorrelationId(this.responseData.getCorrelationId())
                         .build();
             }
             return new DiscoveryResponse(this);

@@ -16,18 +16,21 @@
  */
 package com.gsma.mobileconnect.r2.identity;
 
+import com.gsma.mobileconnect.r2.constants.Parameters;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.rest.IRestClient;
 import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.rest.RestAuthentication;
 import com.gsma.mobileconnect.r2.rest.RestResponse;
+import com.gsma.mobileconnect.r2.utils.KeyValuePair;
 import com.gsma.mobileconnect.r2.utils.ObjectUtils;
 import com.gsma.mobileconnect.r2.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -63,6 +66,8 @@ public class IdentityService implements IIdentityService
         StringUtils.requireNonEmpty(accessToken, "accessToken");
 
         final RestAuthentication authentication = RestAuthentication.bearer(accessToken);
+
+
         final RestResponse response =
             this.restClient.get(infoUrl, authentication, null, null, null, null);
 

@@ -18,6 +18,7 @@ package com.gsma.mobileconnect.r2.authentication;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.gsma.mobileconnect.r2.utils.ObjectUtils;
+import com.gsma.mobileconnect.r2.utils.StringUtils;
 
 import java.net.URI;
 import java.util.Date;
@@ -25,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Class that holds a valid response from
- * {@link IAuthenticationService#requestTokenAsync(String, String, URI, URI, String)}
+ * {@link IAuthenticationService#requestTokenAsync(String, String, String, URI, URI, String)}
  *
  * @since 2.0
  */
@@ -39,6 +40,7 @@ public class RequestTokenResponseData
     private final String refreshToken;
     private final Date expiry;
     private final Long expiresIn;
+    private final String correlationId;
 
     private RequestTokenResponseData(final Builder builder)
     {
@@ -52,6 +54,8 @@ public class RequestTokenResponseData
 
         this.expiry = this.expiresIn != null ? new Date(
             this.timeReceived.getTime() + TimeUnit.SECONDS.toMillis(this.expiresIn)) : null;
+
+        this.correlationId = builder.correlationId;
     }
 
     /**
@@ -110,6 +114,13 @@ public class RequestTokenResponseData
         return this.expiresIn;
     }
 
+    /**
+     * @return the correlation id.
+     */
+    public String getCorrelationId() {
+        return this.correlationId;
+    }
+
     @SuppressWarnings("WeakerAccess")
     public static final class Builder
     {
@@ -119,6 +130,7 @@ public class RequestTokenResponseData
         private String idToken;
         private String refreshToken;
         private Long expiresIn;
+        private String correlationId;
 
         public Builder withTimeReceived(final Date val)
         {
@@ -153,6 +165,12 @@ public class RequestTokenResponseData
         public Builder withExpiresIn(final Long val)
         {
             this.expiresIn = val;
+            return this;
+        }
+
+        public Builder withCorrelationId(final String val)
+        {
+            this.correlationId = val;
             return this;
         }
 

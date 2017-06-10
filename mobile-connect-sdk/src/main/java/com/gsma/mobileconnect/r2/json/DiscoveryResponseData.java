@@ -30,13 +30,14 @@ import java.util.List;
 @JsonDeserialize(builder = DiscoveryResponseData.Builder.class)
 public class DiscoveryResponseData
 {
-    private final long ttl;
+    private long ttl;
     private final String error;
     private final String description;
     private final List<Link> links;
     private final Response response;
     private String subscriberId;
     private String clientName;
+    private String correlationId;
 
     private DiscoveryResponseData(final Builder builder)
     {
@@ -47,6 +48,12 @@ public class DiscoveryResponseData
         this.links = builder.links;
         this.response = builder.response;
         this.clientName = builder.clientName;
+        this.correlationId = builder.correlationId;
+    }
+    public DiscoveryResponseData SetToNullTtl()//furs
+    {
+        ttl = 0;
+        return this;
     }
 
     public long getTtl()
@@ -89,6 +96,10 @@ public class DiscoveryResponseData
         return clientName;
     }
 
+    public String getCorrelationId () {
+        return correlationId;
+    }
+
     public static final class Builder implements IBuilder<DiscoveryResponseData>
     {
         private long ttl = 0L;
@@ -98,6 +109,7 @@ public class DiscoveryResponseData
         private List<Link> links = null;
         private Response response = null;
         private String clientName = null;
+        private String correlationId = null;
 
         public Builder()
         {
@@ -115,6 +127,7 @@ public class DiscoveryResponseData
                 this.links = responseData.links;
                 this.response = responseData.response;
                 this.clientName = responseData.clientName;
+                this.correlationId = responseData.correlationId;
             }
         }
 
@@ -157,6 +170,12 @@ public class DiscoveryResponseData
         public Builder withClientName(final String val)
         {
             this.clientName = val;
+            return this;
+        }
+
+        public Builder withCorrelationId(final String val)
+        {
+            this.correlationId = val;
             return this;
         }
 

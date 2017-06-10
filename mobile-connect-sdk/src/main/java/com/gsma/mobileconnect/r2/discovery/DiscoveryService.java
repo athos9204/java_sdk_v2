@@ -36,10 +36,14 @@ import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.ConcurrentModificationException;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
+
+import static javafx.scene.input.KeyCode.T;
 
 /**
  * Concrete implementation of {@link IDiscoveryService}
@@ -165,6 +169,7 @@ public class DiscoveryService implements IDiscoveryService
         DiscoveryResponse cachedDiscoveryResponse = fetchCachedDiscoveryResponse(options, useCache);
 
         DiscoveryResponse discoveryResponse;
+        final String correlationId = UUID.randomUUID().toString();
 
         if (cachedDiscoveryResponse != null && !cachedDiscoveryResponse.hasExpired())
         {
@@ -177,6 +182,9 @@ public class DiscoveryService implements IDiscoveryService
             final RestAuthentication authentication =
                     RestAuthentication.basic(clientId, clientSecret, iMobileConnectEncodeDecoder);
             final List<KeyValuePair> queryParams = this.extractQueryParams(options);
+            if (options.getUsingCorrelationId()) {
+                queryParams.add(new KeyValuePair(Parameters.CORRELATION_ID, correlationId));
+            }
 
             RestResponse restResponse = null;
 
@@ -210,7 +218,33 @@ public class DiscoveryService implements IDiscoveryService
 
         updateWithProviderMetadata(discoveryResponse, useCache);
 
-        return discoveryResponse;
+        if (discoveryResponse.getErrorResponse() != null)
+        {
+            if (discoveryResponse.getErrorResponse().getCorrelationId() == null)
+            {
+                LOGGER.warn("Error discovery response not contains correlation id");
+                return discoveryResponse;
+            }
+            else if (discoveryResponse.getErrorResponse().getCorrelationId().equals(correlationId)) {
+                LOGGER.info("Error discovery response match correlation id");
+                return discoveryResponse;
+            } else {
+                throw new IllegalStateException("Invalid correlation id in the error discovery response");
+            }
+        }
+        else
+        {
+            if (discoveryResponse.getResponseData().getCorrelationId() == null) {
+                LOGGER.warn("Discovery response not contains correlation id");
+                return discoveryResponse;
+            }
+            else if (discoveryResponse.getResponseData().getCorrelationId().equals(correlationId)) {
+                LOGGER.info("Discovery response match correlation id");
+                return discoveryResponse;
+            } else {
+                throw new IllegalStateException("Invalid correlation id in the discovery response");
+            }
+        }
     }
 
     private DiscoveryResponse convertFromRestResponse(RestResponse restResponse,

@@ -22,6 +22,7 @@ import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
 
 import java.net.URI;
+import java.util.UUID;
 
 /**
  * Parameters for the {@link IDiscoveryService}.  Object can be serialized to JSON to be a POST
@@ -43,6 +44,7 @@ public class DiscoveryOptions
     private final String localClientIp;
     private final String clientIp;
     private final String xRedirect;
+    private final boolean isUsingCorrelationId;
 
     private DiscoveryOptions(final Builder builder)
     {
@@ -57,6 +59,7 @@ public class DiscoveryOptions
         this.localClientIp = builder.localClientIp;
         this.clientIp = builder.clientIp;
         this.xRedirect = builder.xRedirect;
+        this.isUsingCorrelationId = builder.isUsingCorrelationId;
     }
 
     /**
@@ -158,14 +161,19 @@ public class DiscoveryOptions
     }
 
     /**
-     *
-     * @return
+     * @return X-Redicrect header value.
      */
     @JsonIgnore
     public String getXRedirect()
     {
         return this.xRedirect;
     }
+
+    /**
+     * @return Allows a server application to use correlationId.
+     */
+    @JsonIgnore
+    public boolean getUsingCorrelationId() { return this.isUsingCorrelationId; }
 
     public static final class Builder implements IBuilder<DiscoveryOptions>
     {
@@ -180,7 +188,7 @@ public class DiscoveryOptions
         private String localClientIp = null;
         private String clientIp = null;
         private String xRedirect = null;
-
+        private boolean isUsingCorrelationId = false;
         public Builder()
         {
             // default constructor
@@ -201,6 +209,7 @@ public class DiscoveryOptions
                 this.localClientIp = options.getLocalClientIp();
                 this.clientIp = options.getClientIp();
                 this.xRedirect = options.getXRedirect();
+                this.isUsingCorrelationId = options.getUsingCorrelationId();
             }
         }
 
@@ -267,6 +276,11 @@ public class DiscoveryOptions
         public Builder withXRedirect(String val)
         {
             this.xRedirect = val;
+            return this;
+        }
+
+        public Builder withUsingCorrelationId(boolean val) {
+            this.isUsingCorrelationId = val;
             return this;
         }
 

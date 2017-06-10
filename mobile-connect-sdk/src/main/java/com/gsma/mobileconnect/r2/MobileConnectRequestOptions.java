@@ -34,6 +34,7 @@ public class MobileConnectRequestOptions
     private final TokenValidationOptions validationOptions;
     private final DiscoveryResponseGenerateOptions discoveryResponseGenerateOptions;
     private final boolean autoRetrieveIdentitySet;
+    private final boolean correlationId;
 
     private MobileConnectRequestOptions(final Builder builder)
     {
@@ -42,6 +43,7 @@ public class MobileConnectRequestOptions
         this.discoveryResponseGenerateOptions = builder.discoveryResponseGenerateOptions;
         this.autoRetrieveIdentitySet = builder.autoRetrieveIdentitySet;
         this.validationOptions = builder.validationOptions;
+        this.correlationId = builder.correlationId;
     }
 
     public DiscoveryResponseGenerateOptions getDiscoveryResponseGenerateOptions() {
@@ -72,6 +74,9 @@ public class MobileConnectRequestOptions
         return this.authenticationOptions;
     }
 
+    public boolean isCorrelationId () {
+        return correlationId;
+    }
     AuthenticationOptions.Builder getAuthenticationOptionsBuilder()
     {
         return new AuthenticationOptions.Builder(this.authenticationOptions);
@@ -94,7 +99,7 @@ public class MobileConnectRequestOptions
         private DiscoveryResponseGenerateOptions discoveryResponseGenerateOptions;
         private boolean autoRetrieveIdentitySet = false;
         private TokenValidationOptions validationOptions;
-
+        private boolean correlationId;
         public Builder withDiscoveryOptions(final DiscoveryOptions val)
         {
             this.discoveryOptions = val;
@@ -122,6 +127,12 @@ public class MobileConnectRequestOptions
         public Builder withValidationOptions(final TokenValidationOptions val)
         {
             this.validationOptions = val;
+            return this;
+        }
+
+        public Builder withUsingCorrelationId (final boolean val)
+        {
+            this.correlationId = val;
             return this;
         }
 

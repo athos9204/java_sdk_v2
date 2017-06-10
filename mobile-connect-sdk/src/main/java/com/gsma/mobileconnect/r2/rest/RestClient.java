@@ -19,6 +19,7 @@ package com.gsma.mobileconnect.r2.rest;
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.constants.Headers;
 import com.gsma.mobileconnect.r2.constants.Parameters;
+import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.exceptions.HeadlessOperationFailedException;
 import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.json.IJsonService;
@@ -44,6 +45,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -359,11 +361,11 @@ public class RestClient implements IRestClient
             builder.addHeader(HttpHeaders.AUTHORIZATION,
                     authentication.getScheme() + " " + authentication.getParameter());
         }
-        System.out.println("Redirect: " + xRedirect);
+
         if (xRedirect != null) {
             builder.addHeader(Parameters.X_REDIRECT, xRedirect);
-            System.out.println("Redirect 1: " + xRedirect);
         }
+
         return builder;
     }
     /**

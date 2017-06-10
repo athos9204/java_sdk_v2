@@ -47,8 +47,10 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.*;
 
 /**
@@ -79,37 +81,43 @@ public class AuthenticationService implements IAuthenticationService
     }
 
     @Override
-    public StartAuthenticationResponse startAuthentication(final String clientId,
+    public StartAuthenticationResponse startAuthentication(final String clientId, String correlationId,
                                                            final URI authorizeUrl, final URI redirectUrl, final String state, final String nonce,
                                                            final String encryptedMSISDN, final SupportedVersions versions,
                                                            final AuthenticationOptions options)
     {
         final String loginHint = extractLoginHint(options, encryptedMSISDN);
 
+        if (!options.getUsingCorrelationId()) {
+            correlationId = "";
+        }
+
         final AuthenticationOptions.Builder optionsBuilder =
                 new AuthenticationOptions.Builder(options)
                         .withState(StringUtils.requireNonEmpty(state, "state"))
                         .withNonce(StringUtils.requireNonEmpty(nonce, "nonce"))
-                        .   withLoginHint(loginHint)
+                        .withLoginHint(loginHint)
                         .withRedirectUrl(ObjectUtils.requireNonNull(redirectUrl, "redirectUrl"))
-                        .withClientId(StringUtils.requireNonEmpty(clientId, "clientId"));
+                        .withClientId(StringUtils.requireNonEmpty(clientId, "clientId"))
+                        .withCorrelationId(correlationId);
+
 
         final String scope;
         final String context;
         if (options == null)
         {
-            scope = "";
+            scope = Scopes.MOBILECONNECT;
             context = "";
         }
         else
         {
-            scope = ObjectUtils.defaultIfNull(options.getScope(), "").toLowerCase();
+            scope = StringUtils.isNullOrEmpty(options.getScope()) ? Scopes.MOBILECONNECT : options.getScope();
             context = options.getContext();
         }
 
         final boolean useAuthorize = this.shouldUseAuthorize(scope, context);
 
-        if (useAuthorize)
+        if (useAuthorize && new SupportedVersions.Builder(versions).build().getSupportedVersion(optionsBuilder.build()).equals(DefaultOptions.VERSION_MOBILECONNECTAUTHZ))
         {
             StringUtils.requireNonEmpty(options == null ? null : options.getContext(), "context");
             StringUtils.requireNonEmpty(options == null ? null : options.getClientName(),
@@ -126,6 +134,7 @@ public class AuthenticationService implements IAuthenticationService
                             this.getAuthenticationQueryParams(optionsBuilder.build(), useAuthorize,
                                     version, loginHint))
                     .build();
+
             return new StartAuthenticationResponse(uri);
         }
         catch (final URISyntaxException use)
@@ -158,8 +167,7 @@ public class AuthenticationService implements IAuthenticationService
     {
         final int authnIndex = scope.indexOf(Scope.AUTHN.toLowerCase());
         final boolean authnRequested = authnIndex > -1;
-        final boolean mcProductRequested =
-                scope.lastIndexOf(Scope.MCPREFIX.toLowerCase()) != authnIndex;
+        final boolean mcProductRequested = scope.toLowerCase().equals(Scope.AUTHZ.toLowerCase());
 
         return mcProductRequested || (!authnRequested && !StringUtils.isNullOrEmpty(context));
     }
@@ -184,10 +192,9 @@ public class AuthenticationService implements IAuthenticationService
         final String disallowedScope = useAuthorize ? Scope.AUTHN : Scope.AUTHZ;
 
         final String version =
-                new SupportedVersions.Builder(versions).build().getSupportedVersion(requiredScope);
+                new SupportedVersions.Builder(versions).build().getSupportedVersion(optionsBuilder.build());
 
-        final List<String> scopes =
-                Scopes.coerceOpenIdScope(Arrays.asList(scope.split("\\s")), requiredScope);
+        List<String> scopes = Scopes.coerceOpenIdScope(Arrays.asList(scope.split("\\s")), requiredScope);
 
         ListUtils.removeIgnoreCase(scopes, disallowedScope);
 
@@ -225,6 +232,7 @@ public class AuthenticationService implements IAuthenticationService
         final KeyValuePair.ListBuilder builder = new KeyValuePair.ListBuilder()
                 .addIfNotEmpty(Parameters.AUTHENTICATION_REDIRECT_URI, options.getRedirectUrl().toString())
                 .addIfNotEmpty(Parameters.CLIENT_ID, options.getClientId())
+                .addIfNotEmpty(Parameters.CORRELATION_ID, options.getCorrelationId())
                 .addIfNotEmpty(Parameters.RESPONSE_TYPE, DefaultOptions.AUTHENTICATION_RESPONSE_TYPE)
                 .addIfNotEmpty(Parameters.SCOPE, options.getScope())
                 .addIfNotEmpty(Parameters.ACR_VALUES, options.getAcrValues())
@@ -265,8 +273,8 @@ public class AuthenticationService implements IAuthenticationService
     }
 
     @Override
-    public Future<RequestTokenResponse> requestHeadlessAuthentication(final String clientId,
-                                                                      final String clientSecret, final URI authorizationUrl, final URI requestTokenUrl,
+    public Future<RequestTokenResponse> requestHeadlessAuthentication(final String clientId, final String clientSecret,
+                                                                      final String correlationId, final URI authorizationUrl, final URI requestTokenUrl,
                                                                       final URI redirectUrl, final String state, final String nonce, final String encryptedMsisdn,
                                                                       final SupportedVersions versions, final AuthenticationOptions options)
             throws RequestFailedException
@@ -293,7 +301,7 @@ public class AuthenticationService implements IAuthenticationService
         }
 
         StartAuthenticationResponse startAuthenticationResponse =
-                startAuthentication(clientId, authorizationUrl, redirectUrl, state, nonce,
+                startAuthentication(clientId, correlationId, authorizationUrl, redirectUrl, state, nonce,
                         encryptedMsisdn, versions, optionsBuilder.build());
         final RestAuthentication authentication =
                 RestAuthentication.basic(clientId, clientSecret, iMobileConnectEncodeDecoder);
@@ -308,7 +316,7 @@ public class AuthenticationService implements IAuthenticationService
             @Override
             public RequestTokenResponse call() throws Exception
             {
-                return AuthenticationService.this.requestToken(clientId, clientSecret,
+                return AuthenticationService.this.requestToken(clientId, clientSecret, correlationId,
                         requestTokenUrl, redirectUrl, code);
             }
         });
@@ -372,7 +380,7 @@ public class AuthenticationService implements IAuthenticationService
     }
 
     @Override
-    public RequestTokenResponse requestToken(final String clientId, final String clientSecret,
+    public RequestTokenResponse requestToken(final String clientId, final String clientSecret, final String correlationId,
                                              final URI requestTokenUrl, final URI redirectUrl, final String code)
             throws RequestFailedException, InvalidResponseException
     {
@@ -381,6 +389,7 @@ public class AuthenticationService implements IAuthenticationService
                         ObjectUtils.requireNonNull(redirectUrl, "redirectUrl").toString())
                 .add(Parameters.CODE, StringUtils.requireNonEmpty(code, "code"))
                 .add(Parameters.GRANT_TYPE, DefaultOptions.GRANT_TYPE_AUTH_CODE)
+                .add(Parameters.CORRELATION_ID, correlationId)
                 .build();
 
         final RestAuthentication authentication =
@@ -394,7 +403,8 @@ public class AuthenticationService implements IAuthenticationService
 
     @Override
     public Future<RequestTokenResponse> requestTokenAsync(final String clientId,
-                                                          final String clientSecret, final URI requestTokenUrl, final URI redirectUrl,
+                                                          final String clientSecret, final String correlationId,
+                                                          final URI requestTokenUrl, final URI redirectUrl,
                                                           final String code)
     {
         return this.executorService.submit(new Callable<RequestTokenResponse>()
@@ -402,7 +412,7 @@ public class AuthenticationService implements IAuthenticationService
             @Override
             public RequestTokenResponse call() throws Exception
             {
-                return AuthenticationService.this.requestToken(clientId, clientSecret,
+                return AuthenticationService.this.requestToken(clientId, clientSecret, correlationId,
                         requestTokenUrl, redirectUrl, code);
             }
         });

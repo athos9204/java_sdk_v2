@@ -46,11 +46,11 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Convenience methods to construct and access the core public interfaces of MobileConnect. <p> A
- * default instance can be created via {@link #build(MobileConnectConfig, com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder)}. Limited
- * customisation is possible via the {@link #builder(MobileConnectConfig, com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder)} method.  Otherwise
+ * default instance can be created via {@link #build(MobileConnectConfig, IMobileConnectEncodeDecoder)}. Limited
+ * customisation is possible via the {@link #builder(MobileConnectConfig, IMobileConnectEncodeDecoder)} method.  Otherwise
  * full customisation can be achieved via the individual builders provided by each of the
  * interfaces. </p> <p> For those who wish only to work with the {@link MobileConnectInterface},
- * this can be reached via {@link #buildInterface(MobileConnectConfig, com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder)}. </p>
+ * this can be reached via {@link #buildInterface(MobileConnectConfig, IMobileConnectEncodeDecoder)}. </p>
  *
  * @see MobileConnectConfig
  * @see MobileConnectInterface
@@ -283,7 +283,7 @@ public final class MobileConnect
         }
 
         /**
-         * Specify a {@link com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder}
+         * Specify a {@link IMobileConnectEncodeDecoder}
          * to use.
          *
          * @param val encode/decoder to be used.

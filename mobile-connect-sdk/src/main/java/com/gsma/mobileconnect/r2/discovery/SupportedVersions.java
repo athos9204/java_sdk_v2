@@ -22,6 +22,8 @@ import com.fasterxml.jackson.databind.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.gsma.mobileconnect.r2.MobileConnectVersions;
+import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
+import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.constants.Scopes;
 import com.gsma.mobileconnect.r2.utils.*;
 
@@ -110,6 +112,18 @@ public class SupportedVersions
         return MobileConnectVersions.coerceVersion(version, scope);
     }
 
+
+    public String getSupportedVersion (final AuthenticationOptions authenticationOptions)
+    {
+        final String version;
+        if (!StringUtils.isNullOrEmpty(authenticationOptions.getClientName()) || !StringUtils.isNullOrEmpty(authenticationOptions.getBindingMessage()) || !StringUtils.isNullOrEmpty(authenticationOptions.getBindingMessage())) {
+            version = DefaultOptions.VERSION_MOBILECONNECTAUTHZ;
+        } else {
+            version = DefaultOptions.VERSION_MOBILECONNECTAUTHN;
+        }
+        return version;
+    }
+
     /**
      * Test for support of the specified version or a greater version
      *
@@ -167,7 +181,7 @@ public class SupportedVersions
         {
             final JsonNode node = jsonParser.getCodec().readTree(jsonParser);
 
-            final SupportedVersions.Builder builder = new SupportedVersions.Builder();
+            final Builder builder = new Builder();
 
             for (final JsonNode version : node)
             {

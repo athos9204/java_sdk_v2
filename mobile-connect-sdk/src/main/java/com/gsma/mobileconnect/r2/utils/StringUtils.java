@@ -48,6 +48,18 @@ public final class StringUtils
     }
 
     /**
+     * Inspect a String for content.  Note that this method considers white space as content and
+     * therefore a null String.
+     *
+     * @param str to inspect.
+     * @return true if the String is null.
+     */
+    public static boolean isNull(final String str)
+    {
+        return str == null;
+    }
+
+    /**
      * Inspect a String for content, throws NullPointerException if is null or empty.
      *
      * @param value to inspect.

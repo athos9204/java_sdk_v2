@@ -25,7 +25,7 @@ import java.net.URI;
 
 /**
  * Holds required and optional options for {@link IAuthenticationService#startAuthentication(
- *String, URI, URI, String, String, String, SupportedVersions, AuthenticationOptions)}.
+ *String, String, URI, URI, String, String, String, SupportedVersions, AuthenticationOptions)}.
  *
  * @since 2.0
  */
@@ -52,6 +52,8 @@ public class AuthenticationOptions
     private final String bindingMessage;
     private final String claimsJson;
     private final ClaimsParameter claims;
+    private final String correlationId;
+    private final boolean isUsingCorrelationId;
 
     private AuthenticationOptions(final Builder builder)
     {
@@ -75,6 +77,8 @@ public class AuthenticationOptions
         this.bindingMessage = builder.bindingMessage;
         this.claimsJson = builder.claimsJson;
         this.claims = builder.claims;
+        this.correlationId = builder.correlationId;
+        this.isUsingCorrelationId = builder.isUsingCorrelationId;
     }
 
     public String getClientId()
@@ -176,6 +180,12 @@ public class AuthenticationOptions
         return this.claims;
     }
 
+    public String getCorrelationId () {
+        return this.correlationId;
+    }
+
+    public boolean getUsingCorrelationId() { return this.isUsingCorrelationId; }
+
     @SuppressWarnings("WeakerAccess")
     public static final class Builder implements IBuilder<AuthenticationOptions>
     {
@@ -199,6 +209,8 @@ public class AuthenticationOptions
         private String bindingMessage;
         private String claimsJson;
         private ClaimsParameter claims;
+        private String correlationId;
+        private boolean isUsingCorrelationId;
 
         public Builder()
         {
@@ -229,6 +241,8 @@ public class AuthenticationOptions
                 this.bindingMessage = options.bindingMessage;
                 this.claimsJson = options.claimsJson;
                 this.claims = options.claims;
+                this.correlationId = options.correlationId;
+                this.isUsingCorrelationId = options.isUsingCorrelationId;
             }
         }
 
@@ -351,6 +365,18 @@ public class AuthenticationOptions
             this.claims = val;
             return this;
         }
+
+        public Builder withCorrelationId (final String val) {
+            this.correlationId = val;
+            return this;
+        }
+
+        public Builder withUsingCorrelationId(final boolean val) {
+            this.isUsingCorrelationId = val;
+            return this;
+        }
+
+
 
         @Override
         public AuthenticationOptions build()
