@@ -86,9 +86,10 @@ public class AuthenticationService implements IAuthenticationService
                                                            final String encryptedMSISDN, final SupportedVersions versions,
                                                            final AuthenticationOptions options)
     {
+
         final String loginHint = extractLoginHint(options, encryptedMSISDN);
 
-        if (!options.getUsingCorrelationId()) {
+        if (options!=null && !options.getUsingCorrelationId()) {
             correlationId = "";
         }
 

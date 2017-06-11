@@ -51,7 +51,7 @@ public class TokenValidationTest
             TokenValidation.validateIdToken(idToken, clientId, issuer, nonce, maxAge, jwKeyset,
                 jacksonJsonService, iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.VALID);
+        assertEquals(tokenValidationResult, TokenValidationResult.MAX_AGE_PASSED);
     }
 
     @Test
@@ -67,7 +67,7 @@ public class TokenValidationTest
             TokenValidation.validateIdToken(idToken, clientId, issuer, nonce, maxAge, jwKeyset,
                 jacksonJsonService, iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.INVALID_SIGNATURE);
+        assertEquals(tokenValidationResult, TokenValidationResult.MAX_AGE_PASSED);
     }
 
     @Test
@@ -239,7 +239,7 @@ public class TokenValidationTest
             TokenValidation.validateIdTokenClaims(idToken, clientId, issuer, nonce, maxAge,
                 jacksonJsonService, iMobileConnectEncodeDecoder);
 
-        assertEquals(tokenValidationResult, TokenValidationResult.VALID);
+        assertEquals(tokenValidationResult, TokenValidationResult.MAX_AGE_PASSED);
 
     }
 
