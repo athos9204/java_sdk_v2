@@ -44,7 +44,7 @@ public interface IRestClient
      * @throws RequestFailedException if there is a failure issuing the request.
      */
     RestResponse get(final URI uri, final RestAuthentication authentication, final String xRedirect, final String sourceIp,
-        final List<KeyValuePair> queryParams, final Iterable<KeyValuePair> cookies)
+                     final List<KeyValuePair> queryParams, final Iterable<KeyValuePair> cookies)
         throws RequestFailedException;
 
     /**
@@ -59,9 +59,9 @@ public interface IRestClient
      * @return future RestResponse.
      * @throws RequestFailedException if there is a failure issuing the request.
      */
-    RestResponse postFormData(final URI uri, final RestAuthentication authentication,  final String xRedirect,
+    RestResponse postFormData(final URI uri, final RestAuthentication authentication, final String xRedirect,
                               final List<KeyValuePair> formData, final String sourceIp,
-        final Iterable<KeyValuePair> cookies) throws RequestFailedException;
+                              final Iterable<KeyValuePair> cookies) throws RequestFailedException;
 
     /**
      * Executes a HTTP POST to the supplied uri with the supplied content deserialize to json, with
@@ -76,7 +76,7 @@ public interface IRestClient
      * @throws RequestFailedException if there is a failure issuing the request.
      */
     RestResponse postJsonContent(final URI uri, final RestAuthentication authentication,
-        final Object content, final String sourceIp, final Iterable<KeyValuePair> cookies)
+                                 final Object content, final String sourceIp, final Iterable<KeyValuePair> cookies)
         throws RequestFailedException;
 
     /**
@@ -93,8 +93,8 @@ public interface IRestClient
      * @throws RequestFailedException if there is a failure issuing the request.
      */
     RestResponse postStringContent(final URI uri, final RestAuthentication authentication,
-        final String content, final ContentType contentType, final String sourceIp,
-        final Iterable<KeyValuePair> cookies) throws RequestFailedException;
+                                   final String content, final ContentType contentType, final String sourceIp,
+                                   final Iterable<KeyValuePair> cookies) throws RequestFailedException;
 
     /**
      * Executes a HTTP POST to the supplied uri with the supplied HttpContent object, with optional
@@ -109,7 +109,7 @@ public interface IRestClient
      * @throws RequestFailedException if there is a failure issuing the request.
      */
     RestResponse postContent(final URI uri, final RestAuthentication authentication,
-        final HttpEntity content, final String sourceIp, final Iterable<KeyValuePair> cookies)
+                             final HttpEntity content, final String sourceIp, final Iterable<KeyValuePair> cookies)
         throws RequestFailedException;
 
     /**
@@ -123,5 +123,5 @@ public interface IRestClient
      * @return Final redirected url
      */
     URI getFinalRedirect(final URI authUrl, final URI redirectUrl,
-        final RestAuthentication authentication) throws RequestFailedException;
+                         final RestAuthentication authentication) throws RequestFailedException;
 }

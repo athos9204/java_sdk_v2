@@ -52,9 +52,9 @@ public interface IAuthenticationService
      * @param options         Optional parameters
      */
     StartAuthenticationResponse startAuthentication(final String clientId,  //NOSONAR
-        final URI authorizeUrl, final URI redirectUrl, final String state, final String nonce,
-        final String encryptedMSISDN, final SupportedVersions versions,
-        final AuthenticationOptions options);
+                                                    final String correlationId, final URI authorizeUrl, final URI redirectUrl, final String state, final String nonce,
+                                                    final String encryptedMSISDN, final SupportedVersions versions,
+                                                    final AuthenticationOptions options);
 
     /**
      * Synchronous wrapper for
@@ -72,7 +72,7 @@ public interface IAuthenticationService
      * @throws InvalidResponseException on failure to process response from endpoint.
      */
     RequestTokenResponse requestToken(final String clientId, final String clientSecret, //NOSONAR
-        final URI requestTokenUrl, final URI redirectUrl, final String code)
+                                      final String correlationId, final URI requestTokenUrl, final URI redirectUrl, final String code)
         throws RequestFailedException, InvalidResponseException;
 
     /**
@@ -91,7 +91,7 @@ public interface IAuthenticationService
      *                        authentication/authorization API (Required)
      */
     Future<RequestTokenResponse> requestTokenAsync(final String clientId, final String clientSecret,
-        final URI requestTokenUrl, final URI redirectUrl, final String code);
+                                                   final String correlationId, final URI requestTokenUrl, final URI redirectUrl, final String code);
 
     /**
      * Initiates headless authentication, if authentication is successful a token will be returned.
@@ -114,9 +114,9 @@ public interface IAuthenticationService
      * @return Token if headless authentication is successful
      */
     Future<RequestTokenResponse> requestHeadlessAuthentication(final String clientId, //NOSONAR
-        final String clientSecret, final URI authorizationUrl, final URI requestTokenUrl,
-        final URI redirectUrl, final String state, final String nonce, final String encryptedMsisdn,
-        final SupportedVersions versions, final AuthenticationOptions options)
+                                                               final String clientSecret, final String correlationId, final URI authorizationUrl, final URI requestTokenUrl,
+                                                               final URI redirectUrl, final String state, final String nonce, final String encryptedMsisdn,
+                                                               final SupportedVersions versions, final AuthenticationOptions options)
         throws RequestFailedException, HeadlessOperationFailedException;
 
     /**
@@ -131,7 +131,7 @@ public interface IAuthenticationService
      * @param refreshToken    Refresh token returned from RequestToken request
      */
     RequestTokenResponse refreshToken(final String clientId, final String clientSecret, //NOSONAR
-        final URI refreshTokenUrl, final String refreshToken)
+                                      final URI refreshTokenUrl, final String refreshToken)
         throws RequestFailedException, InvalidResponseException;
 
     /**
@@ -147,7 +147,7 @@ public interface IAuthenticationService
      * @param tokenTypeHint   Hint to indicate the type of token being passed in
      */
     String revokeToken(final String clientId, final String clientSecret, //NOSONAR
-        final URI refreshTokenUrl, final String token, final String tokenTypeHint)
+                       final URI refreshTokenUrl, final String token, final String tokenTypeHint)
         throws RequestFailedException, InvalidResponseException, JsonDeserializationException;
 
     /** Allows an application to create discovery object manually without call to discovery service

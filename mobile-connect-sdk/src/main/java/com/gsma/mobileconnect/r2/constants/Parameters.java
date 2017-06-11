@@ -37,6 +37,7 @@ public final class Parameters
 
     public static final String MCC_MNC = "mcc_mnc";
     public static final String SUBSCRIBER_ID = "subscriber_id";
+    public static final String CORRELATION_ID = "correlation_id";
 
     // Required params for authentication
     public static final String CLIENT_ID = "client_id";

@@ -32,6 +32,7 @@ public class ErrorResponse
     private final String errorDescription;
     private final String description;
     private final String errorUri;
+    private final String correlationId;
 
     private ErrorResponse(Builder builder)
     {
@@ -39,6 +40,7 @@ public class ErrorResponse
         this.errorDescription = builder.errorDescription;
         this.description = builder.description;
         this.errorUri = builder.errorUri;
+        this.correlationId = builder.correlationId;
     }
 
     /**
@@ -65,6 +67,13 @@ public class ErrorResponse
         return this.errorUri;
     }
 
+    /**
+     * @return the error correlationId.
+     */
+    public String getCorrelationId () {
+        return this.correlationId;
+    }
+
     @Override
     public String toString()
     {
@@ -74,6 +83,8 @@ public class ErrorResponse
             + this.errorDescription
             + ", url="
             + this.errorUri
+            + ", correlation id="
+            + this.correlationId
             + ")";
     }
 
@@ -83,6 +94,7 @@ public class ErrorResponse
         private String errorDescription;
         private String description;
         private String errorUri;
+        private String correlationId;
 
         public Builder withError(final String val)
         {
@@ -105,6 +117,12 @@ public class ErrorResponse
         public Builder withErrorUri(final String val)
         {
             this.errorUri = val;
+            return this;
+        }
+
+        public Builder withCorrelationId(final String val)
+        {
+            this.correlationId = val;
             return this;
         }
 

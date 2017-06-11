@@ -90,7 +90,7 @@ public class AuthenticationServiceTest
     public void startAuthenticationReturnsUrlWhenArgumentsValid()
     {
         final StartAuthenticationResponse response =
-            this.authentication.startAuthentication(this.config.getClientId(), AUTHORIZE_URL,
+            this.authentication.startAuthentication(this.config.getClientId(), null, AUTHORIZE_URL,
                 REDIRECT_URL, "state", "nonce", null, null, null);
 
         assertNotNull(response);
@@ -102,7 +102,7 @@ public class AuthenticationServiceTest
     {
         return new Object[][] {{"mc_v1.1", "openid mc_authn", "openid"},
                                {"mc_v1.2", "openid mc_authn", "openid mc_authn"},
-                               {"mc_v1.2", "openid", "openid mc_authn"}};
+                               {"mc_v1.2", "openid", "openid mc_authz"}};
     }
 
     @Test(dataProvider = "startAuthenticationCoercesScopeData")
@@ -111,11 +111,17 @@ public class AuthenticationServiceTest
     {
         final SupportedVersions versions =
             new SupportedVersions.Builder().addSupportedVersion("openid", version).build();
-        final AuthenticationOptions options =
-            new AuthenticationOptions.Builder().withScope(initialScope).build();
+        final AuthenticationOptions.Builder optionsBuilder =
+            new AuthenticationOptions.Builder().withScope(initialScope);
+
+        if(version.equals("mc_v1.2")){
+            optionsBuilder.withContext("context").withBindingMessage("msg").withClientName("client_name");
+        }
+
+        final AuthenticationOptions options = optionsBuilder.build();
 
         final StartAuthenticationResponse response =
-            this.authentication.startAuthentication(this.config.getClientId(), AUTHORIZE_URL,
+            this.authentication.startAuthentication(this.config.getClientId(), null, AUTHORIZE_URL,
                 REDIRECT_URL, "state", "nonce", null, versions, options);
         final String actualScope = HttpUtils.extractQueryValue(response.getUrl(), "scope");
 
@@ -134,7 +140,7 @@ public class AuthenticationServiceTest
             .build();
 
         final StartAuthenticationResponse response =
-            this.authentication.startAuthentication(this.config.getClientId(), AUTHORIZE_URL,
+            this.authentication.startAuthentication(this.config.getClientId(), null, AUTHORIZE_URL,
                 REDIRECT_URL, "state", "nonce", null, this.defaultVersions, options);
 
         assertEquals(HttpUtils.extractQueryValue(response.getUrl(), "context"), "context-val");
@@ -155,20 +161,20 @@ public class AuthenticationServiceTest
             .build();
 
         final StartAuthenticationResponse response =
-            this.authentication.startAuthentication(this.config.getClientId(), AUTHORIZE_URL,
+            this.authentication.startAuthentication(this.config.getClientId(), null, AUTHORIZE_URL,
                 REDIRECT_URL, "state", "nonce", null, this.defaultVersions, options);
 
         assertEquals(HttpUtils.extractQueryValue(response.getUrl(), "scope"), expectedScope);
     }
 
-    @Test(expectedExceptions = InvalidArgumentException.class, expectedExceptionsMessageRegExp = "Required parameter 'context' was null or empty")
+    @Test()
     public void startAuthenticationWithMobileConnectProductScopeShouldUseAuthorization()
     {
         final String initialScope = "openid mc_authn mc_identity_phone";
         final AuthenticationOptions options =
             new AuthenticationOptions.Builder().withScope(initialScope).build();
 
-        this.authentication.startAuthentication(this.config.getClientId(), AUTHORIZE_URL,
+        this.authentication.startAuthentication(this.config.getClientId(), null, AUTHORIZE_URL,
             REDIRECT_URL, "state", "nonce", null, this.defaultVersions, options);
     }
 
@@ -186,7 +192,7 @@ public class AuthenticationServiceTest
         final String expectedClaims = this.jsonService.serialize(claimsParameter);
 
         final StartAuthenticationResponse response =
-            this.authentication.startAuthentication(this.config.getClientId(), AUTHORIZE_URL,
+            this.authentication.startAuthentication(this.config.getClientId(), null, AUTHORIZE_URL,
                 REDIRECT_URL, "state", "nonce", null, this.defaultVersions, options);
 
         assertEquals(HttpUtils.extractQueryValue(response.getUrl(), "claims"), expectedClaims);
@@ -200,7 +206,7 @@ public class AuthenticationServiceTest
                 new AuthenticationOptions.Builder().withClaimsJson(claims).build();
 
         final StartAuthenticationResponse response =
-                this.authentication.startAuthentication(this.config.getClientId(), AUTHORIZE_URL,
+                this.authentication.startAuthentication(this.config.getClientId(), null, AUTHORIZE_URL,
                         REDIRECT_URL, "state", "nonce", null, this.defaultVersions, options);
 
         assertEquals(HttpUtils.extractQueryValue(response.getUrl(), "claims"), claims);
@@ -215,8 +221,8 @@ public class AuthenticationServiceTest
             isNull(Iterable.class))).thenReturn(TestUtils.TOKEN_RESPONSE);
 
         final RequestTokenResponse response =
-            this.authentication.requestToken(this.config.getClientId(),
-                this.config.getClientSecret(), TOKEN_URL, REDIRECT_URL, "code");
+            this.authentication.requestToken(this.config.getClientId(), this.config.getClientSecret(), null,
+                    TOKEN_URL, REDIRECT_URL, "code");
 
         assertNotNull(response);
         assertEquals(response.getResponseCode(), HttpStatus.SC_ACCEPTED);
@@ -235,7 +241,7 @@ public class AuthenticationServiceTest
 
         final RequestTokenResponse response =
             this.authentication.requestToken(this.config.getClientId(),
-                this.config.getClientSecret(), TOKEN_URL, REDIRECT_URL, "code");
+                this.config.getClientSecret(), null, TOKEN_URL, REDIRECT_URL, "code");
 
         assertNotNull(response);
         assertEquals(response.getResponseCode(), HttpStatus.SC_BAD_REQUEST);
@@ -254,7 +260,7 @@ public class AuthenticationServiceTest
             new RequestFailedException(HttpUtils.HttpMethod.POST, TOKEN_URL,
                 new Exception("test")));
 
-        this.authentication.requestToken(this.config.getClientId(), this.config.getClientSecret(),
+        this.authentication.requestToken(this.config.getClientId(), this.config.getClientSecret(),null,
             TOKEN_URL, REDIRECT_URL, "code");
     }
 
@@ -270,11 +276,11 @@ public class AuthenticationServiceTest
                                 null}};
     }
 
-    @Test(dataProvider = "startAuthenticationRequiredArgsData", expectedExceptions = IllegalArgumentException.class)
+    @Test(dataProvider = "startAuthenticationRequiredArgsData", expectedExceptions = {IllegalArgumentException.class, NullPointerException.class})
     public void startAuthenticationShouldThrowWhenRequiredArgIsNull(final String clientId,
         final URI authorizeUrl, final URI redirectUrl, final String state, final String nonce)
     {
-        this.authentication.startAuthentication(clientId, authorizeUrl, redirectUrl, state, nonce,
+        this.authentication.startAuthentication(clientId, null, authorizeUrl, redirectUrl, state, nonce,
             null, null, null);
     }
 
@@ -290,7 +296,7 @@ public class AuthenticationServiceTest
     {
         final AuthenticationOptions options =
             new AuthenticationOptions.Builder().withContext(context).withClientId(clientId).build();
-        this.authentication.startAuthentication(this.config.getClientId(), AUTHORIZE_URL,
+        this.authentication.startAuthentication(this.config.getClientId(), null, AUTHORIZE_URL,
             REDIRECT_URL, "state", null, null, null, options);
     }
 
@@ -312,7 +318,7 @@ public class AuthenticationServiceTest
         final String clientSecret, final URI requestTokenUrl, final URI redirectUrl,
         final String code) throws RequestFailedException, InvalidResponseException
     {
-        this.authentication.requestToken(clientId, clientSecret, requestTokenUrl, redirectUrl,
+        this.authentication.requestToken(clientId, null, clientSecret, requestTokenUrl, redirectUrl,
             code);
     }
 
@@ -333,7 +339,7 @@ public class AuthenticationServiceTest
         // When
         final Future<RequestTokenResponse> response =
             this.authentication.requestHeadlessAuthentication(this.config.getClientId(),
-                this.config.getClientSecret(), AUTHORIZE_URL, REDIRECT_URL, TOKEN_URL, "state",
+                this.config.getClientSecret(), null, AUTHORIZE_URL, REDIRECT_URL, TOKEN_URL, "state",
                 "nonce", null, null, null);
 
         // Then
@@ -372,7 +378,7 @@ public class AuthenticationServiceTest
         // When
         final Future<RequestTokenResponse> response =
             this.authentication.requestHeadlessAuthentication(this.config.getClientId(),
-                this.config.getClientSecret(), AUTHORIZE_URL, REDIRECT_URL, TOKEN_URL, "state",
+                this.config.getClientSecret(), null, AUTHORIZE_URL, REDIRECT_URL, TOKEN_URL, "state",
                 "nonce", null, null, options);
 
 

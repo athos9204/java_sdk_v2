@@ -42,6 +42,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.event.Level;
 
 import java.net.URI;
+import java.util.IllegalFormatException;
 import java.util.concurrent.Future;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -148,6 +149,8 @@ class MobileConnectInterfaceHelper
             final String clientId = ObjectUtils.defaultIfNull(
                 discoveryResponse.getResponseData().getResponse().getClientId(),
                 config.getClientId());
+            final String correlationId =
+                    discoveryResponse.getResponseData().getCorrelationId();
             final URI authorizationUrl =
                 URI.create(discoveryResponse.getOperatorUrls().getAuthorizationUrl());
             final SupportedVersions supportedVersions =
@@ -155,7 +158,7 @@ class MobileConnectInterfaceHelper
             authnOptionsBuilder.withClientName(discoveryResponse.getClientName());
 
             final StartAuthenticationResponse startAuthenticationResponse =
-                authnService.startAuthentication(clientId, authorizationUrl,
+                authnService.startAuthentication(clientId, correlationId, authorizationUrl,
                     config.getRedirectUrl(), state, nonce, encryptedMsisdn, supportedVersions,
                     authnOptionsBuilder.build());
 
@@ -200,12 +203,15 @@ class MobileConnectInterfaceHelper
                 config.getClientId());
             final String clientSecret =
                 discoveryResponse.getResponseData().getResponse().getClientSecret();
+            final String correlationId =
+                discoveryResponse.getResponseData().getCorrelationId();
             final URI authorizationUrl =
                 URI.create(discoveryResponse.getOperatorUrls().getAuthorizationUrl());
             final URI tokenUrl =
                 URI.create(discoveryResponse.getOperatorUrls().getRequestTokenUrl());
             final SupportedVersions supportedVersions =
                 discoveryResponse.getProviderMetadata().getMobileConnectVersionSupported();
+
             builder.withClientName(discoveryResponse.getClientName());
 
             final String issuer = discoveryResponse.getProviderMetadata().getIssuer();
@@ -213,7 +219,7 @@ class MobileConnectInterfaceHelper
             final AuthenticationOptions authenticationOptions = builder.build();
 
             final Future<RequestTokenResponse> requestTokenResponseAsync =
-                authnService.requestHeadlessAuthentication(clientId, clientSecret, authorizationUrl,
+                authnService.requestHeadlessAuthentication(clientId, clientSecret, correlationId, authorizationUrl,
                     tokenUrl, config.getRedirectUrl(), expectedState, expectedNonce,
                     encryptedMsisdn, supportedVersions, authenticationOptions);
 
@@ -224,6 +230,12 @@ class MobileConnectInterfaceHelper
                     config.getRedirectUrl(), iMobileConnectEncodeDecoder, jwKeysetService,
                     discoveryResponse, clientId, issuer, maxAge, jsonService,
                     discoveryResponse.getProviderMetadata().getVersion());
+
+            if (!StringUtils.isNull(status.getRequestTokenResponse().getResponseData().getCorrelationId()) &&
+                    !status.getDiscoveryResponse().getResponseData().getCorrelationId().equals(correlationId))
+            {
+                throw new Exception("Invalid correlation id in headless authentication response");
+            }
 
             if (status.getResponseType() == MobileConnectStatus.ResponseType.ERROR || (options
                 != null && !options.isAutoRetrieveIdentitySet()) || StringUtils.isNullOrEmpty(
@@ -289,13 +301,15 @@ class MobileConnectInterfaceHelper
             final String clientSecret = ObjectUtils.defaultIfNull(
                 discoveryResponse.getResponseData().getResponse().getClientSecret(),
                 config.getClientSecret());
+            final String correlationId =
+                    discoveryResponse.getResponseData().getCorrelationId();
             final String requestTokenUrl = discoveryResponse.getOperatorUrls().getRequestTokenUrl();
             final String issuer = discoveryResponse.getProviderMetadata().getIssuer();
 
             try
             {
                 final Future<RequestTokenResponse> requestTokenResponseFuture =
-                    authnService.requestTokenAsync(clientId, clientSecret,
+                    authnService.requestTokenAsync(clientId, clientSecret, correlationId,
                         URI.create(requestTokenUrl), config.getRedirectUrl(), code);
 
                 final RequestTokenResponse requestTokenResponse = requestTokenResponseFuture.get();
@@ -333,8 +347,7 @@ class MobileConnectInterfaceHelper
         final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder, final IJWKeysetService jwks,
         final DiscoveryResponse discoveryResponse, final String clientId, final String issuer,
         final long maxAge, final IJsonService jsonService, final String version)
-        throws CacheAccessException, RequestFailedException, JsonDeserializationException
-    {
+            throws Exception {
         final ErrorResponse errorResponse = requestTokenResponse.getErrorResponse();
         if (errorResponse != null)
         {
@@ -342,6 +355,11 @@ class MobileConnectInterfaceHelper
                 "Responding with responseType={} for requestToken for redirectedUrl={}, expectedState={}, expectedNonce={}, authentication service responded with error={}",
                 MobileConnectStatus.ResponseType.ERROR, redirectedUrl, expectedState,
                 LogUtils.mask(expectedNonce, LOGGER, Level.WARN), errorResponse);
+
+            if (!StringUtils.isNull(errorResponse.getCorrelationId())  &&  !errorResponse.getCorrelationId().equals(discoveryResponse.getResponseData().getCorrelationId()))
+            {
+                throw new Exception("Invalid correlation id in error response");
+            }
 
             return MobileConnectStatus.error(errorResponse.getError(),
                 errorResponse.getErrorDescription(), null, requestTokenResponse);
@@ -368,6 +386,13 @@ class MobileConnectInterfaceHelper
             }
             else
             {
+
+                if (!StringUtils.isNull(requestTokenResponse.getResponseData().getCorrelationId()) &&
+                        !requestTokenResponse.getResponseData().getCorrelationId().equals(discoveryResponse.getResponseData().getCorrelationId()))
+                {
+                    throw new Exception("Invalid correlation id in request token response");
+                }
+
                 final JWKeyset jwKeyset =
                     jwks.retrieveJwks(discoveryResponse.getOperatorUrls().getJwksUri());
 
@@ -537,6 +562,7 @@ class MobileConnectInterfaceHelper
                     "Responding with responseType={} for {} for accessToken={}, identity service responded with error={}",
                     MobileConnectStatus.ResponseType.ERROR, method,
                     LogUtils.mask(accessToken, LOGGER, Level.WARN), errorResponse);
+
                 return MobileConnectStatus.error(errorResponse.getError(),
                     errorResponse.getErrorDescription(), null);
             }

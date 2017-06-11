@@ -39,7 +39,7 @@ public interface IIdentityService
      * @return IdentityResponse object if request succeeds
      */
     IdentityResponse requestInfo(final URI infoUrl, final String accessToken,
-        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
+                                 final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
         throws RequestFailedException;
 
     /**
@@ -52,5 +52,5 @@ public interface IIdentityService
      * @return Future wrapping an IdentityResponse object if request succeeds
      */
     Future<IdentityResponse> requestInfoAsync(final URI infoUrl, final String accessToken,
-        final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder);
+                                              final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder);
 }

@@ -73,7 +73,7 @@ public interface ICache
      * @throws CacheAccessException on failure to fetch.
      */
     <T extends AbstractCacheable> T get(final String key, final Class<T> clazz,
-        final boolean removeIfExpired) throws CacheAccessException;
+                                        final boolean removeIfExpired) throws CacheAccessException;
 
     /**
      * Remove an entry from the cache that matches the key.
@@ -99,5 +99,5 @@ public interface ICache
      * @throws CacheExpiryLimitException when configuration is outside allowed limits.
      */
     void setCacheExpiryTime(long duration, final TimeUnit unit,
-        Class<? extends AbstractCacheable> clazz) throws CacheExpiryLimitException;
+                            Class<? extends AbstractCacheable> clazz) throws CacheExpiryLimitException;
 }

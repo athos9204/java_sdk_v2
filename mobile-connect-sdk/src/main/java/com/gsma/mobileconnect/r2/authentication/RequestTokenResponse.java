@@ -29,7 +29,7 @@ import java.util.List;
 
 /**
  * Holds the response of
- * {@link IAuthenticationService#requestTokenAsync(String, String, URI, URI, String)}
+ * {@link IAuthenticationService#requestTokenAsync(String, String, String, URI, URI, String)}
  *
  * @since 2.0
  */
