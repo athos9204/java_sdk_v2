@@ -58,7 +58,7 @@ public interface IAuthenticationService
 
     /**
      * Synchronous wrapper for
-     * {@link IAuthenticationService#requestTokenAsync(String, String, URI, URI, String)}
+     * {@link IAuthenticationService#requestTokenAsync(String, String, String, URI, URI, String)}
      *
      * @param clientId        The registered application ClientId (Required)
      * @param clientSecret    The registered application ClientSecret (Required)

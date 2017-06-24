@@ -1,438 +1,230 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Java Mobile Connect</title>
-    <meta charset="utf-8"/>
-    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <meta name="description" content="">
+    <meta name="author" content="">
 
-        body {
-            font-family: sans-serif;
-        }
+    <title>EXAMPLE APPLICATION</title>
 
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+    <!-- Bootstrap core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/demoAppcss.css" rel="stylesheet">
 
-        .responsive {
-            width: 100%;
-            max-width: 400px;
-            padding: 16px;
-            margin: 0 auto;
-            overflow: hidden;
-        }
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="js/applicationFunctions.js"></script>
 
-        .login {
-            width: 100%;
-            overflow: hidden;
-        }
-
-        .login::after {
-            clear: both;
-        }
-
-        .login-input {
-            display: block;
-            width: 100%;
-            margin: 8px 2px;
-        }
-
-        .login-button {
-            height: 41px;
-            width: 156px;
-            text-indent: -9999px;
-            float: right;
-            border: 0;
-            cursor: pointer;
-            background: transparent url(/static/mc-button-2x.png) no-repeat top left;
-            background-size: 156px 41px;
-        }
-
-        .login-check {
-            float: left;
-            cursor: pointer;
-            line-height: 41px;
-        }
-
-        .logged-in {
-            text-align: center;
-            position: relative;
-        }
-
-        .display-value {
-            word-wrap: break-word;
-            width: 100%;
-            margin: 6px 0;
-        }
-
-        .outcome {
-            color: blue;
-        }
-
-        .permissions-check {
-            display: block;
-        }
-
-        .subheader {
-            font-size: 1.1em;
-            margin: 0.5em 0;
-        }
-
-        .pre-whitespace {
-            white-space: pre-wrap;
-        }
-
-        .error {
-            width: 100%;
-            max-width: 400px;
-            padding: 16px;
-            margin: 0 auto;
-            color: red;
-        }
-
-        .hidden {
-            display: none;
-        }
-
-    </style>
-    <script src="//code.jquery.com/jquery-2.2.3.min.js"></script>
 </head>
+
 <body>
-<div class="container">
-    <div id="pre-login" class="responsive pre-login">
-        <div id="login" class="login">
-            <input class="login-input hidden" type="tel" name="mobile" id="mobile"
-                   value="+447700200200"/>
-            <input class="login-button" type="button" id="mobileConnect" name="mobileConnect"
-                   value="MobileConnect"/>
-            <label class="login-check"><input type="checkbox" id="msisdn-toggle"/>Enter
-                MSISDN</label>
+
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/index.html">Choose your application</a>
         </div>
-        <div class="error"></div>
-        <h2 class="subheader">Auth Type To Request</h2>
-        <label class="auth-radio"><input type="radio" id="authn-toggle" value="authn" name="auth"
-                                         checked/>Authentication</label>
-        <label class="auth-radio"><input type="radio" id="authz-toggle" value="authz" name="auth"/>Authorization</label>
-        <h2 class="subheader">UserInfo Permissions To Request</h2>
-        <label class="permissions-check"><input type="checkbox" id="address-toggle"
-                                                data-scope="address"/>Address</label>
-        <label class="permissions-check"><input type="checkbox" id="email-toggle"
-                                                data-scope="email"/>Email</label>
-        <label class="permissions-check"><input type="checkbox" id="phone-toggle"
-                                                data-scope="phone"/>Phone</label>
-        <label class="permissions-check"><input type="checkbox" id="profile-toggle"
-                                                data-scope="profile"/>Profile</label>
-        <h2 class="subheader">Identity Permissions To Request</h2>
-        <label class="permissions-check identity-permission"><input type="checkbox"
-                                                                    id="identity-phone-toggle"
-                                                                    data-scope="mc_identity_phonenumber"/>Phone</label>
-        <label class="permissions-check identity-permission"><input type="checkbox"
-                                                                    id="identity-signup-toggle"
-                                                                    data-scope="mc_identity_signup"/>Signup</label>
-        <label class="permissions-check identity-permission"><input type="checkbox"
-                                                                    id="identity-nationalid-toggle"
-                                                                    data-scope="mc_identity_nationalid"/>National
-            ID</label>
-        <h2 class="subheader">Headless</h2>
-        <label><input type="checkbox" id="headless-toggle" />Request Headless Auth (No UI Shown)</label>
+
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active" id="demoAppURL"><a href="#index.html;">Demo applicaton</a></li>
+                <li class="not" id="withoutDiscoveryURL"><a href="/withoutDiscovery.html">Without Discovery</a>
+                </li>
+            </ul>
+        </div><!--/.nav-collapse -->
     </div>
-    <div id="logged-in" class="responsive logged-in hidden">
-        <div id="logged-in-message">Succesfully Logged In</div>
-        <div id="value-application-name" class="display-value"></div>
-        <div id="value-access-token" class="display-value"></div>
-        <div id="value-id-token" class="display-value"></div>
-        <div id="value-time-received" class="display-value"></div>
-        <div id="value-token-validated" class="display-value outcome"></div>
-        <div id="value-identity-prefetched" class="display-value pre-whitespace"></div>
-        <div id="refresh-revoke-outcome" class="display-value outcome"></div>
-        <div class="error"></div>
-        <input class="feature-button" type="button" id="user-info-button" name="user-info-button"
-               value="Request UserInfo"/>
-        <input class="feature-button" type="button" id="identity-button" name="identity-button"
-               value="Request Identity"/>
-        <br/>
-        <br/>
-        <input class="feature-button" type="button" id="refresh-token-button" name="refresh-token-button"
-               value="Refresh Token"/>
-        <input class="feature-button" type="button" id="revoke-token-button" name="revoke-token-button"
-               value="Revoke Token"/>
+</nav>
+
+<div class="parent">
+    <div class="container">
+
+        <div class="jumbotron">
+            <div class="msisdnConfigure">
+                <input type="checkbox" id="msisdn-toogle"> With msisdn<br>
+                <input type="text" id="msisdn" placeholder="Your msisdn" class="center-block"><br>
+            </div>
+
+            <p class="text-center">Auth Type To Request</p>
+            <form action="authType" class="text-center">
+                <input type="radio" id="authz" name="authType" value="authz" class="radioButtonCenter" checked />
+                <label class="radio-label">Authorization</label>
+
+                <input type="radio" id="authn" name="authType" value="authn" class="radioButtonCenter"/>
+                <label class="radio-label">Authentication</label>
+            </form>
+
+            <!--configure request options-->
+            <div id="configureContainer">
+                <div class="test">
+                    <div class="item">
+                        <a href="javascript:openRequestOptionsMenu()" id="open-menu-options">
+                            <img src="img/arrow.png" class="img-arrow">
+                            Request options
+                        </a>
+                    </div>
+                    <div id="requestOptionsMore" style="visibility: hidden;">
+                        <table class="testtable">
+                            <tr>
+                                <th>UserInfo</th>
+                                <th>Identity</th>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label class="permissions-check">
+                                        <input class="user-info" type="checkbox" data-scope="address"> Address<br>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="permissions-check">
+                                        <input class="identity-info" type="checkbox" data-scope="mc_identity_phonenumber"> Phone<br>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label class="permissions-check">
+                                        <input class="user-info" type="checkbox" data-scope="email"> Email<br>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="permissions-check">
+                                        <input class="identity-info" type="checkbox" data-scope="mc_identity_signup"> Sign Up<br>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label class="permissions-check">
+                                        <input class="user-info" type="checkbox" data-scope="phone"> Phone<br>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="permissions-check">
+                                        <input class="identity-info" type="checkbox" data-scope="mc_identity_nationalid"> National ID<br>
+                                    </label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <label class="permissions-check">
+                                        <input class="user-info" type="checkbox" data-scope="profile"> Profile<br>
+                                    </label>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <!--configure request parameters-->
+                <div class="test">
+                    <div id="parameterContainer">
+                        <div class="item">
+                            <a href="javascript:openRequestParametersMenu()" id="open-menu-parameters">
+                                <img src="img/arrow.png" class="img-arrow">
+                                Request parameters
+                            </a>
+                        </div>
+                        <div id="requestParameters" style="visibility: hidden;">
+                            <p class="request-parameter-info">Client ID</p>
+                            <input type="text" id="clientID" placeholder="Your client ID"><br>
+                            <p class="request-parameter-info">Client Secret</p>
+                            <input type="text" id="clientSecret" placeholder="Your client secret"><br>
+                            <p class="request-parameter-info">Discovery URL</p>
+                            <input type="text" id="discoveryURL" placeholder="Your discovery URL"><br>
+                            <p class="request-parameter-info">Redirect URL</p>
+                            <input type="text" id="redirectURL" placeholder="Your redirect URL"><br>
+                            <input type="checkbox" id="xRedirect"> x-Redirect<br>
+                            <input type="checkbox" id="xSourceIP" onclick="setIpAddress()"> x-Source-Ip<br>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <a id="getToken" href="javascript:start()">
+                <img src="img/mc_button.png" id="getTokenButton" align="middle">
+            </a>
+            <div class="error"></div>
+            <span class="additionally-buttons">
+                <a href="#" class="information hidden" id="user-info-button">UserInfo</a>
+                <a href="#" class="information hidden" id="identity-button">Identity</a>
+            </span>
+
+        </div><!-- /.container -->
+
     </div>
-    <div id="user-info" class="responsive user-info hidden">
-        <div id="value-user" class="display-value pre-whitespace"></div>
-        <input class="feature-button return-button" type="button" value="Back"/>
-    </div>
-    <div id="identity" class="responsive identity hidden">
-        <div id="value-identity" class="display-value pre-whitespace"></div>
-        <input class="feature-button return-button" type="button" value="Back"/>
+    <div class="configure-another-place" width="1000">
+        <div id="information">
+            <h2> Using the Application</h2>
+            <h5>
+                <p>The Application consists of two parts:
+                <p>1. Demo app.
+                <p>2. Without discovery app.
+                <p>The default environment is a sandbox.
+                    <br>
+                    <br>
+                <p>Msisdn - phone number, used to identify your operator.
+                <p>X Source Ip - ip address of your device, used to identify your operator.
+                <p>Tap "Request options" button to configure your request options.
+            </h5>
+            <h3>Click on "Mobile Connect Log-in" to see MobileConnect UI</h3>
+        </div>
+
+        <iframe id="redirect-url" name="website" frameborder="1" src="mobileconnect.html" style="display:none;"
+                height="400" width="700">
+
+        </iframe>
+
+        <div id="logged-in" class="responsive logged-in hidden">
+            <div id="logged-in-message">Succesfully Logged In</div>
+            <table id="token-table" class="token-table hidden">
+                <tr>
+                    <td><div class="display-id">Application name:</div></td>
+                    <td><div id="value-application-name" class="display-value"></div></td>
+                </tr>
+                <tr>
+                    <td><div class="display-id">Access token:</div></td>
+                    <td><div id="value-access-token" class="display-value"></div></td>
+                </tr>
+                <tr>
+                    <td><div class="display-id">Id token:</div></td>
+                    <td><div id="value-id-token" class="display-value"></div></td>
+                </tr>
+                <tr>
+                    <td style="border-bottom: 2px solid black;"><div class="display-id">Time received:</div></td>
+                    <td style="border-bottom: 2px solid black;"><div id="value-time-received" class="display-value"></div></td>
+                </tr>
+            </table>
+            <div id="value-identity-prefetched" class="display-value pre-whitespace"></div>
+
+            <div id="user-info" class="responsive user-info hidden">
+                <p>User Info:</p>
+                <div id="value-user" class="display-value pre-whitespace"></div>
+            </div>
+            <div id="identity" class="responsive identity hidden">
+                <p>Identity:</p>
+                <div id="value-identity" class="display-value pre-whitespace"></div>
+            </div>
+        </div>
+
     </div>
 </div>
-<script>
-        var discoveryUrl = '/api/mobileconnect/start_discovery';
-        var authorizationUrl = '/api/mobileconnect/start_authentication';
-        var headlessUrl = '/api/mobileconnect/headless_authentication';
-        var userInfoUrl = '/api/mobileconnect/user_info';
-        var identityUrl = '/api/mobileconnect/identity';
-        var refreshTokenUrl = '/api/mobileconnect/refresh_token';
-        var revokeTokenUrl = '/api/mobileconnect/revoke_token';
 
-        var openWindow = function openWindow(url) {
-            var width = 400,
-                height = 585,
-                position_x = (screen.width / 2) - (width / 2),
-                position_y = (screen.height / 2) - (height / 2);
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+<script src="js/bootstrap.min.js"></script>
 
-            if (window.child && !window.child.closed) {
-                window.child.location.href = url;
-            }
-            else {
-                window.child = window.open(url, 'Java Mobile Connect', 'width=' + width + ',height=' + height + ',menubar=0,toolbar=0,directories=0,scrollbars=no,resizable=no,left=' + position_x + ',top=' + position_y);
-            }
-        }
-
-        var hide = function hide(selector) {
-            var el = $(selector);
-            el.addClass('hidden');
-            return el;
-        }
-
-        var show = function show(selector) {
-            var el = $(selector);
-            el.removeClass('hidden');
-            return el;
-        }
-
-        var setContent = function setContent(selector, content) {
-            var el = $(selector);
-            el.html(content);
-            return el;
-        }
-
-        var generateParams = function generateParams(params) {
-            var query = '';
-            var first = true;
-            for (var key in params) {
-                if (params.hasOwnProperty(key) && params[key]) {
-                    query = query + (first ? '' : '&') + key + '=' + params[key];
-                    first = false;
-                }
-            }
-
-            return query;
-        }
-
-        var getPermissionsRequested = function getPermissionsRequested() {
-            var scope = '';
-            $('.permissions-check input').each(function (i, el) {
-                var $el = $(el);
-                if ($el.prop('checked')) {
-                    scope = scope + ' ' + $el.attr('data-scope');
-                }
-            });
-            return scope;
-        }
-
-        var getAuthScope = function getAuthScope() {
-            var scope = 'mc_';
-
-            scope = scope + $('input[name=auth]:checked').val();
-            scope = scope + getPermissionsRequested();
-
-            return scope;
-        }
-
-        var clearAttempt = function clearAttempt() {
-            api.currentAttempt = {};
-            closeChildWindow();
-        }
-
-        var closeChildWindow = function closeChildWindow() {
-            if (window.child) {
-                window.child.close();
-            }
-        }
-
-        var hideLogin = function hideLogin() {
-            hide('#pre-login');
-            show('#logged-in');
-        }
-
-        var printTokenInfo = function printTokenInfo(token) {
-            $('#value-access-token').html(token.access_token);
-            $('#value-id-token').html(token.id_token);
-            $('#value-time-received').html(token.time_received);
-        }
-
-        var printInfo = function printInfo(response) {
-            $('#value-application-name').html(api.currentAttempt.clientName);
-            printTokenInfo(response.token);
-            if(response.tokenValidated) {
-                $('#value-token-validated').html("Token Validated");
-            } else {
-                $('#value-token-validated').html("Token Not Validated");
-            }
-            if (response.identity) {
-                setContent('#value-identity-prefetched', JSON.stringify(response.identity, null, 2));
-            }
-        }
-
-        var api = {
-            currentAttempt: {},
-            httpCallback: function handleResponse(data) {
-                console.log(data);
-                api[data.action](data);
-            },
-            discovery: function discovery(response) {
-                var queryString = '';
-
-                if (typeof response === "string") {
-                    queryString = '?msisdn=' + encodeURIComponent(response);
-                }
-
-                $.get(discoveryUrl + queryString, api.httpCallback);
-            },
-            start_authentication: function start_authentication(response) {
-                var queryString = '?' + generateParams({
-                    subscriberId: response.subscriberId,
-                    sdkSession: response.sdkSession,
-                    scope: getAuthScope()
-                });
-
-                api.currentAttempt.session = response.sdkSession;
-                api.currentAttempt.clientName = response.clientName;
-
-                var url = authorizationUrl;
-                if ($('#headless-toggle').prop('checked')) {
-                    url = headlessUrl;
-                }
-                $.get(url + queryString, api.httpCallback);
-            },
-            authentication: function authentication(response) {
-                api.currentAttempt.expectedState = response.state;
-                api.currentAttempt.expectedNonce = response.nonce;
-                openWindow(response.url);
-            },
-            operator_selection: function operator_selection(response) {
-                openWindow(response.url);
-            },
-            handle_redirect: function handle_redirect(url) {
-                var queryString = '&' + generateParams({
-                    expectedState: api.currentAttempt.expectedState,
-                    expectedNonce: api.currentAttempt.expectedNonce,
-                    sdkSession: api.currentAttempt.session
-                });
-
-                $.get(url + queryString, api.httpCallback);
-            },
-            complete: function complete(response) {
-                if (response.token) {
-                    closeChildWindow();
-                    api.currentAttempt.token = response.token;
-                    hideLogin();
-                    printInfo(response);
-                } else  if (response.outcome) {
-                    api.operation_outcome({ description: response.outcome });
-                } else {
-                    api.error({ description: 'Authentication not returned, user not logged in' });
-                }
-            },
-            request_user_info: function request_user_info() {
-                var queryString = '?' + generateParams({
-                    sdkSession: api.currentAttempt.session,
-                    accessToken: api.currentAttempt.token.access_token,
-                });
-
-                $.get(userInfoUrl + queryString, api.httpCallback);
-            },
-            user_info: function user_info(response) {
-                setContent('#value-user', JSON.stringify(response.identity, null, 2));
-                show('#user-info');
-                hide('#logged-in');
-            },
-            request_identity: function request_identity() {
-                var queryString = '?' + generateParams({
-                    sdkSession: api.currentAttempt.session,
-                    accessToken: api.currentAttempt.token.access_token,
-                });
-
-                $.get(identityUrl + queryString, api.httpCallback);
-            },
-            identity: function identity(response) {
-                setContent('#value-identity', JSON.stringify(response.identity, null, 2));
-                show('#identity');
-                hide('#logged-in');
-            },
-            refresh_token: function refresh_token() {
-                var queryString = '?' + generateParams({
-                    sdkSession: api.currentAttempt.session,
-                    refreshToken: api.currentAttempt.token.refresh_token,
-                });
-
-                $.get(refreshTokenUrl + queryString, api.httpCallback);
-            },
-            revoke_token: function revoke_token() {
-                var queryString = '?' + generateParams({
-                    sdkSession: api.currentAttempt.session,
-                    accessToken: api.currentAttempt.token.access_token,
-                });
-
-                $.get(revokeTokenUrl + queryString, api.httpCallback);
-            },
-            error: function error(response) {
-                clearAttempt();
-
-                $('.error').html(response.description);
-            },
-            operation_outcome: function operation_outcome(response) {
-                clearAttempt();
-                $('#refresh-revoke-outcome').html(response.description);
-            }
-        }
-
-        $('#msisdn-toggle').change(function (e) {
-            if ($(this).prop('checked')) {
-                show('#mobile')
-            } else {
-                hide('#mobile');
-            }
-        });
-
-        $('#mobileConnect').click(function (e) {
-            var input = $('#mobile');
-            var msisdn = '';
-            if (!input.hasClass('hidden')) {
-                msisdn = input.val();
-            }
-            api.discovery(msisdn);
-        });
-
-        $('#user-info-button').click(function (e) {
-            api.request_user_info();
-        });
-
-        $('#identity-button').click(function (e) {
-            api.request_identity();
-        });
-
-        $('#refresh-token-button').click(function (e) {
-            api.refresh_token();
-        });
-
-        $('#revoke-token-button').click(function (e) {
-            api.revoke_token();
-        });
-
-        $('.return-button').click(function (e) {
-            show('#logged-in');
-            hide('#user-info');
-            hide('#identity');
-        });
-
-</script>
 </body>
 </html>

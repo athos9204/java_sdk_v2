@@ -57,22 +57,22 @@
             <!--configure request options-->
             <div id="configure-container-withoutdiscovery">
                 <div class="testobertka">
-                <div class="item">
-                    <a href="javascript:openRequestOptionsMenu()" id="open-menu-options">
-                        <img src="img/arrow.png" class="img-arrow">
-                        Endpoint configuration
-                    </a>
-                </div>
-                <div id="requestOptionsMore" style="visibility: hidden;">
-                    <p class="requestParameter">Authorization URL</p>
-                    <input type="text" id="authURL" placeholder="Your authorization URL"><br>
-                    <p class="requestParameter">Request Token URL</p>
-                    <input type="text" id="tokenURL" placeholder="Your token URL"><br>
-                    <p class="requestParameter">User Info URL</p>
-                    <input type="text" id="userInfoURL" placeholder="Your user info URL"><br>
-                    <p class="center-block" id="textMetadata">Metadata URL</p>
-                    <input type="text" id="metadataURL" placeholder="Your metadata URL" class="center-block"><br>
-                </div>
+                    <div class="item">
+                        <a href="javascript:openRequestOptionsMenu()" id="open-menu-options">
+                            <img src="img/arrow.png" class="img-arrow">
+                            Endpoint configuration
+                        </a>
+                    </div>
+                    <div id="requestOptionsMore" style="visibility: hidden;">
+                        <p class="requestParameter">Authorization URL</p>
+                        <input type="text" id="authURL" placeholder="Your authorization URL"><br>
+                        <p class="requestParameter">Request Token URL</p>
+                        <input type="text" id="tokenURL" placeholder="Your token URL"><br>
+                        <p class="requestParameter">User Info URL</p>
+                        <input type="text" id="userInfoURL" placeholder="Your user info URL"><br>
+                        <p class="center-block" id="textMetadata">Metadata URL</p>
+                        <input type="text" id="metadataURL" placeholder="Your metadata URL" class="center-block"><br>
+                    </div>
                 </div>
 
 
@@ -93,13 +93,15 @@
                                 </td>
                                 <td>
                                     <p>Discovery URL</p>
-                                    <input type="text" id="discoveryURLWD" placeholder="Your discovery URL" class="field"><br>
+                                    <input type="text" id="discoveryURLWD" placeholder="Your discovery URL"
+                                           class="field"><br>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <p>Client Secret</p>
-                                    <input type="text" id="clientSecretWD" placeholder="Your client Secret" class="field"><br>
+                                    <input type="text" id="clientSecretWD" placeholder="Your client Secret"
+                                           class="field"><br>
                                 </td>
                                 <td>
                                     <p>Redirect URL</p>
@@ -115,7 +117,8 @@
                             <tr>
                                 <td>
                                     <p id="clientNameText" class="center-block">Client name</p>
-                                    <input type="text" id="clientName" placeholder="Your client name" class="center-block"><br>
+                                    <input type="text" id="clientName" placeholder="Your client name"
+                                           class="center-block"><br>
                                 </td>
                             </tr>
                         </table>
@@ -155,23 +158,34 @@
             <div id="value-application-name" class="display-value"></div>
             <table id="token-table" class="token-table hidden">
                 <tr>
-                    <td><div class="display-id">Access token:</div></td>
-                    <td><div id="value-access-token" class="display-value"></div></td>
+                    <td>
+                        <div class="display-id">Access token:</div>
+                    </td>
+                    <td>
+                        <div id="value-access-token" class="display-value"></div>
+                    </td>
                 </tr>
                 <tr>
-                    <td><div class="display-id">Id token:</div></td>
-                    <td><div id="value-id-token" class="display-value"></div></td>
+                    <td>
+                        <div class="display-id">Id token:</div>
+                    </td>
+                    <td>
+                        <div id="value-id-token" class="display-value"></div>
+                    </td>
                 </tr>
                 <tr>
-                    <td style="border-bottom: 2px solid black;"><div class="display-id">Time received:</div></td>
-                    <td style="border-bottom: 2px solid black;"><div id="value-time-received" class="display-value"></div></td>
+                    <td style="border-bottom: 2px solid black;">
+                        <div class="display-id">Time received:</div>
+                    </td>
+                    <td style="border-bottom: 2px solid black;">
+                        <div id="value-time-received" class="display-value"></div>
+                    </td>
                 </tr>
             </table>
             <div id="user-info" class="responsive user-info hidden"></div>
             <div id="value-identity-prefetched" class="display-value pre-whitespace"></div>
         </div>
     </div>
-
 </div>
 
 <!-- Bootstrap core JavaScript
