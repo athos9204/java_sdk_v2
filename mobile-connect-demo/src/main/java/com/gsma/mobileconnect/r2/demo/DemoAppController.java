@@ -194,8 +194,10 @@ public class DemoAppController
         LOGGER.info("* Starting authentication for sdkSession={}, subscriberId={}, scope={}",
                 sdkSession, LogUtils.mask(subscriberId, LOGGER, Level.INFO), scope);
 
-        if (scope == null) {
+        if (scope == null && operatorUrls.getProviderMetadataUri() == null) {
             apiVersion = DefaultOptions.VERSION_MOBILECONNECTAUTHN;
+        } else if (scope == null){
+            apiVersion = DefaultOptions.VERSION_MOBILECONNECTAUTHZ;
         }
 
         final MobileConnectRequestOptions options = new MobileConnectRequestOptions.Builder()
