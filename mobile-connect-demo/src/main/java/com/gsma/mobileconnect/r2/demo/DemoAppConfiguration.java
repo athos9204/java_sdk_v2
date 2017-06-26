@@ -51,8 +51,12 @@ import java.net.URI;
 public class DemoAppConfiguration
 {
     private static String userDir = System.getProperty("user.dir").replace("target", "");
-    private static final String PATH_TO_CONFIG = "\\mobile-connect-demo\\src\\main\\resources\\public\\data\\defaultData.json";
-    private static final String PATH_TO_CONFIG_WD = "\\mobile-connect-demo\\src\\main\\resources\\public\\data\\defaultDataWD.json";
+    private static final String PATH_TO_CONFIG = File.separator + "mobile-connect-demo" + File.separator + "src" + File.separator + "main"
+            + File.separator + "resources" + File.separator + "public" + File.separator
+            + "data" + File.separator + "defaultData.json";
+    private static final String PATH_TO_CONFIG_WD =  File.separator + "mobile-connect-demo" + File.separator + "src" + File.separator
+            + "main" + File.separator + "resources" + File.separator + "public" + File.separator + "data"
+            + File.separator + "defaultDataWD.json";
     private String configFilePath =  userDir + PATH_TO_CONFIG;
     private String configFilePathWD =  userDir + PATH_TO_CONFIG_WD;
 
