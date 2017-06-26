@@ -38,7 +38,7 @@
 
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li class="active" id="demoAppURL"><a href="#index.html;">Demo applicaton</a></li>
+                <li class="active" id="demoAppURL"><a href="#index.html;">Demo application</a></li>
                 <li class="not" id="withoutDiscoveryURL"><a href="/withoutDiscovery.html">Without Discovery</a>
                 </li>
             </ul>
@@ -57,7 +57,7 @@
 
             <p class="text-center">Auth Type To Request</p>
             <form action="authType" class="text-center">
-                <input type="radio" id="authz" name="authType" value="authz" class="radioButtonCenter" checked />
+                <input type="radio" id="authz" name="authType" value="authz" class="radioButtonCenter" checked/>
                 <label class="radio-label">Authorization</label>
 
                 <input type="radio" id="authn" name="authType" value="authn" class="radioButtonCenter"/>
@@ -143,6 +143,19 @@
                             <input type="text" id="discoveryURL" placeholder="Your discovery URL"><br>
                             <p class="request-parameter-info">Redirect URL</p>
                             <input type="text" id="redirectURL" placeholder="Your redirect URL"><br>
+                            <div class="extra-options">
+                                <div class="box">
+                                    <div class="text-version">
+                                        <p>API version</p>
+                                    </div>
+                                    <div class="class-api-version">
+                                        <select name="apiVersion" id="api">
+                                            <option value="mc_v1.2">v2.0</option>
+                                            <option value="mc_v1.1">v1.1</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                             <input type="checkbox" id="xRedirect"> x-Redirect<br>
                             <input type="checkbox" id="xSourceIP" onclick="setIpAddress()"> x-Source-Ip<br>
                         </div>
@@ -188,20 +201,36 @@
             <div id="logged-in-message">Succesfully Logged In</div>
             <table id="token-table" class="token-table hidden">
                 <tr>
-                    <td><div class="display-id">Application name:</div></td>
-                    <td><div id="value-application-name" class="display-value"></div></td>
+                    <td>
+                        <div class="display-id">Application name:</div>
+                    </td>
+                    <td>
+                        <div id="value-application-name" class="display-value"></div>
+                    </td>
                 </tr>
                 <tr>
-                    <td><div class="display-id">Access token:</div></td>
-                    <td><div id="value-access-token" class="display-value"></div></td>
+                    <td>
+                        <div class="display-id">Access token:</div>
+                    </td>
+                    <td>
+                        <div id="value-access-token" class="display-value"></div>
+                    </td>
                 </tr>
                 <tr>
-                    <td><div class="display-id">Id token:</div></td>
-                    <td><div id="value-id-token" class="display-value"></div></td>
+                    <td>
+                        <div class="display-id">Id token:</div>
+                    </td>
+                    <td>
+                        <div id="value-id-token" class="display-value"></div>
+                    </td>
                 </tr>
                 <tr>
-                    <td style="border-bottom: 2px solid black;"><div class="display-id">Time received:</div></td>
-                    <td style="border-bottom: 2px solid black;"><div id="value-time-received" class="display-value"></div></td>
+                    <td style="border-bottom: 2px solid black;">
+                        <div class="display-id">Time received:</div>
+                    </td>
+                    <td style="border-bottom: 2px solid black;">
+                        <div id="value-time-received" class="display-value"></div>
+                    </td>
                 </tr>
             </table>
             <div id="value-identity-prefetched" class="display-value pre-whitespace"></div>

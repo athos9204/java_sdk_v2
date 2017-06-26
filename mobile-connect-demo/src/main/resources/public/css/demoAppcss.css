@@ -191,7 +191,6 @@ th {
     font-size: 22px;
 }
 html {
-    background-image: url("/img/background.png");
     -webkit-background-size: cover;
     -moz-background-size: cover;
     -o-background-size: cover;
@@ -221,15 +220,21 @@ a.information {
     background: linear-gradient(#5a5277, #645b89) #5a5277;
     transition: 0.2s;
 }
-
 a.information:hover { background: linear-gradient(#5a5277, #5a5277) #5a5277; }
 a.information:active { background: linear-gradient(#5a5277, #000) #5a5277; }
 
-.error {
-    width: 100%;
-    max-width: 400px;
-    padding: 16px;
-    margin: 0 auto;
-    color: red;
-    align: center;
+.extra-options{
+    overflow:hidden;
+}
+.box{
+    align-content: space-between;
+}
+.box div{
+    overflow: visible;
+    display: inline-block;
+    justify-content: space-between;
+    border: 5px solid #eeeeee;
+}
+#api{
+    width:70px;
 }
