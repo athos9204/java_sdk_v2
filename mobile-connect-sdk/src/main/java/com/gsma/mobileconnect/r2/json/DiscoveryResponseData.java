@@ -30,7 +30,7 @@ import java.util.List;
 @JsonDeserialize(builder = DiscoveryResponseData.Builder.class)
 public class DiscoveryResponseData
 {
-    private long ttl;
+    private final long ttl;
     private final String error;
     private final String description;
     private final List<Link> links;
@@ -49,11 +49,6 @@ public class DiscoveryResponseData
         this.response = builder.response;
         this.clientName = builder.clientName;
         this.correlationId = builder.correlationId;
-    }
-    public DiscoveryResponseData SetToNullTtl()//furs
-    {
-        ttl = 0;
-        return this;
     }
 
     public long getTtl()

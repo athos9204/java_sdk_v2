@@ -105,7 +105,7 @@ public class MobileConnectWebInterfaceTest
     {
         return new Object[][] {
             //
-            {null, new String[] {"mc_authn"}, "mc_authz"},
+            {null, new String[] {"openid"}, "mc_authz"},
             //
             {new AuthenticationOptions.Builder().withContext("context").build(),
              new String[] {"mc_authz"}, "mc_authn"},

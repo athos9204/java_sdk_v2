@@ -1,5 +1,0 @@
-# Create an account at https://developer.mobileconnect.io and obtain the details missing below.
-
-# RedirectURL should be specified as follows:
-redirectUrl=<redirectUrl>
-providerMetadata=<providerMetadataUrl>

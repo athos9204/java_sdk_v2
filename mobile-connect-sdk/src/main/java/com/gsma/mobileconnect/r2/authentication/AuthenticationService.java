@@ -251,23 +251,23 @@ public class AuthenticationService implements IAuthenticationService
 
         if (!StringUtils.isNullOrEmpty(options.getLoginHint()) && !StringUtils.isNullOrEmpty(options.getLoginHintToken()))
         {
-            builder.add(Parameters.LOGIN_HINT_TOKEN, extractLoginHint(options, encryptedMSISDN));
+            builder.addIfNotEmpty(Parameters.LOGIN_HINT_TOKEN, extractLoginHint(options, encryptedMSISDN));
         }
         else if (StringUtils.isNullOrEmpty(options.getLoginHint()) && !StringUtils.isNullOrEmpty(options.getLoginHintToken()))
         {
-            builder.add(Parameters.LOGIN_HINT_TOKEN, options.getLoginHintToken());
+            builder.addIfNotEmpty(Parameters.LOGIN_HINT_TOKEN, options.getLoginHintToken());
         }
         else
         {
-            builder.add(Parameters.LOGIN_HINT, extractLoginHint(options, encryptedMSISDN));
+            builder.addIfNotEmpty(Parameters.LOGIN_HINT, extractLoginHint(options, encryptedMSISDN));
         }
 
         if (useAuthorize)
         {
             builder
-                    .add(Parameters.CLIENT_NAME, options.getClientName())
-                    .add(Parameters.CONTEXT, options.getContext())
-                    .add(Parameters.BINDING_MESSAGE, options.getBindingMessage());
+                    .addIfNotEmpty(Parameters.CLIENT_NAME, options.getClientName())
+                    .addIfNotEmpty(Parameters.CONTEXT, options.getContext())
+                    .addIfNotEmpty(Parameters.BINDING_MESSAGE, options.getBindingMessage());
         }
 
         return builder.buildAsNameValuePairList();
@@ -390,7 +390,7 @@ public class AuthenticationService implements IAuthenticationService
                         ObjectUtils.requireNonNull(redirectUrl, "redirectUrl").toString())
                 .add(Parameters.CODE, StringUtils.requireNonEmpty(code, "code"))
                 .add(Parameters.GRANT_TYPE, DefaultOptions.GRANT_TYPE_AUTH_CODE)
-                .add(Parameters.CORRELATION_ID, correlationId)
+                .addIfNotEmpty(Parameters.CORRELATION_ID, correlationId)
                 .build();
 
         final RestAuthentication authentication =

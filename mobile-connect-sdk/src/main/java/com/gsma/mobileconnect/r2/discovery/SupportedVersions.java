@@ -116,7 +116,7 @@ public class SupportedVersions
     public String getSupportedVersion (final AuthenticationOptions authenticationOptions)
     {
         final String version;
-        if (!StringUtils.isNullOrEmpty(authenticationOptions.getClientName()) || !StringUtils.isNullOrEmpty(authenticationOptions.getBindingMessage()) || !StringUtils.isNullOrEmpty(authenticationOptions.getBindingMessage())) {
+        if (!StringUtils.isNullOrEmpty(authenticationOptions.getBindingMessage()) || !StringUtils.isNullOrEmpty(authenticationOptions.getBindingMessage())) {
             version = DefaultOptions.VERSION_MOBILECONNECTAUTHZ;
         } else {
             version = DefaultOptions.VERSION_MOBILECONNECTAUTHN;

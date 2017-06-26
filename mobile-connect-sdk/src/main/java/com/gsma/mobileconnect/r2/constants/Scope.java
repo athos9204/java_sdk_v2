@@ -27,6 +27,7 @@ public class Scope
 
     public static final String MCPREFIX = "mc_";
 
+    public static final String IDENTITY = "mc_identity";
     public static final String IDENTITYPHONE = "mc_identity_phonenumber";
     public static final String IDENTITYSIGNUP = "mc_identity_signup";
     public static final String IDENTITYSIGNUPPLUS = "mc_identity_signupplus";

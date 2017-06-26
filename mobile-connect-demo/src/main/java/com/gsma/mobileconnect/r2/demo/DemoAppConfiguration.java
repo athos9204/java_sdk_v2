@@ -21,10 +21,16 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.gsma.mobileconnect.r2.discovery.OperatorUrls;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import com.gsma.mobileconnect.r2.MobileConnect;
 import com.gsma.mobileconnect.r2.MobileConnectConfig;
 import com.gsma.mobileconnect.r2.MobileConnectWebInterface;
+
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -32,25 +38,45 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URI;
 
 /**
  * @since 2.0
  */
 @SpringBootConfiguration
-@PropertySource("file:./mobile-connect-demo/src/main/resources/config/mobile-connect-config.properties")
 public class DemoAppConfiguration
 {
+    private static String userDir = System.getProperty("user.dir").replace("target", "");
+    private static final String PATH_TO_CONFIG = File.separator + "mobile-connect-demo" + File.separator + "src" + File.separator + "main"
+            + File.separator + "resources" + File.separator + "public" + File.separator
+            + "data" + File.separator + "defaultData.json";
+    private static final String PATH_TO_CONFIG_WD =  File.separator + "mobile-connect-demo" + File.separator + "src" + File.separator
+            + "main" + File.separator + "resources" + File.separator + "public" + File.separator + "data"
+            + File.separator + "defaultDataWD.json";
+    private String configFilePath =  userDir + PATH_TO_CONFIG;
+    private String configFilePathWD =  userDir + PATH_TO_CONFIG_WD;
+
     @Bean
-    public MobileConnectConfig mobileConnectConfig(@Autowired final Environment env)
-    {
+    public MobileConnectConfig mobileConnectConfig() throws IOException, ParseException {
+
+        JSONObject config = (JSONObject)new JSONParser().parse(new FileReader(configFilePath));
         return new MobileConnectConfig.Builder()
-            .withClientId(env.getProperty("clientId"))
-            .withClientSecret(env.getProperty("clientSecret"))
-            .withDiscoveryUrl(env.getProperty("discoveryUrl", URI.class))
-            .withRedirectUrl(env.getProperty("redirectUrl", URI.class))
-            .withXRedirect(env.getProperty("xRedirect"))
-            .build();
+                .withClientId(config.get("clientID").toString())
+                .withClientSecret(config.get("clientSecret").toString())
+                .withDiscoveryUrl(URI.create(config.get("discoveryURL").toString()))
+                .withRedirectUrl(URI.create(config.get("redirectURL").toString()))
+                .withXRedirect(config.get("xRedirect").toString())
+                .build();
+    }
+
+    @Bean
+    public OperatorUrls operatorUrlsWithProviderMetadata() throws IOException, ParseException {
+        JSONObject config = (JSONObject)new JSONParser().parse(new FileReader(configFilePathWD));
+        return new OperatorUrls.Builder().withProviderMetadataUri(config.get("metadataURL").toString()).build();
     }
 
     @Bean
