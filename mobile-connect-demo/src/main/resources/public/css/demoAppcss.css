@@ -238,3 +238,12 @@ a.information:active { background: linear-gradient(#5a5277, #000) #5a5277; }
 #api{
     width:70px;
 }
+
+#error {
+    width: 100%;
+    max-width: 400px;
+    padding: 16px;
+    text-align: center;
+    margin: 0 auto;
+    color: red;
+}

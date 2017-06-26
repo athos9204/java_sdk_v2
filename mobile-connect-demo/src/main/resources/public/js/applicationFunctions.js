@@ -407,9 +407,10 @@ var api = {
         show('#identity');
     },
     error: function error(response) {
-        clearAttempt();
+            clearAttempt();
 
-        $('.error').html(response.description);
+            $('.error').html(response.description);
+            show('.error');
     },
     operation_outcome: function operation_outcome(response) {
         clearAttempt();
