@@ -7,7 +7,25 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-
+    <style>
+        .fakey {
+            border: solid 1px;
+            color: #ccc;
+            width:110px;
+        }
+        .fakey input {
+            border: none;
+            outline: none;
+        }
+        .text-black {
+            color: #000000;
+            background-color: #eee;
+        }
+        .frame-style {
+            height: 100%;
+            width: 100%;
+        }
+    </style>
     <title>EXAMPLE APPLICATION</title>
 
     <!-- Bootstrap core CSS -->
@@ -33,40 +51,76 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/index.html">Choose your application</a>
+            <a class="navbar-brand" href="index.html">Choose your application</a>
         </div>
 
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li class="active" id="demoAppURL"><a href="#index.html;">Demo application</a></li>
-                <li class="not" id="withoutDiscoveryURL"><a href="/withoutDiscovery.html">Without Discovery</a>
-                <li class="not" id="indianDemoAppURL"><a href="/indianDemoApp.html">Indian demo application</a>
+                <li class="not" id="demoAppURL"><a href="/index.html">Demo applicaton</a></li>
+                <li class="not" id="withoutDiscoveryURL"><a href="/withoutDiscovery.html">Without Discovery</a></li>
+                <li class="active" id="indianDemoAppURL"><a href="#indianDemoApp.html;">Indian demo application</a>
                 </li>
             </ul>
-        </div><!--/.nav-collapse -->
+        </div>
     </div>
 </nav>
 
 <div class="parent">
     <div class="container">
 
-        <div class="jumbotron">
-            <div class="msisdnConfigure">
-                <input type="checkbox" id="msisdn-toogle"> With msisdn<br>
-                <input type="text" id="msisdn" placeholder="Your msisdn" class="center-block"><br>
+        <div class="jumbotron" >
+            <div  align="center" class="discovery-mode">
+                <table class="discovery-mode">
+					<tr>
+                        <td></td>
+                    </tr>
+					<tr>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <th>Select discovery mode</th>
+                    </tr>
+                    <tr>
+                        <td>
+                            <label id="authIndianMsisdn" class="radio-label" id="authIndianMsisdn">With MSISDN</label>
+                        </td>
+                        <td><input type="radio" id="authIndianMsisdn-toggle" value="authIndianMsisdn-toggle" name="discoveryType"  class="radioButtonCenter" /></td>
+                        <td>
+                            <div class="fakey" name="msisdnIndianContainer" id="msisdnIndianContainer" hidden>+91<input class="text-black" type="text" size="7" maxlength="10" id="msisdnIndian" name="msisdnIndian" placeholder="Your msisdn" hidden></div>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <label id="authIndianMccMnc" class="radio-label">With MCC_MNC</label>
+                        </td>
+                        <td>
+                            <input type="radio" id="authIndianMccMnc-toggle" value="authIndianMccMnc-toggle" name="discoveryType" class="radioButtonCenter"/>
+                        </td>
+                        <td>
+                            <input type="text" id="mccIndian" name="mccIndian" placeholder="Your mcc" hidden><br>
+                        </td>
+                        <td>
+                            <input type="text" id="mncIndian" name="mncIndian" placeholder="Your mnc" hidden><br>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <label id="authIndianNone" class="radio-label">None</label>
+                        </td>
+                        <td>
+                            <input type="radio" id="authIndianNone-toggle" value="authIndianNone-toggle" name="discoveryType"  class="radioButtonCenter" checked/>
+                        </td>
+                    </tr>
+                </table>
             </div>
+            <form action="discoveryType">
 
-            <p class="text-center">Auth Type To Request</p>
-            <form action="authType" class="text-center">
-                <input type="radio" id="authz" name="authType" value="authz" class="radioButtonCenter" checked/>
-                <label class="radio-label">Authorization</label>
-
-                <input type="radio" id="authn" name="authType" value="authn" class="radioButtonCenter"/>
-                <label class="radio-label">Authentication</label>
             </form>
 
-            <!--configure request options-->
             <div id="configureContainer">
+
                 <div class="test">
                     <div class="item">
                         <a href="javascript:openRequestOptionsMenu()" id="open-menu-options">
@@ -77,52 +131,38 @@
                     <div id="requestOptionsMore" style="visibility: hidden;">
                         <table class="testtable">
                             <tr>
-                                <th>UserInfo</th>
-                                <th>Identity</th>
+                                <th>Scopes</th>
                             </tr>
+                            <tr><td></td></tr>
                             <tr>
                                 <td>
                                     <label class="permissions-check">
-                                        <input class="user-info" type="checkbox" data-scope="address"> Address<br>
-                                    </label>
-                                </td>
-                                <td>
-                                    <label class="permissions-check">
-                                        <input class="identity-info" type="checkbox" data-scope="mc_identity_phonenumber"> Phone<br>
+                                        <input class="indian" name="indianScopeType" id = "openidIndian" value="openid+mc_identity_phonenumber_hashed" type="radio" data-scope="openid" checked>  openid<br>
                                     </label>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <label class="permissions-check">
-                                        <input class="user-info" type="checkbox" data-scope="email"> Email<br>
-                                    </label>
-                                </td>
-                                <td>
-                                    <label class="permissions-check">
-                                        <input class="identity-info" type="checkbox" data-scope="mc_identity_signup"> Sign Up<br>
+                                        <input class="indian" name="indianScopeType" id = "mc_india_tc" value="mc_india_tc+mc_identity_phonenumber_hashed" type="radio" data-scope="mc_india_tc">  mc_india_tc<br>
                                     </label>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <label class="permissions-check">
-                                        <input class="user-info" type="checkbox" data-scope="phone"> Phone<br>
-                                    </label>
-                                </td>
-                                <td>
-                                    <label class="permissions-check">
-                                        <input class="identity-info" type="checkbox" data-scope="mc_identity_nationalid"> National ID<br>
+                                        <input class="indian" name="indianScopeType" id = "mc_mnv_validate" value="mc_mnv_validate+mc_identity_phonenumber_hashed" type="radio" data-scope="mc_mnv_validate">  mc_mnv_validate<br>
                                     </label>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
                                     <label class="permissions-check">
-                                        <input class="user-info" type="checkbox" data-scope="profile"> Profile<br>
+                                        <input class="indian" name="indianScopeType" id = "mc_mnv_validate_plus" value="mc_mnv_validate_plus+mc_identity_phonenumber_hashed" type="radio" data-scope="mc_mnv_validate_plus">  mc_mnv_validate_plus<br>
                                     </label>
                                 </td>
                             </tr>
+
                         </table>
                     </div>
                 </div>
@@ -135,48 +175,38 @@
                                 Request parameters
                             </a>
                         </div>
-                        <div id="requestParameters" style="visibility: hidden;">
+                        <div id="requestParameters" style="visibility: hidden;" >
                             <p class="request-parameter-info">Client ID</p>
-                            <input type="text" id="clientID" placeholder="Your client ID"><br>
+                            <input  type="text" id="clientIDIndian" placeholder="Your client ID"><br>
                             <p class="request-parameter-info">Client Secret</p>
-                            <input type="text" id="clientSecret" placeholder="Your client secret"><br>
+                            <input type="text" id="clientSecretIndian" placeholder="Your client secret"><br>
                             <p class="request-parameter-info">Discovery URL</p>
-                            <input type="text" id="discoveryURL" placeholder="Your discovery URL"><br>
+                            <input type="text" id="discoveryURLIndian" placeholder="Your discovery URL"><br>
                             <p class="request-parameter-info">Redirect URL</p>
-                            <input type="text" id="redirectURL" placeholder="Your redirect URL"><br>
-                            <div class="extra-options">
-                                <div class="box">
-                                    <div class="text-version">
-                                        <p>API version</p>
-                                    </div>
-                                    <div class="class-api-version">
-                                        <select name="apiVersion" id="api">
-                                            <option value="mc_v1.2">v2.0</option>
-                                            <option value="mc_v1.1">v1.1</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <input type="checkbox" id="xRedirect" name="xRedirect"> X-Redirect<br>
+                            <input type="text" id="redirectURLIndian" placeholder="Your redirect URL"><br>
                             <p></p>
-                            <input type="checkbox" id="includeRequestIP" name="includeRequestIP"> Include Request Ip<br>
+                            <input type="checkbox" id="xRedirectIndian" name="xRedirectIndian"> X-Redirect<br>
+                            <p></p>
+                            <input type="checkbox" id="includeRequestIPIndian" name="includeRequestIPIndian"> Include Request Ip<br>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <a id="getToken" href="javascript:start()">
+            <a id="getToken" href="javascript:startIndian()">
                 <img src="img/mc_button.png" id="getTokenButton" align="middle">
             </a>
             <div class="error" id="error"></div>
-            <span class="additionally-buttons">
+            <div class="information hidden">
+                <a href="#" class="information hidden" id="identity-button">UserInfo</a>
+            </div>
+            <div class="additionally-buttons">
                 <a href="#" class="information hidden" id="user-info-button">UserInfo</a>
-                <a href="#" class="information hidden" id="identity-button">Identity</a>
-            </span>
 
-        </div><!-- /.container -->
-
+            </div>
+        </div>
     </div>
+
+
     <div class="configure-another-place" width="1000">
         <div id="information">
             <h2> Using the Application</h2>
@@ -189,28 +219,21 @@
                     <br>
                     <br>
                 <p>Msisdn - phone number, used to identify your operator.
-                <p>Tap "Request options" button to configure your request scopes.
+                <p>MCC - Mobile Country Code.
+				<p>MNC - Mobile Network Code.
+                <p>Tap "Request options" button to configure your request scope.
                 <p>Tap "Request parameters" button to configure your request parameters.
             </h5>
             <h3>Click on "Mobile Connect Log-in" to see MobileConnect UI</h3>
         </div>
-
-        <iframe id="redirect-url" name="_name" scrolling="no" frameborder="1" src="mobileconnect.html" style="display:none;"
-                height="400" width="700">
+        <iframe  name="_name" scrolling="no" id="redirect-url"  frameborder="1" src="mobileconnect.html" style="width: 400px; overflow-y:hidden; display:none; "
+                height="500" width="600">
 
         </iframe>
-
         <div id="logged-in" class="responsive logged-in hidden">
             <div id="logged-in-message">Succesfully Logged In</div>
+            <div id="value-application-name" class="display-value"></div>
             <table id="token-table" class="token-table hidden">
-                <tr>
-                    <td>
-                        <div class="display-id">Application name:</div>
-                    </td>
-                    <td>
-                        <div id="value-application-name" class="display-value"></div>
-                    </td>
-                </tr>
                 <tr>
                     <td>
                         <div class="display-id">Access token:</div>
@@ -237,17 +260,12 @@
                 </tr>
             </table>
             <div id="value-identity-prefetched" class="display-value pre-whitespace"></div>
-
             <div id="user-info" class="responsive user-info hidden">
                 <p>User Info:</p>
                 <div id="value-user" class="display-value pre-whitespace"></div>
             </div>
-            <div id="identity" class="responsive identity hidden">
-                <p>Identity:</p>
-                <div id="value-identity" class="display-value pre-whitespace"></div>
-            </div>
-        </div>
 
+        </div>
     </div>
 </div>
 

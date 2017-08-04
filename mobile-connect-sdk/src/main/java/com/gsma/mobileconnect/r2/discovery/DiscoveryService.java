@@ -188,9 +188,9 @@ public class DiscoveryService implements IDiscoveryService
             try
             {
                 restResponse = StringUtils.isNullOrEmpty(options.getMsisdn())
-                        ? this.restClient.get(discoveryUrl, authentication, options.getXRedirect(),
+                        ? this.restClient.getDiscovery(discoveryUrl, authentication, options.getXRedirect(),
                         options.getClientIp(), queryParams, cookies)
-                        : this.restClient.postFormData(discoveryUrl, authentication, options.getXRedirect(),
+                        : this.restClient.postDiscoveryFormData(discoveryUrl, authentication, options.getXRedirect(),
                         queryParams, options.getClientIp(), cookies);
             }
             catch (final RequestFailedException e)

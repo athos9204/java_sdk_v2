@@ -86,6 +86,10 @@ h3 {
     margin-left: auto;
 }
 
+.discoveryTypeTable {
+    alignment: center;
+}
+
 .responseBlock {
     float: right;
 }
@@ -163,6 +167,8 @@ input #clientName, .center-block, test {
 .test {
     margin: 20px;
 }
+
+
 
 th {
     margin: 20px;

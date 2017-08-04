@@ -40,6 +40,7 @@ public class MobileConnectConfig implements IPreferences
     private final String xRedirect;
     private final URI discoveryUrl;
     private final URI redirectUrl;
+    private final boolean includeRequestIP;
 
     // web
     private final boolean cacheResponsesWithSessionId;
@@ -51,6 +52,7 @@ public class MobileConnectConfig implements IPreferences
         this.xRedirect = builder.xRedirect;
         this.discoveryUrl = builder.discoveryUrl;
         this.redirectUrl = builder.redirectUrl;
+        this.includeRequestIP = builder.includeRequestIP;
         this.cacheResponsesWithSessionId = builder.cacheResponsesWithSessionId;
     }
 
@@ -75,6 +77,10 @@ public class MobileConnectConfig implements IPreferences
     public URI getDiscoveryUrl()
     {
         return this.discoveryUrl;
+    }
+
+    public boolean getIncludeRequestIp() {
+        return this.includeRequestIP;
     }
 
     public boolean isCacheResponsesWithSessionId()
@@ -111,6 +117,7 @@ public class MobileConnectConfig implements IPreferences
         private String xRedirect;
         private URI discoveryUrl;
         private URI redirectUrl;
+        private boolean includeRequestIP;
         private boolean cacheResponsesWithSessionId = true;
 
         public Builder withClientId(String val)
@@ -134,6 +141,12 @@ public class MobileConnectConfig implements IPreferences
         public Builder withRedirectUrl(URI val)
         {
             this.redirectUrl = val;
+            return this;
+        }
+
+        public Builder withIncludeRequestIP(boolean val)
+        {
+            this.includeRequestIP = val;
             return this;
         }
 

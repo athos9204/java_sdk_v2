@@ -41,6 +41,11 @@ public interface IPreferences
     String getXRedirect();
 
     /**
+     * @return The application including of request ip value.
+     */
+    boolean getIncludeRequestIp();
+
+    /**
      * @return The URL of the discovery service endpoint
      */
     URI getDiscoveryUrl();

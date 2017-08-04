@@ -48,6 +48,38 @@ public interface IRestClient
         throws RequestFailedException;
 
     /**
+     * Executes a HTTP GET to the supplied uri optional basic auth and optional
+     * cookies.
+     *
+     * @param uri            of the POST.
+     * @param authentication value to be used (if auth required).
+     * @param queryParams    to be added to the GET request.
+     * @param sourceIp       of the request (if identified).
+     * @param cookies        to add to the request (if required).
+     * @return future RestResponse.
+     * @throws RequestFailedException if there is a failure issuing the request.
+     */
+    RestResponse getDiscovery(final URI uri, final RestAuthentication authentication, final String xRedirect, final String sourceIp,
+                              final List<KeyValuePair> queryParams, final Iterable<KeyValuePair> cookies)
+            throws RequestFailedException;
+
+    /**
+     * Executes a HTTP POST to the supplied uri with x-www-form-urlencoded content and optional
+     * cookies
+     *
+     * @param uri            of the POST.
+     * @param authentication value to be used (if auth required).
+     * @param formData       to be added to the POST request.
+     * @param sourceIp       of the request (if identified).
+     * @param cookies        to add to the request (if required).
+     * @return future RestResponse.
+     * @throws RequestFailedException if there is a failure issuing the request.
+     */
+    RestResponse postDiscoveryFormData(final URI uri, final RestAuthentication authentication, final String xRedirect,
+                                       final List<KeyValuePair> formData, final String sourceIp,
+                                       final Iterable<KeyValuePair> cookies) throws RequestFailedException;
+
+    /**
      * Executes a HTTP POST to the supplied uri with x-www-form-urlencoded content and optional
      * cookies
      *

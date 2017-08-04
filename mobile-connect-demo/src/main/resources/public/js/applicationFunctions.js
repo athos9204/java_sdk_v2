@@ -5,10 +5,12 @@ var clientSecret;
 var discoveryURL;
 var redirectURL;
 var xRedirect;
-var xSourceIp = '';
+var includeRequestIP;
+
 var apiVersion = '';
 var parametersURL = '/api/mobileconnect/get_parameters';
 var discoveryUrl = '/api/mobileconnect/start_discovery';
+var discoveryIndianUrl = '/MCIndiaDummy/api/mobileconnect/start_discovery';
 var endpointsURL = '/api/mobileconnect/endpoints';
 var authenticationUrl = '/api/mobileconnect/start_authentication';
 var authorizationUrl = '/api/mobileconnect/start_authorization';
@@ -17,7 +19,7 @@ var identityUrl = '/api/mobileconnect/identity';
 var manualDiscoveryUrl = '/api/mobileconnect/start_manual_discovery';
 var noProviderMetadataUrl = '/api/mobileconnect/start_manual_discovery_no_metadata';
 var authorizationR1 = '/api/mobileconnect/start_authentication_r1';
-
+var inputval = ''
 function openRequestOptionsMenu() {
     if ($('#requestOptionsMore').css('visibility') === 'hidden') {
         $("#requestOptionsMore").css({"visibility": "visible"})
@@ -40,12 +42,15 @@ var getRequestParameters = function getRequestParameters() {
     discoveryURL = $("#discoveryURL").val();
     redirectURL = $("#redirectURL").val();
     xRedirect = $("#xRedirect").val();
+    includeRequestIP = $("#includeRequestIP").val();
 
     var queryString = '?clientID=' + encodeURIComponent(clientID) +
         '&clientSecret=' + encodeURIComponent(clientSecret) +
         '&discoveryURL=' + encodeURIComponent(discoveryURL) +
         '&redirectURL=' + encodeURIComponent(redirectURL) +
-        '&xRedirect=' + encodeURIComponent(xRedirect) + '&scope=' + 'openid mc_' + $('input[name=authType]:checked').val() +
+        '&xRedirect=' + encodeURIComponent($('input[name=xRedirect]:checked').val() ? 'True' : 'False') +
+        '&includeRequestIP=' + encodeURIComponent($('input[name=includeRequestIP]:checked').val() ? 'True' : 'False')  +
+        '&scope=' + 'openid mc_' + $('input[name=authType]:checked').val() +
         encodeURIComponent(getPermissionsRequested()) + '&apiVersion=' + apiVersion;
 
     $.get(parametersURL + queryString, function (data) {
@@ -54,10 +59,32 @@ var getRequestParameters = function getRequestParameters() {
         if ($('#msisdn-toogle').is(':checked')) {
             msisdn = input.val();
         }
-        api.discovery(msisdn, xSourceIp["ip"]);
+        api.discovery(msisdn);
     });
 
 };
+
+var getIndianRequestParameters = function getIndianRequestParameters() {
+    var clientIDIndian =$('#clientIDIndian').val();
+    var clientSecretIndian =$('#clientSecretIndian').val();
+    var discoveryURLIndian = $('#discoveryURLIndian').val();
+    var redirectURLIndian = $('#redirectURLIndian').val();
+    var xRedirectIndian = $("#xRedirectIndian").val();
+    var includeRequestIPIndian = $("#includeRequestIPIndian").val();
+
+    var queryString = '?clientID=' + encodeURIComponent(clientIDIndian) +
+        '&clientSecret=' + encodeURIComponent(clientSecretIndian) +
+        '&discoveryURL=' + encodeURIComponent(discoveryURLIndian) +
+        '&redirectURL=' + encodeURIComponent(redirectURLIndian) +
+        '&xRedirect=' + encodeURIComponent($('input[name=xRedirectIndian]:checked').val() ? 'True' : 'False') +
+        '&includeRequestIP=' + encodeURIComponent($('input[name=includeRequestIPIndian]:checked').val() ? 'True' : 'False') +
+        '&scope=' + $('input[name=indianScopeType]:checked').val() +
+        encodeURIComponent(getPermissionsRequested()) + '&apiVersion=' + 'mc_v1.1';
+
+    $.get(parametersURL + queryString, function (data) {
+        api.discoveryIndia()
+    })
+}
 
 var getRequestParametersWithoutDiscovery = function getRequestParametersWithoutDiscovery() {
     var input = $('#clientName');
@@ -92,17 +119,21 @@ var getRequestParametersWithoutDiscovery = function getRequestParametersWithoutD
 
 };
 
-function setIpAddress() {
-    $('#xSourceIP').change(function () {
-        if ($(this).is(':checked')) {
-            $.getJSON('//ipapi.co/json/', function (data) {
-                xSourceIp = JSON.stringify(data, null, 2);
-                xSourceIp = JSON.parse(xSourceIp);
-            });
-        } else {
-            xSourceIp = '';
-        }
+
+
+function startIndian() {
+    hide('.error')
+    show('#redirect-url');
+    hide('#logged-in');
+    hide('#user-info-button');
+    hide('#identity-button');
+    hide('#user-info');
+    hide('#identity');
+    $("#information").hide("slow", function () {
+        $("#redirect-url").show("slow");
     });
+
+    getIndianRequestParameters: getIndianRequestParameters()
 }
 
 function start() {
@@ -180,15 +211,17 @@ var getPermissionsRequested = function getPermissionsRequested() {
 
 var getAuthScope = function getAuthScope() {
     var scope = 'mc_';
-    if ($('input[name=authType]:checked').val() === undefined) {
+    if($('input[name=indianScopeType]:checked').val() !== undefined) {
+        scope = $('input[name=indianScopeType]:checked').val();
+        return scope;
+    } else if ($('input[name=authType]:checked').val() === undefined) {
         scope = '';
         return scope;
     } else {
         scope = scope + $('input[name=authType]:checked').val();
         scope = scope + getPermissionsRequested();
+        return scope;
     }
-
-    return scope;
 };
 
 var clearAttempt = function clearAttempt() {
@@ -274,10 +307,10 @@ var api = {
         }
         $.get(endpointsURL + queryString, api.httpCallback);
     },
-    parameters: function sendParameters(clientID, clientSecret, discoveryURL, redirectURL, xRedirect) {
+    parameters: function sendParameters(clientID, clientSecret, discoveryURL, redirectURL, xRedirect, includeRequestIP) {
         var queryString = '?';
         queryString = 'clientID=' + clientID + '&clientSecret=' + clientSecret + '&discoveryURL=' +
-            discoveryURL + '&redirectURL=' + redirectURL + '&xRedirect=' + xRedirect;
+            discoveryURL + '&redirectURL=' + redirectURL + '&xRedirect=' + xRedirect + 'includeRequestIP=' + includeRequestIP;
 
         $.get(parametersURL + queryString);
     },
@@ -307,18 +340,41 @@ var api = {
             $.get(noProviderMetadataUrl + queryString, api.httpCallback);
         }
     },
-    discovery: function discovery(response, sourceIp) {
+    discovery: function discovery(response) {
         var queryString = '';
 
         if (typeof response === "string") {
             queryString += '?msisdn=' + encodeURIComponent(response);
-            if (sourceIp !== undefined) {
-                queryString += '&sourceIp=' + encodeURIComponent(sourceIp);
-            }
         }
 
         $.get(discoveryUrl + queryString, api.httpCallback);
     },
+
+    discoveryIndia: function discoveryIndia() {
+        var queryString = '';
+        if (inputval == 'authIndianMsisdn-toggle') {
+            queryString = '?msisdn=' + encodeURIComponent('+91'+$('#msisdnIndian').val());
+        } else if (inputval == 'authIndianMccMnc-toggle'){
+            queryString = '?mcc=' + encodeURIComponent($('#mccIndian').val())
+                + '&mnc=' + encodeURIComponent($('#mncIndian').val());
+        }
+        $.get(discoveryUrl + queryString, api.httpCallback);
+    },
+
+    discovery: function discovery(msisdnIndian, mcc, mnc) {
+        var queryString = '';
+
+        if (typeof msisdnIndian !== undefined) {
+            queryString += '?msisdn=' + encodeURIComponent(msisdnIndian);
+
+        } else if (mcc !== undefined && mcc !== undefined) {
+            queryString += '&mcc=' + encodeURIComponent(mcc);
+            queryString += '&mnc=' + encodeURIComponent(mnc);
+        }
+
+        $.get(discoveryUrl + queryString, api.httpCallback);
+    },
+
     start_authentication: function start_authentication(response) {
         var queryString = '?' + generateParams({
                 subscriberId: response.subscriberId,
@@ -420,7 +476,6 @@ var api = {
 
 
 $(document).ready(function ($) {
-    $('#xRedirect').chec
     $.getJSON("data/defaultData.json", function (data) {
         $('#msisdn').val(data["msisdn"]);
         $('#clientID').val(data["clientID"]);
@@ -434,6 +489,14 @@ $(document).ready(function ($) {
             $('#xRedirect').val(false);
             $('#xRedirect').prop("checked", false);
         }
+        if (data["includeRequestIP"] === "True") {
+                    $('#includeRequestIP').val(data["includeRequestIP"]);
+                    $('#includeRequestIP').prop("checked", true);
+                } else if (data["includeRequestIP"] === "False"){
+                    $('#includeRequestIP').val(false);
+                    $('#includeRequestIP').prop("checked", false);
+                }
+
     });
 
     $.getJSON("data/defaultDataWD.json", function (data) {
@@ -450,6 +513,31 @@ $(document).ready(function ($) {
 
     });
 
+    $.getJSON("data/defaultDataIndian.json", function (data) {
+        $('#msisdnIndian').val(data["msisdn"]);
+        $('#mccIndian').val(data["mcc"]);
+        $('#mncIndian').val(data["mnc"]);
+        $('#clientIDIndian').val(data["clientID"]);
+        $('#clientSecretIndian').val(data["clientSecret"]);
+        $('#discoveryURLIndian').val(data["discoveryURL"]);
+        $('#redirectURLIndian').val(data["redirectURL"]);
+        if (data["xRedirect"] === "True") {
+            $('#xRedirectIndian').val(data["xRedirect"]);
+            $('#xRedirectIndian').prop("checked", true);
+        } else {
+            $('#xRedirectIndian').val(false);
+            $('#xRedirectIndian').prop("checked", false);
+        }
+        if (data["includeRequestIP"] === "True") {
+            $('#includeRequestIPIndian').val(data["includeRequestIP"]);
+            $('#includeRequestIPIndian').prop("checked", true);
+        } else {
+            $('#includeRequestIPIndian').val(false);
+            $('#includeRequestIPIndian').prop("checked", false);
+        }
+
+    });
+
     $('#msisdn-toogle').change(function () {
         if ($(this).is(':checked')) {
             $("#msisdn").show('slow');
@@ -457,6 +545,61 @@ $(document).ready(function ($) {
             $("#msisdn").hide('slow');
         }
     });
+
+//    $('input[name=includeRequestIP]:checkbox').change(function) {
+//        value = $("input[name=includeRequestIP]:checkbox").val(();
+//        if ($('#includeRequestIP').prop("checked") === true ) {
+//            $('#includeRequestIP').prop("checked", false);
+//        } else if ($('#includeRequestIP').prop("checked") === false ) {
+//                              $('#includeRequestIP').prop("checked", true);
+//    }
+
+    $('input[name=indianScopeType]:radio').change(function() {
+        value = $("input[name=indianScopeType]:checked").val();
+        if (value == 'openid+mc_identity_phonenumber_hashed') {
+            $("#mc_india_tc").removeAttr('checked');
+            $("#mc_mnv_validate").removeAttr('checked');
+            $("#mc_mnv_validate_plus").removeAttr('checked');
+            $("#openidIndian").attr('checked', true);
+        } else if (value == 'mc_india_tc+mc_identity_phonenumber_hashed') {
+            $("#openidIndian").removeAttr('checked');
+            $("#mc_mnv_validate").removeAttr('checked');
+            $("#mc_mnv_validate_plus").removeAttr('checked');
+            $("#mc_india_tc").attr('checked', true);
+        } else if (value == 'mc_mnv_validate+mc_identity_phonenumber_hashed') {
+            $("#openidIndian").removeAttr('checked');
+            $("#mc_india_tc").removeAttr('checked');
+            $("#mc_mnv_validate_plus").removeAttr('checked');
+            $("#mc_mnv_validate").attr('checked', true);
+        } else if (value == 'mc_mnv_validate_plus+mc_identity_phonenumber_hashed') {
+            $("#openidIndian").removeAttr('checked');
+            $("#mc_india_tc").removeAttr('checked');
+            $("#mc_mnv_validate").removeAttr('checked');
+            $("#mc_mnv_validate_plus").attr('checked', true);
+        }
+    });
+
+    // Show/Hide login-mode on the basis of selected mode
+    $('input[name=discoveryType]:radio').change(function (){
+        inputval = $("input[name=discoveryType]:checked").val();
+        if (inputval == 'authIndianMsisdn-toggle') {
+            $("#msisdnIndian").show('slow');
+            $("#msisdnIndianContainer").show('slow');
+            $("#mccIndian").hide('slow');
+            $("#mncIndian").hide('slow');
+        } else if (inputval == 'authIndianMccMnc-toggle'){
+            $("#msisdnIndian").hide('slow');
+            $("#msisdnIndianContainer").hide('slow');
+            $("#mccIndian").show('slow');
+            $("#mncIndian").show('slow');
+        } else if (inputval == 'authIndianNone-toggle') {
+            $("#msisdnIndian").hide('slow');
+            $("#msisdnIndianContainer").hide('slow');
+            $("#mccIndian").hide('slow');
+            $("#mncIndian").hide('slow');
+        }
+    });
+
     $('#with-metadata').change(function () {
         if ($(this).is(':checked')) {
             api.providerMetadata = true;
@@ -489,6 +632,8 @@ $(document).ready(function ($) {
         enableIdentity();
         $(".user-info").click(enableIdentity);
     });
+
+
 
     function enableUserInfo() {
         if (this.checked) {

@@ -43,6 +43,11 @@ public final class Headers
      */
     public static final String COOKIE = "Cookie";
 
+    /**
+     * Key for version Header.
+     */
+    public static final String VERSION_SDK = "SDK-Version";
+
     private Headers()
     {
         /*
