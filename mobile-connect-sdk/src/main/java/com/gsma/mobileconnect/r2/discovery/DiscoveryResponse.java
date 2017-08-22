@@ -258,7 +258,6 @@ public class DiscoveryResponse extends AbstractCacheable
                 this.providerMetadata = response.providerMetadata;
                 this.operatorUrls = response.operatorUrls;
                 this.clientName = response.clientName;
-                this.operatorUrls = response.operatorUrls;
             }
         }
 

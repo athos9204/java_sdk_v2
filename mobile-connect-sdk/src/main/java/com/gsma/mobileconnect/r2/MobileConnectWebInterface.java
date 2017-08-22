@@ -93,13 +93,13 @@ public class MobileConnectWebInterface
      * connect process
      */
     public MobileConnectStatus attemptDiscovery(final HttpServletRequest request,
-        final String msisdn, final String mcc, final String mnc, final boolean shouldProxyCookies,
+        final String msisdn, final String mcc, final String mnc, final boolean shouldProxyCookies, final boolean includeRequestIP,
         final MobileConnectRequestOptions options)
     {
         ObjectUtils.requireNonNull(request, ARG_REQUEST);
 
         final String clientIp =
-            options == null ? null : options.getDiscoveryOptions().getClientIp();
+                includeRequestIP ? HttpUtils.extractClientIp(request) : null;
 
         final DiscoveryOptions.Builder builder =
             options == null ? new DiscoveryOptions.Builder() : options.getDiscoveryOptionsBuilder();
@@ -110,8 +110,8 @@ public class MobileConnectWebInterface
             shouldProxyCookies ? HttpUtils.extractCookiesFromRequest(request) : null;
 
         LOGGER.debug(
-            "Running attemptDiscovery for msisdn={}, mcc={}, mnc={}, shouldProxyCookies={}, clientIp={}",
-            LogUtils.mask(msisdn, LOGGER, Level.DEBUG), mcc, mnc, shouldProxyCookies, clientIp);
+            "Running attemptDiscovery for msisdn={}, mcc={}, mnc={}, shouldProxyCookies={}, includeRequestIP={}, clientIp={}",
+            LogUtils.mask(msisdn, LOGGER, Level.DEBUG), mcc, mnc, shouldProxyCookies, includeRequestIP, clientIp);
 
         final MobileConnectStatus status =
             MobileConnectInterfaceHelper.attemptDiscovery(this.discoveryService, msisdn, mcc, mnc,

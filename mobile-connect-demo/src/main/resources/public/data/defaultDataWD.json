@@ -8,5 +8,5 @@
 	"userInfoURL": "https://operator-g.sandbox.mobileconnect.io/oidc/userinfo",
 	"metadataURL": "https://operator-g.sandbox.mobileconnect.io/.well-known/openid-configuration",
 	"discoveryURL": "https://discovery.sandbox.mobileconnect.io/v2/discovery",
-	"redirectURL": "http://localhost:8001/mobileconnect.html"
+	"redirectURL": "http://localhost:8080/mobileconnect.html"
 }

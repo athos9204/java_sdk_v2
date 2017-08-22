@@ -16,14 +16,28 @@
 */
 package com.gsma.mobileconnect.r2.utils;
 
+import org.apache.maven.model.Model;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
+import org.apache.maven.project.MavenProject;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.File;
+import java.io.FileReader;
 import java.util.Arrays;
 import java.util.List;
+
 
 /**
  * @since 2.0
  */
 public class VersionUtils
 {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(VersionUtils.class);
+
+    private static String CURRENT_SDK_VERSION = getJavaSdkVersion();
 
     /**
      * Default Constructor
@@ -57,5 +71,45 @@ public class VersionUtils
         // if one version has more spaces than another, the summation of numbers should be bigger
         // except v1.1.0 should be equal to v1.1 - summing and taking signum solves issue
         return Integer.signum(ListUtils.sum(vals1) - ListUtils.sum(vals2));
+    }
+
+    /**
+     * Looks current SDK version.
+     * @return version of sdk in parent of pom.xml file.
+     */
+    public static String getCurrentSdkVersion() {
+        if (!CURRENT_SDK_VERSION.contains("Android")) {
+            CURRENT_SDK_VERSION = getJavaSdkVersion();
+        }
+        LOGGER.info(String.format("Current SDK version: %s.", CURRENT_SDK_VERSION));
+        return CURRENT_SDK_VERSION;
+    }
+
+    private static String getJavaSdkVersion() {
+        final String pomFile = "pom.xml";
+        final String pomFilePath = System.getProperty("user.dir") +
+                File.separator + pomFile;
+        String sdkVersion;
+        try {
+            Model model = new MavenXpp3Reader().read(new FileReader(pomFilePath));
+            sdkVersion = prepareVersionFormat("Java", new MavenProject(model).getVersion());
+        }catch(NoClassDefFoundError | Exception e){
+            sdkVersion = null;
+            LOGGER.error("Unable to find {} file", pomFilePath);
+            e.printStackTrace();
+        }
+        return sdkVersion;
+    }
+
+    public static String prepareVersionFormat(final String platform, final String version) {
+        return String.format("%s-%s", platform, version);
+    }
+
+    /**
+     * Use only outside this code
+     * @param version
+     */
+    public static void setCurrentSdkVersion(final String version) {
+        CURRENT_SDK_VERSION = version;
     }
 }

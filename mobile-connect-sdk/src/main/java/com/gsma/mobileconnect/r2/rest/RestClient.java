@@ -89,6 +89,37 @@ public class RestClient implements IRestClient
     }
 
     @Override
+    public RestResponse getDiscovery(final URI uri, final RestAuthentication authentication, final String xRedirect,
+                            final String sourceIp, final List<KeyValuePair> queryParams,
+                            final Iterable<KeyValuePair> cookies) throws RequestFailedException
+    {
+        LOGGER.debug("Getting from uri={} for sourceIp={}",
+                LogUtils.maskUri(uri, LOGGER, Level.DEBUG), sourceIp);
+
+        final URIBuilder uriBuilder = new URIBuilder(uri);
+        if (queryParams != null)
+        {
+            uriBuilder.addParameters(new ArrayList<NameValuePair>(queryParams));
+        }
+
+        try
+        {
+            final HttpUriRequest request = this
+                    .createDiscoveryRequest(HttpUtils.HttpMethod.GET, uriBuilder.build(), xRedirect, authentication,
+                            sourceIp, cookies)
+                    .build();
+
+            return this.submitRequest(request, true);
+        }
+        catch (final URISyntaxException use)
+        {
+            LOGGER.warn("Failed to construct uri for GET request; baseUri={}",
+                    LogUtils.maskUri(uri, LOGGER, Level.WARN), use);
+            throw new RequestFailedException(HttpUtils.HttpMethod.GET, uri, use);
+        }
+    }
+
+    @Override
     public RestResponse get(final URI uri, final RestAuthentication authentication, final String xRedirect,
         final String sourceIp, final List<KeyValuePair> queryParams,
         final Iterable<KeyValuePair> cookies) throws RequestFailedException
@@ -120,6 +151,22 @@ public class RestClient implements IRestClient
     }
 
     @Override
+    public RestResponse postDiscoveryFormData(final URI uri, final RestAuthentication authentication, final String xRedirect,
+                                     final List<KeyValuePair> formData, final String sourceIp,
+                                     final Iterable<KeyValuePair> cookies) throws RequestFailedException
+    {
+        LOGGER.debug("Posting form data to uri={} for sourceIp={}",
+                LogUtils.maskUri(uri, LOGGER, Level.DEBUG), sourceIp);
+
+        final HttpUriRequest request = this
+                .createDiscoveryRequest(HttpUtils.HttpMethod.POST, uri, xRedirect, authentication, sourceIp, cookies)
+                .addParameters(
+                        ObjectUtils.requireNonNull(formData, "formData").toArray(new NameValuePair[] {}))
+                .build();
+        return this.submitRequest(request, true);
+    }
+
+    @Override
     public RestResponse postFormData(final URI uri, final RestAuthentication authentication, final String xRedirect,
         final List<KeyValuePair> formData, final String sourceIp,
         final Iterable<KeyValuePair> cookies) throws RequestFailedException
@@ -132,7 +179,6 @@ public class RestClient implements IRestClient
             .addParameters(
                 ObjectUtils.requireNonNull(formData, "formData").toArray(new NameValuePair[] {}))
             .build();
-
         return this.submitRequest(request, true);
     }
 
@@ -294,49 +340,39 @@ public class RestClient implements IRestClient
             .setUri(ObjectUtils.requireNonNull(uri, "uri"))
             .setConfig(this.requestConfig);
 
-        if (cookies != null)
-        {
-            final StringBuilder cookieBuilder = new StringBuilder();
-            for (final KeyValuePair cookie : cookies)
-            {
-                cookieBuilder
-                    .append(cookie.getKey())
-                    .append('=')
-                    .append(cookie.getValue())
-                    .append(';');
-            }
-            builder.addHeader(Headers.COOKIE, cookieBuilder.toString());
-        }
-
-        if (!StringUtils.isNullOrEmpty(sourceIp))
-        {
-            builder.addHeader(Headers.X_SOURCE_IP, sourceIp);
-        }
-
-        if (authentication != null)
-        {
-            builder.addHeader(HttpHeaders.AUTHORIZATION,
-                authentication.getScheme() + " " + authentication.getParameter());
-        }
-
-        return builder;
+        return prepareRequest(builder, authentication, sourceIp, cookies);
     }
 
-
-    private RequestBuilder createRequest(final HttpUtils.HttpMethod method, final URI uri, final String xRedirect,
+    private RequestBuilder createDiscoveryRequest(final HttpUtils.HttpMethod method, final URI uri, final String xRedirect,
                                          final RestAuthentication authentication, final String sourceIp,
                                          final Iterable<KeyValuePair> cookies)
     {
         LOGGER.debug(
-                "Creating request with httpMethod={}, uri={}, authentication={} for sourceIp={}",
+                "Creating discovery request with httpMethod={}, uri={}, authentication={} for sourceIp={}",
                 method, LogUtils.maskUri(uri, LOGGER, Level.DEBUG), authentication, sourceIp);
 
         final RequestBuilder builder = RequestBuilder
                 .create(ObjectUtils.requireNonNull(method, "method").name())
                 .setUri(ObjectUtils.requireNonNull(uri, "uri"))
                 .setConfig(this.requestConfig);
+        final String sdkVersion = VersionUtils.getCurrentSdkVersion();
+        if (!StringUtils.isNullOrEmpty(sdkVersion)) {
+            builder.addHeader(Headers.VERSION_SDK, sdkVersion);
+        }
+        return prepareRequest(builder, xRedirect, authentication, sourceIp, cookies);
+    }
 
+    private RequestBuilder prepareRequest(final RequestBuilder builder, final String xRedirect,
+                                          final RestAuthentication authentication, final String sourceIp,
+                                          final Iterable<KeyValuePair> cookies) {
 
+        return xRedirect != null ? prepareRequest(builder, authentication, sourceIp, cookies).addHeader(Parameters.X_REDIRECT, xRedirect)
+                : prepareRequest(builder, authentication, sourceIp, cookies);
+    }
+
+    private RequestBuilder prepareRequest(final RequestBuilder builder,
+                                          final RestAuthentication authentication, final String sourceIp,
+                                          final Iterable<KeyValuePair> cookies) {
         if (cookies != null)
         {
             final StringBuilder cookieBuilder = new StringBuilder();
@@ -362,11 +398,22 @@ public class RestClient implements IRestClient
                     authentication.getScheme() + " " + authentication.getParameter());
         }
 
-        if (xRedirect != null) {
-            builder.addHeader(Parameters.X_REDIRECT, xRedirect);
-        }
-
         return builder;
+    }
+    private RequestBuilder createRequest(final HttpUtils.HttpMethod method, final URI uri, final String xRedirect,
+                                         final RestAuthentication authentication, final String sourceIp,
+                                         final Iterable<KeyValuePair> cookies)
+    {
+        LOGGER.debug(
+                "Creating request with httpMethod={}, uri={}, authentication={} for sourceIp={}",
+                method, LogUtils.maskUri(uri, LOGGER, Level.DEBUG), authentication, sourceIp);
+
+        final RequestBuilder builder = RequestBuilder
+                .create(ObjectUtils.requireNonNull(method, "method").name())
+                .setUri(ObjectUtils.requireNonNull(uri, "uri"))
+                .setConfig(this.requestConfig);
+
+        return prepareRequest(builder, xRedirect, authentication, sourceIp, cookies);
     }
     /**
      * Submits a request to the executor.  When the request runs, an additional task is scheduled in

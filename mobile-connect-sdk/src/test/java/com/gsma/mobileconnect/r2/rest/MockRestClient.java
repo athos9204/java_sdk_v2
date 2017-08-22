@@ -105,6 +105,16 @@ public class MockRestClient implements IRestClient
     }
 
     @Override
+    public RestResponse getDiscovery(URI uri, RestAuthentication authentication, String xRedirect, String sourceIp, List<KeyValuePair> queryParams, Iterable<KeyValuePair> cookies) throws RequestFailedException {
+        return this.getNext();
+    }
+
+    @Override
+    public RestResponse postDiscoveryFormData(URI uri, RestAuthentication authentication, String xRedirect, List<KeyValuePair> formData, String sourceIp, Iterable<KeyValuePair> cookies) throws RequestFailedException {
+        return this.getNext();
+    }
+
+    @Override
     public RestResponse postFormData(URI uri, RestAuthentication authentication, String xRedirect,
                                      List<KeyValuePair> formData, String sourceIp, Iterable<KeyValuePair> cookies)
         throws RequestFailedException

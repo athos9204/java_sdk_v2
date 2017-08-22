@@ -28,6 +28,8 @@ import com.gsma.mobileconnect.r2.MobileConnectConfig;
 import com.gsma.mobileconnect.r2.MobileConnectWebInterface;
 
 
+import com.gsma.mobileconnect.r2.json.DiscoveryResponseData;
+import com.gsma.mobileconnect.r2.json.OperatorId;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -50,19 +52,22 @@ import java.net.URI;
 @SpringBootConfiguration
 public class DemoAppConfiguration
 {
-    private static String userDir = System.getProperty("user.dir").replace("target", "");
-    private static final String PATH_TO_CONFIG = File.separator + "mobile-connect-demo" + File.separator + "src" + File.separator + "main"
-            + File.separator + "resources" + File.separator + "public" + File.separator
-            + "data" + File.separator + "defaultData.json";
-    private static final String PATH_TO_CONFIG_WD =  File.separator + "mobile-connect-demo" + File.separator + "src" + File.separator
+
+    private static final String PATH_TO_CONFIG_FOLDER = File.separator + "mobile-connect-demo" + File.separator + "src" + File.separator
             + "main" + File.separator + "resources" + File.separator + "public" + File.separator + "data"
-            + File.separator + "defaultDataWD.json";
-    private String configFilePath =  userDir + PATH_TO_CONFIG;
-    private String configFilePathWD =  userDir + PATH_TO_CONFIG_WD;
+            + File.separator;
+
+    private static String userDir = System.getProperty("user.dir").replace("target", "");
+    private static final String DEMO_APP_CONFIG = "defaultData.json";
+    private static final String WITHOUT_DISCOVERY_APP_CONFIG = "defaultDataWD.json";
+    private static final String INDIAN_DEMO_APP_CONFIG = "defaultDataWD.json";
+
+    private String configFilePath =  userDir + PATH_TO_CONFIG_FOLDER + DEMO_APP_CONFIG;
+    private String configFilePathWD =  userDir + PATH_TO_CONFIG_FOLDER + WITHOUT_DISCOVERY_APP_CONFIG;
+    private String configFilePathIndian =  userDir + PATH_TO_CONFIG_FOLDER + INDIAN_DEMO_APP_CONFIG;
 
     @Bean
     public MobileConnectConfig mobileConnectConfig() throws IOException, ParseException {
-
         JSONObject config = (JSONObject)new JSONParser().parse(new FileReader(configFilePath));
         return new MobileConnectConfig.Builder()
                 .withClientId(config.get("clientID").toString())
@@ -70,6 +75,7 @@ public class DemoAppConfiguration
                 .withDiscoveryUrl(URI.create(config.get("discoveryURL").toString()))
                 .withRedirectUrl(URI.create(config.get("redirectURL").toString()))
                 .withXRedirect(config.get("xRedirect").toString())
+                .withIncludeRequestIP(config.get("includeRequestIP").toString().equals("True"))
                 .build();
     }
 

@@ -70,6 +70,8 @@ public class DemoAppController
     @ResponseBody
     public MobileConnectWebResponse startDiscovery(
             @RequestParam(required = false) final String msisdn,
+            @RequestParam(required = false) final String mcc,
+            @RequestParam(required = false) final String mnc,
             @RequestParam(required = false) final String sourceIp,
             final HttpServletRequest request)
     {
@@ -82,7 +84,7 @@ public class DemoAppController
                                 .withClientIp(sourceIp).build())
                         .build();
         final MobileConnectStatus status =
-                this.mobileConnectWebInterface.attemptDiscovery(request, msisdn, null, null, true, requestOptions);
+                this.mobileConnectWebInterface.attemptDiscovery(request, msisdn, mcc, mnc, true, mobileConnectConfig.getIncludeRequestIp(), requestOptions);
 
         return new MobileConnectWebResponse(status);
     }
@@ -141,18 +143,20 @@ public class DemoAppController
             @RequestParam(required = false) final URI discoveryURL,
             @RequestParam(required = false) final URI redirectURL,
             @RequestParam(required = false) final String xRedirect,
+            @RequestParam(required = false) final String includeRequestIP,
             @RequestParam(required = false) final String apiVersion
     ) {
 
-        LOGGER.info("* Getting parameters: clientId={}, clientSecret={}, discoveryUrl={}, redirectUrl={}, xRedirect={}, apiVersion={}",
-                clientID, clientSecret, discoveryURL, redirectURL, xRedirect, apiVersion);
+        LOGGER.info("* Getting parameters: clientId={}, clientSecret={}, discoveryUrl={}, redirectUrl={}, xRedirect={}, includeRequestIp={}, apiVersion={}",
+                clientID, clientSecret, discoveryURL, redirectURL, xRedirect, includeRequestIP, apiVersion);
         this.apiVersion = apiVersion;
         mobileConnectConfig = new MobileConnectConfig.Builder()
                 .withClientId(setValueToNullIfIsEmpty(clientID))
                 .withClientSecret(setValueToNullIfIsEmpty(clientSecret))
                 .withDiscoveryUrl(setValueToNullIfIsEmpty(discoveryURL))
                 .withRedirectUrl(setValueToNullIfIsEmpty(redirectURL))
-                .withXRedirect(setValueToNullIfIsEmpty(xRedirect))
+                .withXRedirect(setValueToNullIfIsEmpty(xRedirect.equals("True") ? "APP" : "True"))
+                .withIncludeRequestIP(includeRequestIP.equals("True"))
                 .build();
         this.mobileConnectWebInterface = MobileConnect.buildWebInterface(mobileConnectConfig, new DefaultEncodeDecoder());
     }
