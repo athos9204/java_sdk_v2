@@ -82,7 +82,7 @@ public class RestClient implements IRestClient
             .setConnectionRequestTimeout(timeoutAsInt)
             .setConnectTimeout(timeoutAsInt)
             .setSocketTimeout(timeoutAsInt)
-            .setRedirectsEnabled(false)
+            .setRedirectsEnabled(true)
             .build();
 
         LOGGER.info("New instance of RestClient created with timeout={} ms", timeoutAsInt);

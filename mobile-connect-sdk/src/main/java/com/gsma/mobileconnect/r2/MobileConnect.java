@@ -36,7 +36,9 @@ import com.gsma.mobileconnect.r2.rest.RestClient;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
 import com.gsma.mobileconnect.r2.utils.ObjectUtils;
 import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -369,7 +371,7 @@ public final class MobileConnect
                 if (this.httpClient == null)
                 {
                     LOGGER.info("Building default instance of HttpClient");
-                    this.httpClient = HttpClientBuilder.create().build();
+                    this.httpClient = HttpClientBuilder.create().setRedirectStrategy(new LaxRedirectStrategy()).build();
                 }
 
                 LOGGER.info("Building RestClient with timeout of duration={}, unit={}",
