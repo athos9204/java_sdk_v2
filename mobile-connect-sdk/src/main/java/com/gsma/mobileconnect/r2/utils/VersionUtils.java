@@ -16,15 +16,10 @@
 */
 package com.gsma.mobileconnect.r2.utils;
 
-import org.apache.maven.model.Model;
-import org.apache.maven.model.io.xpp3.MavenXpp3Reader;
-import org.apache.maven.project.MavenProject;
+import com.gsma.mobileconnect.r2.constants.Parameters;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.File;
-import java.io.FileReader;
 import java.util.Arrays;
 import java.util.List;
 
@@ -86,19 +81,7 @@ public class VersionUtils
     }
 
     private static String getJavaSdkVersion() {
-        final String pomFile = "pom.xml";
-        final String pomFilePath = System.getProperty("user.dir") +
-                File.separator + pomFile;
-        String sdkVersion;
-        try {
-            Model model = new MavenXpp3Reader().read(new FileReader(pomFilePath));
-            sdkVersion = prepareVersionFormat("Java", new MavenProject(model).getVersion());
-        }catch(NoClassDefFoundError | Exception e){
-            sdkVersion = null;
-            LOGGER.error("Unable to find {} file", pomFilePath);
-            e.printStackTrace();
-        }
-        return sdkVersion;
+        return Parameters.SDK_VERSION;
     }
 
     public static String prepareVersionFormat(final String platform, final String version) {
