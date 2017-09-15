@@ -24,7 +24,10 @@ import org.apache.http.client.utils.URLEncodedUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -143,14 +146,39 @@ public final class HttpUtils
      * @param request to extract IP from.
      * @return the client IP address.
      */
-    public static String extractClientIp(final HttpServletRequest request)
-    {
+    public static String extractClientIp(final HttpServletRequest request) {
         String ip = request.getHeader(Headers.X_FORWARDED_FOR);
-        if (StringUtils.isNullOrEmpty(ip))
-        {
+        if (StringUtils.isNullOrEmpty(ip)) {
             ip = request.getRemoteAddr();
+        } else {
+            String ips[] = ip.split(",");
+            for (String genIp : ips) {
+                if (isValidPublicIp(genIp.trim())) {
+                    ip = genIp.trim();
+                    break;
+                }
+            }
         }
         return ip;
+    }
+
+    /**
+     * Checks that ip address is valid
+     * @param ip - ip address
+     * @return true if is valid
+     */
+    public static boolean isValidPublicIp(String ip) {
+        Inet4Address address;
+        try {
+            address = (Inet4Address) InetAddress.getByName(ip);
+    } catch (UnknownHostException exception) {
+        return false; // assuming no logging, exception handling required
+    }
+        return !(address.isSiteLocalAddress() ||
+            address.isAnyLocalAddress() ||
+            address.isLinkLocalAddress() ||
+            address.isLoopbackAddress() ||
+            address.isMulticastAddress());
     }
 
     /**
