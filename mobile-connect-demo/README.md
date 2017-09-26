@@ -38,8 +38,6 @@ The Application consists of three parts:
 2. Without discovery.
 3. Indian demo application.
 
-The default environment is a sandbox.
-
 ## Using the Demo Application
 Configure the MobileConnectConfig instance with your credentials from the [MobileConnect Developer Site](https://developer.mobileconnect.io) portal. 
 Required parameters:
@@ -56,7 +54,7 @@ Default values are in `/local-path/mobile-connect-demo/src/main/resources/public
 	"discoveryURL": "<provide discovery URL here>",
 	"redirectURL": "http://localhost:8080/mobileconnect.html",
 	"xRedirect": "True",
-"includeRequestIP": "False"
+    "includeRequestIP": "False"
 }
 ```
 You can edit them in the UI while application is running.
@@ -96,13 +94,13 @@ Default values are in `/local-path/mobile-connect-demo/src/main/resources/public
 {
 	"msisdn": "<provide msisdn here>",
 	"mcc": "<provide mcc>",
-"mnc": "<provide mnc>",
+    "mnc": "<provide mnc>",
 	"clientID": "<provide client id here>",
 	"clientSecret": "<provide client secret here>",
 	"discoveryURL": "<provide discovery URL here>",
 	"redirectURL": "http://localhost:8080/mobileconnect.html",
 	"xRedirect": "True",
-"includeRequestIP": "False"
+    "includeRequestIP": "False"
 }
 ```
 You can edit them in the UI while application is running.
