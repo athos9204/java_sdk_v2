@@ -48,12 +48,12 @@ Default values are in `/local-path/mobile-connect-demo/src/main/resources/public
 
 ```posh
 {
-	"msisdn": "<provide msisdn here>",
-	"clientID": "<provide client id here>",
-	"clientSecret": "<provide client secret here>",
-	"discoveryURL": "<provide discovery URL here>",
-	"redirectURL": "http://localhost:8080/mobileconnect.html",
-	"xRedirect": "True",
+    "msisdn": "<provide msisdn here>",
+    "clientID": "<provide client id here>",
+    "clientSecret": "<provide client secret here>",
+    "discoveryURL": "<provide discovery URL here>",
+    "redirectURL": "http://localhost:8080/mobileconnect.html",
+    "xRedirect": "True",
     "includeRequestIP": "False"
 }
 ```
@@ -92,14 +92,14 @@ Default values are in `/local-path/mobile-connect-demo/src/main/resources/public
 
 ```posh
 {
-	"msisdn": "<provide msisdn here>",
-	"mcc": "<provide mcc>",
+    "msisdn": "<provide msisdn here>",
+    "mcc": "<provide mcc>",
     "mnc": "<provide mnc>",
-	"clientID": "<provide client id here>",
-	"clientSecret": "<provide client secret here>",
-	"discoveryURL": "<provide discovery URL here>",
-	"redirectURL": "http://localhost:8080/mobileconnect.html",
-	"xRedirect": "True",
+    "clientID": "<provide client id here>",
+    "clientSecret": "<provide client secret here>",
+    "discoveryURL": "<provide discovery URL here>",
+    "redirectURL": "http://localhost:8080/mobileconnect.html",
+    "xRedirect": "True",
     "includeRequestIP": "False"
 }
 ```
