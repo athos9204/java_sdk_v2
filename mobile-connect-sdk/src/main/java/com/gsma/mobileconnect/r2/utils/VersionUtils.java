@@ -32,8 +32,6 @@ public class VersionUtils
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VersionUtils.class);
 
-    private static String CURRENT_SDK_VERSION = getJavaSdkVersion();
-
     /**
      * Default Constructor
      */
@@ -68,31 +66,4 @@ public class VersionUtils
         return Integer.signum(ListUtils.sum(vals1) - ListUtils.sum(vals2));
     }
 
-    /**
-     * Looks current SDK version.
-     * @return version of sdk in parent of pom.xml file.
-     */
-    public static String getCurrentSdkVersion() {
-        if (!CURRENT_SDK_VERSION.contains("Android")) {
-            CURRENT_SDK_VERSION = getJavaSdkVersion();
-        }
-        LOGGER.info(String.format("Current SDK version: %s.", CURRENT_SDK_VERSION));
-        return CURRENT_SDK_VERSION;
-    }
-
-    private static String getJavaSdkVersion() {
-        return Parameters.SDK_VERSION;
-    }
-
-    public static String prepareVersionFormat(final String platform, final String version) {
-        return String.format("%s-%s", platform, version);
-    }
-
-    /**
-     * Use only outside this code
-     * @param version
-     */
-    public static void setCurrentSdkVersion(final String version) {
-        CURRENT_SDK_VERSION = version;
-    }
 }

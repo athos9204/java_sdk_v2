@@ -355,10 +355,9 @@ public class RestClient implements IRestClient
                 .create(ObjectUtils.requireNonNull(method, "method").name())
                 .setUri(ObjectUtils.requireNonNull(uri, "uri"))
                 .setConfig(this.requestConfig);
-        final String sdkVersion = VersionUtils.getCurrentSdkVersion();
-        if (!StringUtils.isNullOrEmpty(sdkVersion)) {
-            builder.addHeader(Headers.VERSION_SDK, sdkVersion);
-        }
+
+        builder.addHeader(Headers.VERSION_SDK, Parameters.SDK_VERSION);
+
         return prepareRequest(builder, xRedirect, authentication, sourceIp, cookies);
     }
 

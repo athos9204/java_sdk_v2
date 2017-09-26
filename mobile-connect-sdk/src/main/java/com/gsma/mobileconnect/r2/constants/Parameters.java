@@ -83,7 +83,7 @@ public final class Parameters
     public static final String REFRESH_TOKEN_HINT = "refresh_token";
 
     //Version of current SDK
-    public static final String SDK_VERSION = "2.4.3";
+    public static final String SDK_VERSION = "Java-2.4.3";
 
     private Parameters()
     {
