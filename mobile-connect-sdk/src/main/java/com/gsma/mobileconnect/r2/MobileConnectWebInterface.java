@@ -568,21 +568,14 @@ public class MobileConnectWebInterface
         {
             @Override public MobileConnectStatus apply(final DiscoveryResponse cached)
             {
-                if (cached == null && validateParameters(sdkSession, expectedState, expectedNonce))
-                {
-                    return MobileConnectWebInterface.this.cacheError(null);
-                }
-                else
-                {
-                    return MobileConnectWebInterface.this.cacheIfRequired(
+                return MobileConnectWebInterface.this.cacheIfRequired(
                         MobileConnectInterfaceHelper.handleUrlRedirect(
-                            MobileConnectWebInterface.this.discoveryService,
-                            MobileConnectWebInterface.this.jwKeysetService,
-                            MobileConnectWebInterface.this.authnService, redirectedUrl, cached,
-                            expectedState, expectedNonce, MobileConnectWebInterface.this.config,
-                            options, MobileConnectWebInterface.this.jsonService,
-                            MobileConnectWebInterface.this.iMobileConnectEncodeDecoder));
-                }
+                                MobileConnectWebInterface.this.discoveryService,
+                                MobileConnectWebInterface.this.jwKeysetService,
+                                MobileConnectWebInterface.this.authnService, redirectedUrl, cached,
+                                expectedState, expectedNonce, MobileConnectWebInterface.this.config,
+                                options, MobileConnectWebInterface.this.jsonService,
+                                MobileConnectWebInterface.this.iMobileConnectEncodeDecoder));
             }
         });
     }
