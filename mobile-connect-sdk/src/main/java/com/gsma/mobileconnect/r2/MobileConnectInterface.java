@@ -34,7 +34,6 @@ import org.slf4j.event.Level;
 import java.net.URI;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -87,8 +86,8 @@ public class MobileConnectInterface
     {
         LOGGER.debug("Queuing attemptDiscovery async request for msisdn={}, mcc={}, mnc={}",
             LogUtils.mask(msisdn, LOGGER, Level.DEBUG), mcc, mnc);
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        Future<MobileConnectStatus> mobileConnectStatusFuture = executorService.submit(new Callable<MobileConnectStatus>()
+
+        return this.executorService.submit(new Callable<MobileConnectStatus>()
         {
             @Override
             public MobileConnectStatus call() throws Exception
@@ -96,8 +95,6 @@ public class MobileConnectInterface
                 return MobileConnectInterface.this.attemptDiscovery(msisdn, mcc, mnc, options);
             }
         });
-        executorService.shutdownNow();
-        return mobileConnectStatusFuture;
     }
 
     /**
@@ -213,8 +210,8 @@ public class MobileConnectInterface
             "Queuing requestToken async for redirectedUrl={}, expectedState={}, expectedNonce={}",
             LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
             LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG));
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        Future<MobileConnectStatus> mobileConnectStatusFuture = this.executorService.submit(new Callable<MobileConnectStatus>()
+
+        return this.executorService.submit(new Callable<MobileConnectStatus>()
         {
             @Override
             public MobileConnectStatus call() throws Exception
@@ -223,8 +220,6 @@ public class MobileConnectInterface
                     expectedState, expectedNonce, options);
             }
         });
-        executorService.shutdownNow();
-        return  mobileConnectStatusFuture;
     }
 
     /**
@@ -316,8 +311,8 @@ public class MobileConnectInterface
             "Queuing handleUrlRedirect async for redirectedUrl={}, expectedState={}, expectedNonce={}",
             LogUtils.maskUri(redirectedUrl, LOGGER, Level.DEBUG), expectedState,
             LogUtils.mask(expectedNonce, LOGGER, Level.DEBUG));
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        Future<MobileConnectStatus> mobileConnectStatusFuture = executorService.submit(new Callable<MobileConnectStatus>()
+
+        return this.executorService.submit(new Callable<MobileConnectStatus>()
         {
             @Override
             public MobileConnectStatus call() throws Exception
@@ -326,8 +321,6 @@ public class MobileConnectInterface
                     discoveryResponse, expectedState, expectedNonce, options);
             }
         });
-        executorService.shutdownNow();
-        return mobileConnectStatusFuture;
     }
 
     /**
@@ -375,8 +368,8 @@ public class MobileConnectInterface
     {
         LOGGER.debug("Queuing requestUserInfo async for accessToken={}",
             LogUtils.mask(accessToken, LOGGER, Level.DEBUG));
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        Future<MobileConnectStatus> mobileConnectStatusFuture = executorService.submit(new Callable<MobileConnectStatus>()
+
+        return this.executorService.submit(new Callable<MobileConnectStatus>()
         {
             @Override
             public MobileConnectStatus call() throws Exception
@@ -384,8 +377,6 @@ public class MobileConnectInterface
                 return MobileConnectInterface.this.requestUserInfo(discoveryResponse, accessToken);
             }
         });
-        executorService.shutdownNow();
-        return mobileConnectStatusFuture;
     }
 
     /**
@@ -418,8 +409,8 @@ public class MobileConnectInterface
     {
         LOGGER.debug("Queuing requestUserInfo async for accessToken={}",
             LogUtils.mask(accessToken, LOGGER, Level.DEBUG));
-        ExecutorService executorService = Executors.newSingleThreadExecutor();
-        Future<MobileConnectStatus> mobileConnectStatusFuture = executorService.submit(new Callable<MobileConnectStatus>()
+
+        return this.executorService.submit(new Callable<MobileConnectStatus>()
         {
             @Override
             public MobileConnectStatus call() throws Exception
@@ -427,8 +418,6 @@ public class MobileConnectInterface
                 return MobileConnectInterface.this.requestIdentity(discoveryResponse, accessToken);
             }
         });
-        executorService.shutdownNow();
-        return mobileConnectStatusFuture;
     }
 
     /**

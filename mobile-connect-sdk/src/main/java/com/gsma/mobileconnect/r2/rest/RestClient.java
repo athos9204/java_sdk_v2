@@ -45,7 +45,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.UUID;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Concrete implementation of {@link IRestClient}
@@ -423,8 +427,8 @@ public class RestClient implements IRestClient
         throws RequestFailedException
     {
         ObjectUtils.requireNonNull(request, "request");
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
-        final Future<?> abortFuture = executorService.schedule(new Runnable()
+
+        final Future<?> abortFuture = this.scheduledExecutorService.schedule(new Runnable()
         {
             @Override
             public void run()
@@ -447,10 +451,9 @@ public class RestClient implements IRestClient
 
             LOGGER.debug("Issuing httpMethod={} request to uri={}", request.getMethod(),
                 LogUtils.maskUri(request.getURI(), LOGGER, Level.DEBUG));
-            abortFuture.cancel(true);
-            executorService.shutdownNow();
+
             return this.httpClient.execute(request,
-                    new RestResponseHandler(request.getMethod(), request.getURI(), abortFuture));
+                new RestResponseHandler(request.getMethod(), request.getURI(), abortFuture));
         }
         catch (final InterruptedIOException ioe)
         {
