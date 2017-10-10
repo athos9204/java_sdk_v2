@@ -76,7 +76,6 @@ public class AuthenticationService implements IAuthenticationService
         this.executorService = builder.executorService;
         this.restClient = builder.restClient;
         this.iMobileConnectEncodeDecoder = builder.iMobileConnectEncodeDecoder;
-
         LOGGER.info("New instance of AuthenticationService created");
     }
 
@@ -311,8 +310,8 @@ public class AuthenticationService implements IAuthenticationService
         URI finalRedirectUrl = restClient.getFinalRedirect(authUrl, redirectUrl, authentication);
 
         final String code = HttpUtils.extractQueryValue(finalRedirectUrl, "code");
-
-        return this.executorService.submit(new Callable<RequestTokenResponse>()
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<RequestTokenResponse> requestTokenResponseFuture = this.executorService.submit(new Callable<RequestTokenResponse>()
         {
             @Override
             public RequestTokenResponse call() throws Exception
@@ -321,6 +320,8 @@ public class AuthenticationService implements IAuthenticationService
                         requestTokenUrl, redirectUrl, code);
             }
         });
+        executorService.shutdownNow();
+        return requestTokenResponseFuture;
     }
 
     @Override
@@ -408,7 +409,8 @@ public class AuthenticationService implements IAuthenticationService
                                                           final URI requestTokenUrl, final URI redirectUrl,
                                                           final String code)
     {
-        return this.executorService.submit(new Callable<RequestTokenResponse>()
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<RequestTokenResponse> response = executorService.submit(new Callable<RequestTokenResponse>()
         {
             @Override
             public RequestTokenResponse call() throws Exception
@@ -417,6 +419,8 @@ public class AuthenticationService implements IAuthenticationService
                         requestTokenUrl, redirectUrl, code);
             }
         });
+        executorService.shutdownNow();
+        return response;
     }
 
     public static final class Builder implements IBuilder<AuthenticationService>
