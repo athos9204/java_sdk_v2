@@ -11,7 +11,7 @@ MobileConnect supports Java 6 and above, and is dependent upon Jackson Databind 
 ## Getting Started
 
 You must have first registered an account on the [MobileConnect Developer Site](https://developer.mobileconnect.io) and created an application to get your sandbox credentials.
-You should set your application redirectUrl to http://localhost:8001/mobileconnect.html
+You should set your application redirectUrl to http://localhost:8080/mobileconnect.html
 
 ## Running the Application
 Ensure you have build the [mobile-connect-sdk](../mobile-connect-sdk) jar using [Maven](https://maven.apache.org/) repository.
@@ -112,5 +112,6 @@ If you encounter any issues which are not resolved by consulting the resources b
 
 ## Resources
 
-- [MobileConnect Discovery API Information](https://developer.mobileconnect.io/content/discovery-api-0)
-- [MobileConnect Authentication API Information](https://developer.mobileconnect.io/content/mobile-connect-api)
+- [MobileConnect Discovery API Information](https://developer.mobileconnect.io/discovery-api)
+- [MobileConnect Authentication API Information](https://developer.mobileconnect.io/mobile-connect-api)
+- [MobileConnect Authentication API (v2.0) Information](https://developer.mobileconnect.io/mobile-connect-profile-v2-0)

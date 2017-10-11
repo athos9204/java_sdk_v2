@@ -21,7 +21,7 @@ cd mobile-connect-sdk
 mvn clean install
 ```
 
-Import the generated mobile-connect-sdk-2.3.8.jar into your java project.
+Import the generated mobile-connect-sdk-2.4.4.jar into your java project.
 
 To enable logging import an appropriate binding to your project, see [SLF4J](http://www.slf4j.org/) for more information.
 
@@ -33,6 +33,7 @@ MobileConnectConfig config = new MobileConnectConfig.Builder()
     .withClientSecret("your secret")
     .withDiscoveryUrl("your discovery URL")
     .withRedirectUrl("your application's redirect URL")
+    .withXRedirect("your X-Redirect header value")
     .build();
 ```
 
@@ -83,5 +84,6 @@ If you encounter any issues which are not resolved by consulting the resources b
 
 ## Resources
 
-- [MobileConnect Discovery API Information](https://developer.mobileconnect.io/content/discovery-api-0)
-- [MobileConnect Authentication API Information](https://developer.mobileconnect.io/content/mobile-connect-api)
+- [MobileConnect Discovery API Information](https://developer.mobileconnect.io/discovery-api)
+- [MobileConnect Authentication API Information](https://developer.mobileconnect.io/mobile-connect-api)
+- [MobileConnect Authentication API (v2.0) Information](https://developer.mobileconnect.io/mobile-connect-profile-v2-0)
