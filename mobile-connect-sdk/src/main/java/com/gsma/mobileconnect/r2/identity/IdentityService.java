@@ -33,6 +33,7 @@ import java.net.URI;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -79,7 +80,8 @@ public class IdentityService implements IIdentityService
     public Future<IdentityResponse> requestInfoAsync(final URI infoUrl, final String accessToken,
         final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
-        return this.executorService.submit(new Callable<IdentityResponse>()
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<IdentityResponse> identityServiceFuture = executorService.submit(new Callable<IdentityResponse>()
         {
             @Override
             public IdentityResponse call() throws Exception
@@ -88,6 +90,8 @@ public class IdentityService implements IIdentityService
                     iMobileConnectEncodeDecoder);
             }
         });
+        executorService.shutdownNow();
+        return identityServiceFuture;
     }
 
     public static final class Builder

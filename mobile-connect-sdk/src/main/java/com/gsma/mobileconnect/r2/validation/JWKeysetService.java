@@ -40,7 +40,6 @@ public class JWKeysetService implements IJWKeysetService
     private final IRestClient restClient;
     private final ICache iCache;
 
-    private final ExecutorService executorService;
     private final JacksonJsonService jacksonJsonService;
 
     /**
@@ -52,7 +51,6 @@ public class JWKeysetService implements IJWKeysetService
     {
         this.restClient = builder.restClient;
         this.iCache = builder.iCache;
-        this.executorService = Executors.newCachedThreadPool();
         this.jacksonJsonService = new JacksonJsonService();
     }
 
@@ -62,7 +60,8 @@ public class JWKeysetService implements IJWKeysetService
     @Override
     public Future<JWKeyset> retrieveJwksAsync(final String url)
     {
-        return this.executorService.submit(new Callable<JWKeyset>()
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        Future<JWKeyset> futureJWKeyset = executorService.submit(new Callable<JWKeyset>()
         {
             @Override
             public JWKeyset call() throws Exception
@@ -70,6 +69,8 @@ public class JWKeysetService implements IJWKeysetService
                 return JWKeysetService.this.retrieveJwks(url);
             }
         });
+        executorService.shutdownNow();
+        return futureJWKeyset;
     }
 
     /**
