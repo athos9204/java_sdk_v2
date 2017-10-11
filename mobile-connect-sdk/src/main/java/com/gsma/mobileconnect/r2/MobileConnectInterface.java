@@ -53,7 +53,6 @@ public class MobileConnectInterface
     private final IJWKeysetService jwKeysetService;
     private final IJsonService jsonService;
     private final MobileConnectConfig config;
-    private final ExecutorService executorService;
     private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
     private MobileConnectInterface(Builder builder)
@@ -64,7 +63,6 @@ public class MobileConnectInterface
         this.jwKeysetService = builder.jwKeysetService;
         this.jsonService = builder.jsonService;
         this.config = builder.config;
-        this.executorService = builder.executorService;
         this.iMobileConnectEncodeDecoder = builder.iMobileConnectEncodeDecoder;
 
         LOGGER.info("New instance of MobileConnectInterface created, using config={}", this.config);
@@ -459,7 +457,6 @@ public class MobileConnectInterface
         private IJWKeysetService jwKeysetService;
         private IJsonService jsonService;
         private MobileConnectConfig config;
-        private ExecutorService executorService;
         private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
         public Builder withDiscoveryService(final IDiscoveryService val)
@@ -498,12 +495,6 @@ public class MobileConnectInterface
             return this;
         }
 
-        public Builder withExecutorService(final ExecutorService val)
-        {
-            this.executorService = val;
-            return this;
-        }
-
         public Builder withiMobileConnectEncodeDecoder(final IMobileConnectEncodeDecoder val)
         {
             this.iMobileConnectEncodeDecoder = val;
@@ -517,7 +508,6 @@ public class MobileConnectInterface
             ObjectUtils.requireNonNull(this.authnService, "authnService");
             ObjectUtils.requireNonNull(this.identityService, "identityService");
             ObjectUtils.requireNonNull(this.config, "config");
-            ObjectUtils.requireNonNull(this.executorService, "executorService");
 
             if (this.iMobileConnectEncodeDecoder == null)
             {

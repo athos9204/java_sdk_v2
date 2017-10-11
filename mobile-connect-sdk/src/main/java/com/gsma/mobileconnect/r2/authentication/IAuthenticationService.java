@@ -16,7 +16,6 @@
  */
 package com.gsma.mobileconnect.r2.authentication;
 
-import com.gsma.mobileconnect.r2.MobileConnectRequestOptions;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.discovery.OperatorUrls;
 import com.gsma.mobileconnect.r2.exceptions.InvalidResponseException;
@@ -27,7 +26,6 @@ import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.concurrent.Future;
 
 /**

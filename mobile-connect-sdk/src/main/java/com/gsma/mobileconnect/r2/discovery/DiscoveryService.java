@@ -59,7 +59,6 @@ public class DiscoveryService implements IDiscoveryService
 
     private final ICache cache;
     private final IJsonService jsonService;
-    private final ExecutorService executorService;
     private final IRestClient restClient;
     private final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
@@ -67,7 +66,6 @@ public class DiscoveryService implements IDiscoveryService
     {
         this.cache = builder.cache;
         this.jsonService = builder.jsonService;
-        this.executorService = builder.executorService;
         this.restClient = builder.restClient;
         this.iMobileConnectEncodeDecoder = builder.iMobileConnectEncodeDecoder;
 
@@ -691,7 +689,6 @@ public class DiscoveryService implements IDiscoveryService
     {
         private ICache cache;
         private IJsonService jsonService;
-        private ExecutorService executorService;
         private IRestClient restClient;
         private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
@@ -704,12 +701,6 @@ public class DiscoveryService implements IDiscoveryService
         public Builder withJsonService(IJsonService val)
         {
             this.jsonService = val;
-            return this;
-        }
-
-        public Builder withExecutorService(ExecutorService val)
-        {
-            this.executorService = val;
             return this;
         }
 
@@ -730,7 +721,6 @@ public class DiscoveryService implements IDiscoveryService
         {
             ObjectUtils.requireNonNull(this.cache, "cache");
             ObjectUtils.requireNonNull(this.jsonService, "jsonService");
-            ObjectUtils.requireNonNull(this.executorService, "executorService");
             ObjectUtils.requireNonNull(this.restClient, "restClient");
             if (iMobileConnectEncodeDecoder == null)
             {

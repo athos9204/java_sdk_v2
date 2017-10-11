@@ -47,10 +47,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.*;
 
 /**
@@ -64,7 +62,6 @@ public class AuthenticationService implements IAuthenticationService
     public static final String REVOKE_TOKEN_SUCCESS = "Revoke token successful";
     static final String UNSUPPORTED_TOKEN_TYPE_ERROR = "Unsupported token type";
     private static IJsonService jsonService;
-    private static ExecutorService executorService;
     private IDiscoveryService discoveryService;
     private ICache discoveryCache;
     private IRestClient restClient;
@@ -73,7 +70,6 @@ public class AuthenticationService implements IAuthenticationService
     private AuthenticationService(final Builder builder)
     {
         this.jsonService = builder.jsonService;
-        this.executorService = builder.executorService;
         this.restClient = builder.restClient;
         this.iMobileConnectEncodeDecoder = builder.iMobileConnectEncodeDecoder;
 
@@ -427,19 +423,12 @@ public class AuthenticationService implements IAuthenticationService
     public static final class Builder implements IBuilder<AuthenticationService>
     {
         private IJsonService jsonService;
-        private ExecutorService executorService;
         private IRestClient restClient;
         private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
         public Builder withJsonService(final IJsonService val)
         {
             this.jsonService = val;
-            return this;
-        }
-
-        public Builder withExecutorService(final ExecutorService val)
-        {
-            this.executorService = val;
             return this;
         }
 
@@ -459,7 +448,6 @@ public class AuthenticationService implements IAuthenticationService
         public AuthenticationService build()
         {
             ObjectUtils.requireNonNull(this.jsonService, "jsonService");
-            ObjectUtils.requireNonNull(this.executorService, "executorService");
             ObjectUtils.requireNonNull(this.restClient, "restClient");
             if (this.iMobileConnectEncodeDecoder == null)
             {
@@ -482,7 +470,6 @@ public class AuthenticationService implements IAuthenticationService
 
         discoveryCache = new ConcurrentCache.Builder().withJsonService(jsonService).build();
         discoveryService = new DiscoveryService.Builder()
-                .withExecutorService(executorService)
                 .withJsonService(jsonService)
                 .withCache(discoveryCache)
                 .withRestClient(restClient)

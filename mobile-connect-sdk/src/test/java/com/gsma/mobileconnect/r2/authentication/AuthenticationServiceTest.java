@@ -24,7 +24,6 @@ import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.discovery.OperatorUrls;
 import com.gsma.mobileconnect.r2.discovery.SupportedVersions;
 import com.gsma.mobileconnect.r2.exceptions.HeadlessOperationFailedException;
-import com.gsma.mobileconnect.r2.exceptions.InvalidArgumentException;
 import com.gsma.mobileconnect.r2.exceptions.InvalidResponseException;
 import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.json.IJsonService;
@@ -47,8 +46,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import static org.mockito.Matchers.*;
@@ -67,7 +64,6 @@ public class AuthenticationServiceTest
     private final static URI AUTHORIZE_URL = URI.create("http://localhost:8080/authorize");
     private final static URI TOKEN_URL = URI.create("http://localhost:8080/token");
     private final IJsonService jsonService = new JacksonJsonService();
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
     private final IRestClient restClient = Mockito.mock(RestClient.class);
 
     private final SupportedVersions defaultVersions =
@@ -76,7 +72,6 @@ public class AuthenticationServiceTest
     private final IAuthenticationService authentication = new AuthenticationService.Builder()
             .withRestClient(this.restClient)
             .withJsonService(this.jsonService)
-            .withExecutorService(this.executorService)
             .build();
 
     private final MobileConnectConfig config = new MobileConnectConfig.Builder()

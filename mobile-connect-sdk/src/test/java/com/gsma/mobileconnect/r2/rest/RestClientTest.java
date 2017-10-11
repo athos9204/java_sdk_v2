@@ -97,7 +97,6 @@ public class RestClientTest
         this.restClient = new RestClient.Builder()
             .withHttpClient(httpClient)
             .withJsonService(jsonService)
-            .withScheduledExecutorService(scheduledExecutorService)
             .withTimeout(10L, TimeUnit.MILLISECONDS)
             .withWaitTime(1L)
             .build();
