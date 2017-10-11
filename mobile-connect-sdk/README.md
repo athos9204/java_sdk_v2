@@ -33,7 +33,7 @@ MobileConnectConfig config = new MobileConnectConfig.Builder()
     .withClientSecret("your secret")
     .withDiscoveryUrl("your discovery URL")
     .withRedirectUrl("your application's redirect URL")
-    .withXRedirect("your X-Redirect header value")
+    .withXRedirect("your X-Redirect header")
     .build();
 ```
 
