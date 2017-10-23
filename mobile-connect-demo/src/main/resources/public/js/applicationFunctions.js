@@ -587,16 +587,33 @@ $(document).ready(function ($) {
             $("#msisdnIndianContainer").show('slow');
             $("#mccIndian").hide('slow');
             $("#mncIndian").hide('slow');
+
+            $("#mc_india_tc").attr('disabled', false);
+            $("#mc_mnv_validate").attr('disabled', false);
+            $("#mc_mnv_validate_plus").attr('disabled', false);
+
         } else if (inputval == 'authIndianMccMnc-toggle'){
             $("#msisdnIndian").hide('slow');
             $("#msisdnIndianContainer").hide('slow');
             $("#mccIndian").show('slow');
             $("#mncIndian").show('slow');
+
+            if (!$('#openidIndian').is(':checked'))
+                $('#openidIndian').prop("checked", true);
+
+            $("#mc_india_tc").attr('disabled', true);
+            $("#mc_mnv_validate").attr('disabled', true);
+            $("#mc_mnv_validate_plus").attr('disabled', true);
+
         } else if (inputval == 'authIndianNone-toggle') {
             $("#msisdnIndian").hide('slow');
             $("#msisdnIndianContainer").hide('slow');
             $("#mccIndian").hide('slow');
             $("#mncIndian").hide('slow');
+
+            $("#mc_india_tc").attr('disabled', false);
+            $("#mc_mnv_validate").attr('disabled', false);
+            $("#mc_mnv_validate_plus").attr('disabled', false);
         }
     });
 

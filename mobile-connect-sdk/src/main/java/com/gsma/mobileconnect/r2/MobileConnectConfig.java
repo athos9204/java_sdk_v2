@@ -20,7 +20,6 @@ import com.gsma.mobileconnect.r2.discovery.IPreferences;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
 import com.gsma.mobileconnect.r2.utils.LogUtils;
 import com.gsma.mobileconnect.r2.utils.ObjectUtils;
-import com.gsma.mobileconnect.r2.utils.StringUtils;
 
 import java.net.URI;
 

@@ -68,7 +68,6 @@ public class IdentityServiceTest
     private final IIdentityService identityService = new IdentityService.Builder()
         .withJsonService(new JacksonJsonService())
         .withRestClient(this.restClient)
-        .withExecutorService(this.executorService)
         .build();
 
     @AfterClass

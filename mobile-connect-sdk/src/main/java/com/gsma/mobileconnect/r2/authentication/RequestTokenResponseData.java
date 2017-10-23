@@ -18,7 +18,6 @@ package com.gsma.mobileconnect.r2.authentication;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.gsma.mobileconnect.r2.utils.ObjectUtils;
-import com.gsma.mobileconnect.r2.utils.StringUtils;
 
 import java.net.URI;
 import java.util.Date;

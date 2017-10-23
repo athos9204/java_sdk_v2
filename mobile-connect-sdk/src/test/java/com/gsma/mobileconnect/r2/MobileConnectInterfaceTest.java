@@ -138,7 +138,6 @@ public class MobileConnectInterfaceTest
             .withAuthnService(Mockito.mock(AuthenticationService.class))
             .withIdentityService(Mockito.mock(IdentityService.class))
             .withConfig(this.config)
-            .withExecutorService(Mockito.mock(ExecutorService.class))
             .build();
         assertNotNull(mobileConnectInterface);
     }

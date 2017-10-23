@@ -17,7 +17,6 @@
 package com.gsma.mobileconnect.r2.exceptions;
 
 import com.gsma.mobileconnect.r2.IHasMobileConnectStatus;
-import com.gsma.mobileconnect.r2.MobileConnectStatus;
 
 /**
  * Abstract class to extend from when exceptions implement the IHasMobileConnectStatus interface

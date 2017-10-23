@@ -16,23 +16,21 @@
  */
 package com.gsma.mobileconnect.r2.identity;
 
-import com.gsma.mobileconnect.r2.constants.Parameters;
 import com.gsma.mobileconnect.r2.encoding.IMobileConnectEncodeDecoder;
 import com.gsma.mobileconnect.r2.json.IJsonService;
 import com.gsma.mobileconnect.r2.rest.IRestClient;
 import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.rest.RestAuthentication;
 import com.gsma.mobileconnect.r2.rest.RestResponse;
-import com.gsma.mobileconnect.r2.utils.KeyValuePair;
 import com.gsma.mobileconnect.r2.utils.ObjectUtils;
 import com.gsma.mobileconnect.r2.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -46,13 +44,11 @@ public class IdentityService implements IIdentityService
 
     private final IJsonService jsonService;
     private final IRestClient restClient;
-    private final ExecutorService executorService;
 
     private IdentityService(Builder builder)
     {
         this.jsonService = builder.jsonService;
         this.restClient = builder.restClient;
-        this.executorService = builder.executorService;
 
         LOGGER.info("New instance of IdentityService created");
     }
@@ -79,7 +75,8 @@ public class IdentityService implements IIdentityService
     public Future<IdentityResponse> requestInfoAsync(final URI infoUrl, final String accessToken,
         final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder)
     {
-        return this.executorService.submit(new Callable<IdentityResponse>()
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<IdentityResponse> identityServiceFuture = executorService.submit(new Callable<IdentityResponse>()
         {
             @Override
             public IdentityResponse call() throws Exception
@@ -88,13 +85,14 @@ public class IdentityService implements IIdentityService
                     iMobileConnectEncodeDecoder);
             }
         });
+        executorService.shutdownNow();
+        return identityServiceFuture;
     }
 
     public static final class Builder
     {
         private IJsonService jsonService;
         private IRestClient restClient;
-        private ExecutorService executorService;
 
         public Builder withJsonService(final IJsonService val)
         {
@@ -108,17 +106,10 @@ public class IdentityService implements IIdentityService
             return this;
         }
 
-        public Builder withExecutorService(final ExecutorService val)
-        {
-            this.executorService = val;
-            return this;
-        }
-
         public IdentityService build()
         {
             ObjectUtils.requireNonNull(this.jsonService, "jsonService");
             ObjectUtils.requireNonNull(this.restClient, "restClient");
-            ObjectUtils.requireNonNull(this.executorService, "executorService");
 
             return new IdentityService(this);
         }

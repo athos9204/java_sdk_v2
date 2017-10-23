@@ -22,7 +22,6 @@ import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.utils.IBuilder;
 
 import java.net.URI;
-import java.util.UUID;
 
 /**
  * Parameters for the {@link IDiscoveryService}.  Object can be serialized to JSON to be a POST
