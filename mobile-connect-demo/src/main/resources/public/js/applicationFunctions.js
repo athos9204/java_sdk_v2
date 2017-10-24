@@ -156,6 +156,7 @@ function startAuthz() {
     hide('.error')
     show('#redirect-url');
     hide('#logged-in');
+    $("#information").hide("slow");
     $("#information").hide("slow", function () {
         $("#redirect-url").show("slow");
     });
@@ -292,6 +293,14 @@ var api = {
         console.log(data);
         if (data["status"] === 'failure') {
             api.error(data);
+            $("#redirect-url").hide();
+//            $('#information').html(data.description);
+            $("#error").show("slow");
+//            $("#information").show("slow");
+//            $("#information").show("slow", function () {
+//                    $("#redirect-url").hide("slow");
+//            });
+
         }
         api[data.action](data);
     },
