@@ -40,6 +40,7 @@ public class MobileConnectConfig implements IPreferences
     private final URI discoveryUrl;
     private final URI redirectUrl;
     private final boolean includeRequestIP;
+    private final String apiVersion;
 
     // web
     private final boolean cacheResponsesWithSessionId;
@@ -53,6 +54,7 @@ public class MobileConnectConfig implements IPreferences
         this.redirectUrl = builder.redirectUrl;
         this.includeRequestIP = builder.includeRequestIP;
         this.cacheResponsesWithSessionId = builder.cacheResponsesWithSessionId;
+        this.apiVersion = builder.apiVersion;
     }
 
     @Override
@@ -92,6 +94,10 @@ public class MobileConnectConfig implements IPreferences
         return this.redirectUrl;
     }
 
+    public String getApiVersion() {
+        return apiVersion;
+    }
+
     @Override
     public String toString()
     {
@@ -118,6 +124,7 @@ public class MobileConnectConfig implements IPreferences
         private URI redirectUrl;
         private boolean includeRequestIP;
         private boolean cacheResponsesWithSessionId = true;
+        private String apiVersion;
 
         public Builder withClientId(String val)
         {
@@ -158,6 +165,12 @@ public class MobileConnectConfig implements IPreferences
         public Builder withXRedirect(String val)
         {
             this.xRedirect = val;
+            return this;
+        }
+
+        public Builder withApiVersion(String val)
+        {
+            this.apiVersion = val;
             return this;
         }
 
