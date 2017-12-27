@@ -37,6 +37,7 @@ import com.gsma.mobileconnect.r2.utils.IBuilder;
 import com.gsma.mobileconnect.r2.utils.ObjectUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,20 +81,17 @@ public final class MobileConnect
             .withJsonService(builder.jsonService)
             .withRestClient(builder.restClient)
             .withIMobileConnectEncodeDecoder(this.iMobileConnectEncoderDecoder)
-            .withExecutorService(builder.scheduledExecutorService)
             .build();
 
         this.authnService = new AuthenticationService.Builder()
             .withJsonService(builder.jsonService)
             .withRestClient(builder.restClient)
             .withIMobileConnectEncodeDecoder(this.iMobileConnectEncoderDecoder)
-            .withExecutorService(builder.scheduledExecutorService)
             .build();
 
         this.identityService = new IdentityService.Builder()
             .withJsonService(builder.jsonService)
             .withRestClient(builder.restClient)
-            .withExecutorService(builder.scheduledExecutorService)
             .build();
 
         this.jwKeysetService = new JWKeysetService.Builder()
@@ -102,7 +100,6 @@ public final class MobileConnect
             .build();
 
         this.mobileConnectInterface = new MobileConnectInterface.Builder()
-            .withExecutorService(builder.scheduledExecutorService)
             .withAuthnService(this.authnService)
             .withDiscoveryService(this.discoveryService)
             .withIdentityService(this.identityService)
@@ -369,13 +366,12 @@ public final class MobileConnect
                 if (this.httpClient == null)
                 {
                     LOGGER.info("Building default instance of HttpClient");
-                    this.httpClient = HttpClientBuilder.create().build();
+                    this.httpClient = HttpClientBuilder.create().setRedirectStrategy(new LaxRedirectStrategy()).build();
                 }
 
                 LOGGER.info("Building RestClient with timeout of duration={}, unit={}",
                     this.timeoutDuration, this.timeoutTimeUnit.name());
                 this.restClient = new RestClient.Builder()
-                    .withScheduledExecutorService(this.scheduledExecutorService)
                     .withHttpClient(this.httpClient)
                     .withJsonService(this.jsonService)
                     .withTimeout(this.timeoutDuration, this.timeoutTimeUnit)

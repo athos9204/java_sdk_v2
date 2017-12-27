@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 /**
@@ -58,7 +59,6 @@ public class DiscoveryService implements IDiscoveryService
 
     private final ICache cache;
     private final IJsonService jsonService;
-    private final ExecutorService executorService;
     private final IRestClient restClient;
     private final IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
@@ -66,7 +66,6 @@ public class DiscoveryService implements IDiscoveryService
     {
         this.cache = builder.cache;
         this.jsonService = builder.jsonService;
-        this.executorService = builder.executorService;
         this.restClient = builder.restClient;
         this.iMobileConnectEncodeDecoder = builder.iMobileConnectEncodeDecoder;
 
@@ -129,7 +128,8 @@ public class DiscoveryService implements IDiscoveryService
                                                                           final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
                                                                           final DiscoveryOptions options, final Iterable<KeyValuePair> currentCookies)
     {
-        return this.executorService.submit(new Callable<DiscoveryResponse>()
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<DiscoveryResponse> discoveryResponseFuture = executorService.submit(new Callable<DiscoveryResponse>()
         {
             @Override
             public DiscoveryResponse call() throws Exception
@@ -138,6 +138,8 @@ public class DiscoveryService implements IDiscoveryService
                         discoveryUrl, redirectUrl, options, currentCookies);
             }
         });
+        executorService.shutdownNow();
+        return discoveryResponseFuture;
     }
 
     @Override
@@ -376,8 +378,8 @@ public class DiscoveryService implements IDiscoveryService
         StringUtils.requireNonEmpty(clientSecret, "clientSecret");
         ObjectUtils.requireNonNull(discoveryUrl, "discoveryUrl");
         ObjectUtils.requireNonNull(redirectUrl, "redirectUrl");
-
-        return this.executorService.submit(new Callable<DiscoveryResponse>()
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<DiscoveryResponse> discoveryResponseFuture = executorService.submit(new Callable<DiscoveryResponse>()
         {
             @Override
             public DiscoveryResponse call() throws Exception
@@ -386,6 +388,8 @@ public class DiscoveryService implements IDiscoveryService
                         discoveryUrl, redirectUrl);
             }
         });
+        executorService.shutdownNow();
+        return discoveryResponseFuture;
     }
 
     @Override
@@ -461,7 +465,8 @@ public class DiscoveryService implements IDiscoveryService
                                                                             final String clientSecret, final URI discoveryUrl, final URI redirectUrl,
                                                                             final String selectedMCC, final String selectedMNC)
     {
-        return this.executorService.submit(new Callable<DiscoveryResponse>()
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<DiscoveryResponse> discoveryResponseFuture = executorService.submit(new Callable<DiscoveryResponse>()
         {
             @Override
             public DiscoveryResponse call() throws Exception
@@ -470,6 +475,8 @@ public class DiscoveryService implements IDiscoveryService
                         clientSecret, discoveryUrl, redirectUrl, selectedMCC, selectedMNC);
             }
         });
+        executorService.shutdownNow();
+        return discoveryResponseFuture;
     }
 
     @Override
@@ -477,7 +484,8 @@ public class DiscoveryService implements IDiscoveryService
             final IPreferences preferences, final URI redirectUrl, final String selectedMCC,
             final String selectedMNC)
     {
-        return this.executorService.submit(new Callable<DiscoveryResponse>()
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<DiscoveryResponse> discoveryResponseFuture = executorService.submit(new Callable<DiscoveryResponse>()
         {
             @Override
             public DiscoveryResponse call() throws Exception
@@ -486,6 +494,8 @@ public class DiscoveryService implements IDiscoveryService
                         redirectUrl, selectedMCC, selectedMNC);
             }
         });
+        executorService.shutdownNow();
+        return discoveryResponseFuture;
     }
 
     @Override
@@ -561,8 +571,8 @@ public class DiscoveryService implements IDiscoveryService
                                                         final boolean forceCacheBypass)
     {
         final URI providerMetadataUrl = this.extractProviderMetadataUrl(response);
-
-        return this.executorService.submit(new Callable<ProviderMetadata>()
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<ProviderMetadata> providerMetadataFuture = executorService.submit(new Callable<ProviderMetadata>()
         {
             @Override
             public ProviderMetadata call() throws Exception
@@ -574,6 +584,8 @@ public class DiscoveryService implements IDiscoveryService
                 return providerMetadata;
             }
         });
+        executorService.shutdownNow();
+        return providerMetadataFuture;
     }
 
     private URI extractProviderMetadataUrl(final DiscoveryResponse response)
@@ -677,7 +689,6 @@ public class DiscoveryService implements IDiscoveryService
     {
         private ICache cache;
         private IJsonService jsonService;
-        private ExecutorService executorService;
         private IRestClient restClient;
         private IMobileConnectEncodeDecoder iMobileConnectEncodeDecoder;
 
@@ -690,12 +701,6 @@ public class DiscoveryService implements IDiscoveryService
         public Builder withJsonService(IJsonService val)
         {
             this.jsonService = val;
-            return this;
-        }
-
-        public Builder withExecutorService(ExecutorService val)
-        {
-            this.executorService = val;
             return this;
         }
 
@@ -716,7 +721,6 @@ public class DiscoveryService implements IDiscoveryService
         {
             ObjectUtils.requireNonNull(this.cache, "cache");
             ObjectUtils.requireNonNull(this.jsonService, "jsonService");
-            ObjectUtils.requireNonNull(this.executorService, "executorService");
             ObjectUtils.requireNonNull(this.restClient, "restClient");
             if (iMobileConnectEncodeDecoder == null)
             {

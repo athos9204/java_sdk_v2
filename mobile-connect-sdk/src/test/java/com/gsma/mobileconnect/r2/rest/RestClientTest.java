@@ -40,6 +40,7 @@ import org.mockito.stubbing.Answer;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+import org.testng.internal.thread.ThreadTimeoutException;
 
 import java.io.IOException;
 import java.io.InterruptedIOException;
@@ -96,7 +97,6 @@ public class RestClientTest
         this.restClient = new RestClient.Builder()
             .withHttpClient(httpClient)
             .withJsonService(jsonService)
-            .withScheduledExecutorService(scheduledExecutorService)
             .withTimeout(10L, TimeUnit.MILLISECONDS)
             .withWaitTime(1L)
             .build();
@@ -169,7 +169,7 @@ public class RestClientTest
         assertEquals(request.getEntity(), entity);
     }
 
-    @Test(expectedExceptions = RequestFailedException.class, invocationTimeOut = 1500L)
+    @Test(expectedExceptions = {RequestFailedException.class, ThreadTimeoutException.class}, invocationTimeOut = 1500L)
     public void submitRequest_timeout() throws RequestFailedException, IOException
     {
         when(httpClient.execute(isA(HttpUriRequest.class),

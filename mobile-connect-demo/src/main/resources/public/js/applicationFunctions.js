@@ -156,6 +156,7 @@ function startAuthz() {
     hide('.error')
     show('#redirect-url');
     hide('#logged-in');
+    $("#information").hide("slow");
     $("#information").hide("slow", function () {
         $("#redirect-url").show("slow");
     });
@@ -292,6 +293,14 @@ var api = {
         console.log(data);
         if (data["status"] === 'failure') {
             api.error(data);
+            $("#redirect-url").hide();
+//            $('#information').html(data.description);
+            $("#error").show("slow");
+//            $("#information").show("slow");
+//            $("#information").show("slow", function () {
+//                    $("#redirect-url").hide("slow");
+//            });
+
         }
         api[data.action](data);
     },
@@ -587,16 +596,33 @@ $(document).ready(function ($) {
             $("#msisdnIndianContainer").show('slow');
             $("#mccIndian").hide('slow');
             $("#mncIndian").hide('slow');
+
+            $("#mc_india_tc").attr('disabled', false);
+            $("#mc_mnv_validate").attr('disabled', false);
+            $("#mc_mnv_validate_plus").attr('disabled', false);
+
         } else if (inputval == 'authIndianMccMnc-toggle'){
             $("#msisdnIndian").hide('slow');
             $("#msisdnIndianContainer").hide('slow');
             $("#mccIndian").show('slow');
             $("#mncIndian").show('slow');
+
+            if (!$('#openidIndian').is(':checked'))
+                $('#openidIndian').prop("checked", true);
+
+            $("#mc_india_tc").attr('disabled', true);
+            $("#mc_mnv_validate").attr('disabled', true);
+            $("#mc_mnv_validate_plus").attr('disabled', true);
+
         } else if (inputval == 'authIndianNone-toggle') {
             $("#msisdnIndian").hide('slow');
             $("#msisdnIndianContainer").hide('slow');
             $("#mccIndian").hide('slow');
             $("#mncIndian").hide('slow');
+
+            $("#mc_india_tc").attr('disabled', false);
+            $("#mc_mnv_validate").attr('disabled', false);
+            $("#mc_mnv_validate_plus").attr('disabled', false);
         }
     });
 

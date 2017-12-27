@@ -19,7 +19,6 @@ package com.gsma.mobileconnect.r2.rest;
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.constants.Headers;
 import com.gsma.mobileconnect.r2.constants.Parameters;
-import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
 import com.gsma.mobileconnect.r2.exceptions.HeadlessOperationFailedException;
 import com.gsma.mobileconnect.r2.exceptions.RequestFailedException;
 import com.gsma.mobileconnect.r2.json.IJsonService;
@@ -45,11 +44,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 /**
  * Concrete implementation of {@link IRestClient}
@@ -61,7 +56,6 @@ public class RestClient implements IRestClient
     private static final Logger LOGGER = LoggerFactory.getLogger(RestClient.class);
 
     private final IJsonService jsonService;
-    private final ScheduledExecutorService scheduledExecutorService;
     private final HttpClient httpClient;
     private final long timeout;
     private final long waitTime;
@@ -70,7 +64,6 @@ public class RestClient implements IRestClient
     private RestClient(Builder builder)
     {
         this.jsonService = builder.jsonService;
-        this.scheduledExecutorService = builder.scheduledExecutorService;
         this.httpClient = builder.httpClient;
         this.timeout = builder.timeout;
         this.waitTime = builder.waitTime;
@@ -82,7 +75,7 @@ public class RestClient implements IRestClient
             .setConnectionRequestTimeout(timeoutAsInt)
             .setConnectTimeout(timeoutAsInt)
             .setSocketTimeout(timeoutAsInt)
-            .setRedirectsEnabled(false)
+            .setRedirectsEnabled(true)
             .build();
 
         LOGGER.info("New instance of RestClient created with timeout={} ms", timeoutAsInt);
@@ -355,10 +348,9 @@ public class RestClient implements IRestClient
                 .create(ObjectUtils.requireNonNull(method, "method").name())
                 .setUri(ObjectUtils.requireNonNull(uri, "uri"))
                 .setConfig(this.requestConfig);
-        final String sdkVersion = VersionUtils.getCurrentSdkVersion();
-        if (!StringUtils.isNullOrEmpty(sdkVersion)) {
-            builder.addHeader(Headers.VERSION_SDK, sdkVersion);
-        }
+
+        builder.addHeader(Headers.VERSION_SDK, Parameters.SDK_VERSION);
+
         return prepareRequest(builder, xRedirect, authentication, sourceIp, cookies);
     }
 
@@ -428,8 +420,8 @@ public class RestClient implements IRestClient
         throws RequestFailedException
     {
         ObjectUtils.requireNonNull(request, "request");
-
-        final Future<?> abortFuture = this.scheduledExecutorService.schedule(new Runnable()
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(1);
+        final Future<?> abortFuture = executorService.schedule(new Runnable()
         {
             @Override
             public void run()
@@ -452,7 +444,7 @@ public class RestClient implements IRestClient
 
             LOGGER.debug("Issuing httpMethod={} request to uri={}", request.getMethod(),
                 LogUtils.maskUri(request.getURI(), LOGGER, Level.DEBUG));
-
+            executorService.shutdownNow();
             return this.httpClient.execute(request,
                 new RestResponseHandler(request.getMethod(), request.getURI(), abortFuture));
         }
@@ -528,7 +520,6 @@ public class RestClient implements IRestClient
     public static final class Builder implements IBuilder<RestClient>
     {
         private IJsonService jsonService;
-        private ScheduledExecutorService scheduledExecutorService;
         private HttpClient httpClient;
         private long timeout = DefaultOptions.TIMEOUT_MS;
         private long waitTime = DefaultOptions.WAIT_TIME;
@@ -536,12 +527,6 @@ public class RestClient implements IRestClient
         public Builder withJsonService(final IJsonService val)
         {
             this.jsonService = val;
-            return this;
-        }
-
-        public Builder withScheduledExecutorService(final ScheduledExecutorService val)
-        {
-            this.scheduledExecutorService = val;
             return this;
         }
 
@@ -567,7 +552,6 @@ public class RestClient implements IRestClient
         public RestClient build()
         {
             ObjectUtils.requireNonNull(this.jsonService, "jsonService");
-            ObjectUtils.requireNonNull(this.scheduledExecutorService, "scheduledExecutorService");
             ObjectUtils.requireNonNull(this.httpClient, "httpClient");
 
             return new RestClient(this);

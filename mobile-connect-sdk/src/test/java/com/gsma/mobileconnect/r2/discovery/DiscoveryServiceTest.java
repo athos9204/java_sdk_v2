@@ -69,7 +69,6 @@ public class DiscoveryServiceTest
         discoveryCache = new ConcurrentCache.Builder().withJsonService(jsonService).build();
 
         discoveryService = new DiscoveryService.Builder()
-            .withExecutorService(executorService)
             .withJsonService(jsonService)
             .withCache(discoveryCache)
             .withRestClient(restClient)
