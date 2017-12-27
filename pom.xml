@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>mobile-connect-sdk</module>
-        <module>mobile-connect-demo</module>
+        <!--<module>mobile-connect-demo</module>-->
     </modules>
 
     <name>mobile-connect</name>

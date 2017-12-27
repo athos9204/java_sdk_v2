@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.gsma.mobileconnect.r2.MobileConnect;
 import com.gsma.mobileconnect.r2.MobileConnectConfig;
 import com.gsma.mobileconnect.r2.MobileConnectWebInterface;
-import com.gsma.mobileconnect.r2.discovery.OperatorUrls;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,9 +28,6 @@ public class MobileConnectConfiguration {
     @Value("${MC_CONFIG:./src/main/resources/config/defaultData.json}")
     private String configFilePath;
 
-    @Value("${MC_CONFIG:./src/main/resources/config/defaultDataWD.json}")
-    private String configFilePathWD;
-
     @Bean
     public MobileConnectConfig mobileConnectConfig() throws IOException, ParseException {
         JSONObject config = (JSONObject)new JSONParser().parse(new FileReader(configFilePath));
@@ -41,17 +37,6 @@ public class MobileConnectConfiguration {
                 .withDiscoveryUrl(URI.create(config.get("discoveryURL").toString()))
                 .withRedirectUrl(URI.create(config.get("redirectURL").toString()))
                 .withApiVersion(config.get("apiVersion").toString())
-                .build();
-    }
-
-    @Bean
-    public OperatorUrls operatorUrls() throws IOException, ParseException {
-        JSONObject config = (JSONObject)new JSONParser().parse(new FileReader(configFilePathWD));
-        return new OperatorUrls.Builder()
-                .withProviderMetadataUri(config.get("metadataURL").toString())
-                .withAuthorizationUrl(config.get("authorizationURL").toString())
-                .withRequestTokenUrl(config.get("tokenURL").toString())
-                .withUserInfoUrl(config.get("userInfoURL").toString())
                 .build();
     }
 

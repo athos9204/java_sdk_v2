@@ -1,7 +1,7 @@
 {
-  "clientID": "ab3870a4-a118-4295-a6e8-1259186818e6",
-  "clientSecret": "8e72fc86-dda0-4d0c-abd0-980816da6279",
+  "clientID": "ab416e2c-edbe-4570-b218-26dd3239fcee",
+  "clientSecret": "bc8425c6-c9ad-45a4-9866-0add468ece50",
   "discoveryURL": "https://discovery.sandbox.mobileconnect.io/v2/discovery",
-  "redirectURL": "http://localhost:8080/mobileconnect.html",
+  "redirectURL": "http://localhost:8080/api/mobileconnect/discovery_callback",
   "apiVersion": "MC_V1_1"
 }

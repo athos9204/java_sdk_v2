@@ -4,12 +4,8 @@ import com.gsma.mobileconnect.r2.*;
 import com.gsma.mobileconnect.r2.authentication.AuthenticationOptions;
 import com.gsma.mobileconnect.r2.constants.DefaultOptions;
 import com.gsma.mobileconnect.r2.constants.Parameters;
-import com.gsma.mobileconnect.r2.constants.Scopes;
 import com.gsma.mobileconnect.r2.discovery.DiscoveryOptions;
-import com.gsma.mobileconnect.r2.discovery.DiscoveryResponse;
-import com.gsma.mobileconnect.r2.discovery.OperatorUrls;
 import com.gsma.mobileconnect.r2.encoding.DefaultEncodeDecoder;
-import com.gsma.mobileconnect.r2.json.JsonDeserializationException;
 import com.gsma.mobileconnect.r2.utils.HttpUtils;
 import com.gsma.mobileconnect.r2.utils.LogUtils;
 import org.slf4j.Logger;
@@ -37,11 +33,8 @@ public class MobileConnectController {
     @Autowired
     private MobileConnectConfig mobileConnectConfig;
 
-    @Autowired
-    private OperatorUrls operatorUrls;
     private MobileConnectWebInterface mobileConnectWebInterface;
-    private String clientName;
-    private String apiVersion = mobileConnectConfig.getApiVersion();
+    private String clientName = "demoApp";
 
     public MobileConnectController(@Autowired final MobileConnectWebInterface mobileConnectWebInterface)
     {
@@ -71,73 +64,25 @@ public class MobileConnectController {
         return new MobileConnectWebResponse(status);
     }
 
-    @GetMapping("start_manual_discovery")
-    @ResponseBody
-    public MobileConnectWebResponse startManualDiscovery (
-            @RequestParam(required = false) final String subId,
-            @RequestParam(required = false) final String clientName,
-            final HttpServletRequest request
-    ) throws JsonDeserializationException {
-
-        String clientId = mobileConnectConfig.getClientId();
-        String clientSecret = mobileConnectConfig.getClientSecret();
-
-        LOGGER.info("* Attempting discovery for clientId={}, clientSecret={}, clientName={}",
-                LogUtils.mask(clientId, LOGGER, Level.INFO), clientSecret, clientName);
-
-        this.clientName = clientName;
-        DiscoveryResponse discoveryResponse = this.mobileConnectWebInterface.generateDiscoveryManually(clientSecret,
-                clientId, subId, clientName, operatorUrls);
-
-        final MobileConnectStatus status = this.mobileConnectWebInterface.attemptManuallyDiscovery(discoveryResponse);
-
-        return new MobileConnectWebResponse(status);
-    }
-
-    @GetMapping("start_manual_discovery_no_metadata")
-    @ResponseBody
-    public MobileConnectWebResponse startAuthenticationNoMetadata(
-            @RequestParam(required = false) final String subId,
-            final HttpServletRequest request) throws JsonDeserializationException {
-
-        String clientId = mobileConnectConfig.getClientId();
-        String clientSecret = mobileConnectConfig.getClientSecret();
-
-        LOGGER.info("* Starting authentication for sdkSession={}, subscriberId={}, scope={}",
-                LogUtils.mask(subId, LOGGER, Level.INFO), Scopes.MOBILECONNECT);
-        OperatorUrls operatorUrlsWD = new OperatorUrls.Builder()
-                .withAuthorizationUrl(operatorUrls.getAuthorizationUrl())
-                .withRequestTokenUrl(operatorUrls.getRequestTokenUrl())
-                .withUserInfoUrl(operatorUrls.getUserInfoUrl())
-                .build();
-        DiscoveryResponse discoveryResponse = this.mobileConnectWebInterface.generateDiscoveryManually(clientSecret,
-                clientId, subId, "appName", operatorUrlsWD);
-
-        final MobileConnectStatus status =
-                this.mobileConnectWebInterface.attemptManuallyDiscovery(discoveryResponse);
-
-        return new MobileConnectWebResponse(status);
-    }
-
     @GetMapping("discovery_callback")
     @ResponseBody
     public MobileConnectWebResponse discoveryCallback(
-            @RequestParam(required = false) final String sdkSession,
+            @RequestParam(required = false) String sdkSession,
             @RequestParam(required = false, value = "mcc_mnc") final String mccMnc,
             @RequestParam(required = false) final String code,
-            @RequestParam(required = false) final String expectedState,
+            @RequestParam(required = false) final String state,
             @RequestParam(required = false) final String expectedNonce,
             @RequestParam(required = false) final String subscriberId, final HttpServletRequest request)
     {
         LOGGER.info(
                 "* Handling redirect for sdkSession={}, mccMnc={}, code={}, expectedState={}, expectedNonce={}, subscriberId={}",
-                sdkSession, mccMnc, code, expectedState, expectedNonce,
+                sdkSession, mccMnc, code, state, expectedNonce,
                 LogUtils.mask(subscriberId, LOGGER, Level.INFO));
 
         final URI requestUri = HttpUtils.extractCompleteUrl(request);
         final MobileConnectStatus status =
-                this.mobileConnectWebInterface.handleUrlRedirect(request, requestUri, sdkSession,
-                        expectedState, expectedNonce, null);
+                this.mobileConnectWebInterface.handleUrlRedirect(request, requestUri, state,
+                        state, state, null);
 
         return new MobileConnectWebResponse(status);
     }
@@ -154,19 +99,12 @@ public class MobileConnectController {
     ) {
         LOGGER.info("* Getting endpoints: authorizationUrl={}, tokenUrl={}, userInfoUrl={}, metadataUrl{}, discoveryUrl={}, redirectUrl={}",
                 authURL, tokenURL, userInfoURl, metadata, discoveryURL, redirectURL);
-        operatorUrls = new OperatorUrls.Builder()
-                .withAuthorizationUrl(setValueToNullIfIsEmpty(authURL))
-                .withRequestTokenUrl(setValueToNullIfIsEmpty(tokenURL))
-                .withUserInfoUrl(setValueToNullIfIsEmpty(userInfoURl))
-                .withProviderMetadataUri(setValueToNullIfIsEmpty(metadata))
-                .build();
 
         MobileConnectConfig connectConfig = new MobileConnectConfig.Builder()
                 .withDiscoveryUrl(setValueToNullIfIsEmpty(discoveryURL))
                 .withRedirectUrl(setValueToNullIfIsEmpty(redirectURL))
                 .build();
         this.mobileConnectWebInterface = MobileConnect.buildWebInterface(connectConfig, new DefaultEncodeDecoder());
-
     }
 
     @GetMapping({"start_authentication", "start_authorization"})
@@ -179,12 +117,7 @@ public class MobileConnectController {
         LOGGER.info("* Starting authentication for sdkSession={}, subscriberId={}, scope={}",
                 sdkSession, LogUtils.mask(subscriberId, LOGGER, Level.INFO), scope);
 
-        if (scope == null && operatorUrls.getProviderMetadataUri() == null) {
-            apiVersion = DefaultOptions.VERSION_MOBILECONNECTAUTHN;
-        } else if (scope == null){
-            apiVersion = DefaultOptions.VERSION_MOBILECONNECTAUTHZ;
-        }
-
+        String apiVersion = this.mobileConnectConfig.getApiVersion();
         final MobileConnectRequestOptions options = new MobileConnectRequestOptions.Builder()
                 .withAuthenticationOptions(new AuthenticationOptions.Builder()
                         .withScope(scope)
@@ -195,31 +128,7 @@ public class MobileConnectController {
                 .build();
         final MobileConnectStatus status =
                 this.mobileConnectWebInterface.startAuthentication(request, sdkSession, subscriberId,
-                        null, null, options);
-
-        return new MobileConnectWebResponse(status);
-    }
-
-    @GetMapping("start_authentication_r1")
-    @ResponseBody
-    public MobileConnectWebResponse startAuthenticationR1(
-            @RequestParam(required = false) final String sdkSession,
-            @RequestParam(required = false) final String subscriberId,
-            final HttpServletRequest request)
-    {
-
-        LOGGER.info("* Starting authentication for sdkSession={}, subscriberId={}, scope={}",
-                sdkSession, LogUtils.mask(subscriberId, LOGGER, Level.INFO), Scopes.MOBILECONNECT);
-
-        final MobileConnectRequestOptions options = new MobileConnectRequestOptions.Builder()
-                .withAuthenticationOptions(new AuthenticationOptions.Builder()
-                        .withScope(Scopes.MOBILECONNECT)
-                        .build())
-                .build();
-
-        final MobileConnectStatus status =
-                this.mobileConnectWebInterface.startAuthentication(request, sdkSession, subscriberId,
-                        null, null, options);
+                        sdkSession, sdkSession, options);
 
         return new MobileConnectWebResponse(status);
     }
@@ -233,6 +142,8 @@ public class MobileConnectController {
     {
         LOGGER.info("* Starting authentication for sdkSession={}, subscriberId={}, scope={}",
                 sdkSession, LogUtils.mask(subscriberId, LOGGER, Level.INFO), scope);
+
+        String apiVersion = this.mobileConnectConfig.getApiVersion();
 
         final MobileConnectRequestOptions options = new MobileConnectRequestOptions.Builder()
                 .withAuthenticationOptions(new AuthenticationOptions.Builder()
@@ -309,13 +220,6 @@ public class MobileConnectController {
                         Parameters.ACCESS_TOKEN_HINT, sdkSession);
 
         return new MobileConnectWebResponse(status);
-    }
-
-    private String setValueToNullIfIsEmpty (String value) {
-        if (value == null || value.equals("")) {
-            return null;
-        }
-        return value;
     }
 
     private URI setValueToNullIfIsEmpty (URI value) {
