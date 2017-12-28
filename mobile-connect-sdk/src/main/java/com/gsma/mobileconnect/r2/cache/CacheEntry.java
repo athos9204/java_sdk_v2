@@ -26,11 +26,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 class CacheEntry
 {
-    private final String value;
+    private String value;
     private final Date cachedTime;
     private final Class<? extends AbstractCacheable> clazz;
     private final AtomicBoolean expired;
-
     /**
      * Wrap specified value for storage in the cache.
      *
@@ -43,6 +42,7 @@ class CacheEntry
         this.cachedTime = new Date();
         this.expired = new AtomicBoolean(false);
     }
+
 
     /**
      * @return the value held.
