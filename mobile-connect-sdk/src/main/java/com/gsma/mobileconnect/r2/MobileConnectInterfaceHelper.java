@@ -151,7 +151,8 @@ class MobileConnectInterfaceHelper
                 URI.create(discoveryResponse.getOperatorUrls().getAuthorizationUrl());
             final SupportedVersions supportedVersions =
                 discoveryResponse.getProviderMetadata().getMobileConnectVersionSupported();
-            authnOptionsBuilder.withClientName(discoveryResponse.getClientName());
+            if (discoveryResponse.getClientName() != null)
+                authnOptionsBuilder.withClientName(discoveryResponse.getClientName());
 
             final StartAuthenticationResponse startAuthenticationResponse =
                 authnService.startAuthentication(clientId, correlationId, authorizationUrl,

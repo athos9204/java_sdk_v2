@@ -66,6 +66,7 @@ public class DemoAppConfiguration
         JSONObject config = (JSONObject)new JSONParser().parse(new FileReader(configFilePath));
         return new MobileConnectConfig.Builder()
                 .withClientId(config.get("clientID").toString())
+                .withClientName(config.get("clientName").toString())
                 .withClientSecret(config.get("clientSecret").toString())
                 .withDiscoveryUrl(URI.create(config.get("discoveryURL").toString()))
                 .withRedirectUrl(URI.create(config.get("redirectURL").toString()))

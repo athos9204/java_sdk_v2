@@ -96,6 +96,7 @@ public class AuthenticationService implements IAuthenticationService
                         .withLoginHint(loginHint)
                         .withRedirectUrl(ObjectUtils.requireNonNull(redirectUrl, "redirectUrl"))
                         .withClientId(StringUtils.requireNonEmpty(clientId, "clientId"))
+                        .withClientName(options.getClientName())
                         .withCorrelationId(correlationId);
 
 
@@ -117,8 +118,7 @@ public class AuthenticationService implements IAuthenticationService
         if (useAuthorize && new SupportedVersions.Builder(versions).build().getSupportedVersion(optionsBuilder.build()).equals(DefaultOptions.VERSION_MOBILECONNECTAUTHZ))
         {
             StringUtils.requireNonEmpty(options == null ? null : options.getContext(), "context");
-            StringUtils.requireNonEmpty(options == null ? null : options.getClientName(),
-                    "clientName");
+            StringUtils.requireNonEmpty(options == null ? null : options.getClientName(), "clientName");
         }
 
         final String version =

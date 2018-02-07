@@ -56,7 +56,7 @@ public class DemoAppController
 
     private MobileConnectWebInterface mobileConnectWebInterface;
 
-    private String clientName;
+    private static String clientName;
     private String apiVersion;
     private MobileConnectConfig mobileConnectConfig;
     private OperatorUrls operatorUrls;
@@ -140,6 +140,7 @@ public class DemoAppController
     public void getParameters(
             @RequestParam(required = false) final String clientID,
             @RequestParam(required = false) final String clientSecret,
+            @RequestParam(required = false) final String clientName,
             @RequestParam(required = false) final URI discoveryURL,
             @RequestParam(required = false) final URI redirectURL,
             @RequestParam(required = false) final String xRedirect,
@@ -150,8 +151,10 @@ public class DemoAppController
         LOGGER.info("* Getting parameters: clientId={}, clientSecret={}, discoveryUrl={}, redirectUrl={}, xRedirect={}, includeRequestIp={}, apiVersion={}",
                 clientID, clientSecret, discoveryURL, redirectURL, xRedirect, includeRequestIP, apiVersion);
         this.apiVersion = apiVersion;
+        DemoAppController.clientName = clientName;
         mobileConnectConfig = new MobileConnectConfig.Builder()
                 .withClientId(setValueToNullIfIsEmpty(clientID))
+                .withClientName(setValueToNullIfIsEmpty(clientName))
                 .withClientSecret(setValueToNullIfIsEmpty(clientSecret))
                 .withDiscoveryUrl(setValueToNullIfIsEmpty(discoveryURL))
                 .withRedirectUrl(setValueToNullIfIsEmpty(redirectURL))
