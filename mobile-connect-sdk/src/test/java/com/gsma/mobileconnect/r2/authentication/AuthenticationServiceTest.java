@@ -84,9 +84,11 @@ public class AuthenticationServiceTest
     @Test
     public void startAuthenticationReturnsUrlWhenArgumentsValid()
     {
+        final AuthenticationOptions.Builder optionsBuilder =
+                new AuthenticationOptions.Builder();
         final StartAuthenticationResponse response =
             this.authentication.startAuthentication(this.config.getClientId(), null, AUTHORIZE_URL,
-                REDIRECT_URL, "state", "nonce", null, null, null);
+                REDIRECT_URL, "state", "nonce", null, null, optionsBuilder.build());
 
         assertNotNull(response);
         assertTrue(response.getUrl().toString().contains(AUTHORIZE_URL.toString()));

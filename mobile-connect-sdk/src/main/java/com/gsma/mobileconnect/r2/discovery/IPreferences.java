@@ -36,6 +36,11 @@ public interface IPreferences
     String getClientSecret();
 
     /**
+     * @return The application client name.
+     */
+    String getClientName();
+
+    /**
      * @return The application X-Redirect value.
      */
     String getXRedirect();

@@ -1,6 +1,7 @@
 //demo application values
 var msisdn;
 var clientID;
+var clientName;
 var clientSecret;
 var discoveryURL;
 var redirectURL;
@@ -38,6 +39,7 @@ function openRequestParametersMenu() {
 
 var getRequestParameters = function getRequestParameters() {
     clientID = $("#clientID").val();
+    clientName = $("#clientName").val();
     clientSecret = $("#clientSecret").val();
     discoveryURL = $("#discoveryURL").val();
     redirectURL = $("#redirectURL").val();
@@ -46,6 +48,7 @@ var getRequestParameters = function getRequestParameters() {
 
     var queryString = '?clientID=' + encodeURIComponent(clientID) +
         '&clientSecret=' + encodeURIComponent(clientSecret) +
+        '&clientName=' + encodeURIComponent(clientName) +
         '&discoveryURL=' + encodeURIComponent(discoveryURL) +
         '&redirectURL=' + encodeURIComponent(redirectURL) +
         '&xRedirect=' + encodeURIComponent($('input[name=xRedirect]:checked').val() ? 'True' : 'False') +
